@@ -2,21 +2,427 @@
 <html lang="es">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-<title>DENYA | DeniCrunch & DeniCake</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DENYA</title>
+
 <style>
-:root{--ivory:#fbf7f0;--espresso:#3b261d;--brown:#6a4938;--gold:#c9a052;--pink:#e5869d;--shadow:0 22px 60px rgba(60,35,20,.14)}
-*{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;background:radial-gradient(circle at top,#fff 0%,var(--ivory) 45%,#f4eadf 100%);color:var(--espresso);font-family:-apple-system,BlinkMacSystemFont,"Helvetica Neue",Arial,sans-serif}a{color:inherit}.page{max-width:520px;margin:0 auto;background:rgba(255,250,244,.62);min-height:100vh;overflow:hidden}
-.splash{position:fixed;inset:0;z-index:9999;background:radial-gradient(circle at 50% 36%,#fff9ed 0%,#fff 38%,#fbf3e9 100%);display:grid;place-items:center;animation:closeSplash .9s ease forwards;animation-delay:2.35s}.splash-star{font-size:92px;color:var(--gold);filter:drop-shadow(0 0 25px rgba(201,160,82,.5));animation:starPop 1.6s ease both}.splash-logo{font-family:Georgia,serif;letter-spacing:13px;font-size:42px;margin-top:18px;opacity:0;animation:fadeUp .8s ease forwards;animation-delay:.75s;text-align:center}.splash-text{letter-spacing:4px;font-size:10px;margin-top:14px;line-height:1.8;opacity:0;animation:fadeUp .8s ease forwards;animation-delay:1.05s;text-align:center}.spark{position:absolute;width:5px;height:5px;background:var(--gold);border-radius:50%;animation:twinkle 2s infinite ease-in-out}.s1{top:20%;left:22%}.s2{top:30%;right:18%;animation-delay:.4s}.s3{bottom:26%;left:20%;animation-delay:.8s}.s4{bottom:19%;right:25%;animation-delay:1.1s}@keyframes closeSplash{to{opacity:0;visibility:hidden}}@keyframes starPop{0%{opacity:0;transform:scale(.6) rotate(-10deg)}60%{opacity:1;transform:scale(1.08)}100%{transform:scale(1)}}@keyframes fadeUp{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:translateY(0)}}@keyframes twinkle{0%,100%{opacity:.25;transform:scale(.5)}50%{opacity:1;transform:scale(1.8)}}
-.topbar{position:sticky;top:0;z-index:30;display:flex;align-items:center;justify-content:space-between;padding:12px 16px;background:rgba(251,247,240,.75);backdrop-filter:blur(18px)}.icon{width:38px;height:38px;border-radius:50%;border:1px solid rgba(201,160,82,.35);display:grid;place-items:center}.mini{font-family:Georgia,serif;letter-spacing:7px;font-size:18px}
-section{padding:28px 18px;text-align:center}.hero{position:relative}.hero:before{content:"";position:absolute;inset:-70px -60px auto;height:330px;background:radial-gradient(circle at 60% 25%,rgba(245,216,151,.65),transparent 55%);z-index:-1}.den-logo{width:min(82%,360px);display:block;margin:10px auto 22px;mix-blend-mode:multiply}.kicker{letter-spacing:3px;text-transform:uppercase;color:var(--gold);font-size:11px;font-weight:900;margin-bottom:10px}h1,h2,h3{font-family:Georgia,"Times New Roman",serif}h1{font-size:42px;line-height:1.05;margin:10px 0 14px}h1 em,h2 em{color:var(--pink);font-style:italic}.sub{font-size:17px;line-height:1.55;color:#5b4135;margin:0 auto 20px;max-width:360px}.card-img{border-radius:32px;overflow:hidden;box-shadow:var(--shadow);background:white;margin:18px 0;border:1px solid rgba(255,255,255,.8)}.card-img img{width:100%;display:block;height:410px;object-fit:cover;object-position:center}.btns{display:grid;gap:12px;margin:18px 0}.btn{text-decoration:none;border-radius:999px;padding:15px 18px;text-align:center;font-weight:900;border:1.5px solid rgba(229,134,157,.7);background:rgba(255,255,255,.85);box-shadow:0 10px 25px rgba(229,134,157,.14)}.btn.dark{background:var(--espresso);color:white;border:0}.btn.pink{background:linear-gradient(135deg,#f09aad,#d9657e);color:white;border:0}.event{background:linear-gradient(135deg,#fff6f8,#fff8e8);border:1px solid rgba(229,134,157,.45);border-radius:24px;padding:16px;margin:18px 0;text-align:left;display:flex;gap:14px;align-items:center}.pin{width:48px;height:48px;border-radius:50%;background:#e9859b;color:white;display:grid;place-items:center;font-size:25px;flex:0 0 auto}.event b{font-family:Georgia,serif;font-size:20px;color:var(--brown)}
-.rocky{display:grid;grid-template-columns:132px 1fr;gap:14px;align-items:center;text-align:left;background:white;border-radius:28px;padding:14px;margin:8px 0 22px;box-shadow:var(--shadow)}.rocky img{width:132px;border-radius:22px}.rocky h3{font-size:24px;margin:0 0 6px}.rocky p{font-size:14px;line-height:1.45;margin:0;color:#6a5147}.title{font-size:34px;margin:0 0 12px}.products{display:grid;gap:14px}.product{background:rgba(255,255,255,.9);border:1px solid rgba(201,160,82,.25);border-radius:28px;padding:18px;text-align:left;box-shadow:0 12px 35px rgba(60,35,20,.08)}.product .emoji{font-size:28px}.product h3{font-size:24px;margin:8px 0 6px}.product p{margin:0;color:#6a5147;line-height:1.45}.prices{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px}.price{border:1px solid rgba(201,160,82,.38);border-radius:999px;padding:8px 11px;background:#fffaf3;font-weight:900}.values{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:18px 0;background:rgba(255,255,255,.75);border-radius:26px;padding:12px;border:1px solid rgba(201,160,82,.2)}.value{font-size:11px;font-weight:900;color:#5b4135;line-height:1.25}.value span{display:block;font-size:24px;margin-bottom:4px;color:var(--gold)}.story{display:grid;gap:14px;text-align:left;background:white;border-radius:30px;padding:18px;box-shadow:var(--shadow)}.story img{width:100%;border-radius:22px;height:220px;object-fit:cover}.story h3{font-size:25px;margin:0}.story p{color:#6a5147;line-height:1.55;margin:0}.divider{padding:22px 0 0;text-align:center;color:var(--gold);font-size:34px}.cake{background:linear-gradient(180deg,#fff8fa,#fff);border-radius:36px 36px 0 0}.gallery{display:grid;gap:14px}.gallery-card{position:relative;border-radius:28px;overflow:hidden;box-shadow:var(--shadow);background:white}.gallery-card img{width:100%;display:block;height:330px;object-fit:cover}.gallery-card.small img{height:260px}.label{position:absolute;right:14px;bottom:14px;background:#e9859b;color:white;border-radius:999px;padding:8px 14px;font-size:12px;font-weight:900}.footer{margin-top:24px;background:linear-gradient(135deg,#3b261d,#6a4938);color:white;text-align:center;padding:34px 18px;border-radius:32px 32px 0 0}.footer-star{color:var(--gold);font-size:30px}.footer-logo{font-family:Georgia,serif;letter-spacing:12px;font-size:30px;margin:10px 0}.footer p{font-size:12px;letter-spacing:3px;line-height:1.7}.nav{position:sticky;bottom:10px;z-index:40;margin:12px auto 0;max-width:420px;display:flex;justify-content:center;gap:8px;padding:8px;background:rgba(255,255,255,.82);backdrop-filter:blur(18px);border:1px solid rgba(201,160,82,.25);border-radius:999px;box-shadow:0 18px 45px rgba(60,35,20,.16)}.nav a{text-decoration:none;font-size:12px;font-weight:900;padding:10px 12px;border-radius:999px}@media(max-width:380px){h1{font-size:36px}.rocky{grid-template-columns:110px 1fr}.rocky img{width:110px}.values{grid-template-columns:1fr}.card-img img{height:360px}}
-</style></head><body>
-<div class="splash"><span class="spark s1"></span><span class="spark s2"></span><span class="spark s3"></span><span class="spark s4"></span><div><div class="splash-star">★</div><div class="splash-logo">DENYA</div><div class="splash-text">CREANDO MOMENTOS<br>PARA COMPARTIR.</div></div></div>
-<div class="page"><div class="topbar"><div class="icon">☰</div><div class="mini">DENYA</div><div class="icon">★</div></div>
-<section id="inicio" class="hero"><img class="den-logo" src="denya_logo.jpg" alt="Logo DENYA"><div class="kicker">Bienvenido</div><h1>Dos marcas,<br>una historia.</h1><p class="sub">Pasteles personalizados y snacks de cacao creados para compartir momentos especiales.</p><div class="btns"><a class="btn dark" href="#denicrunch">Entrar a DeniCrunch</a><a class="btn" href="#denicake">Entrar a DeniCake</a></div></section>
-<section id="denicrunch" class="hero"><div class="kicker">DeniCrunch · Snacks de cacao</div><h1>Descubre el verdadero sabor del <em>cacao.</em></h1><div class="card-img"><img src="bag_green.jpg" alt="Bolsas DeniCrunch"></div><div class="btns"><a class="btn dark" href="https://wa.me/525513513193?text=Hola%20%F0%9F%91%8B%20vi%20DeniCrunch%20y%20me%20gustar%C3%ADa%20hacer%20un%20pedido." target="_blank">Comprar por WhatsApp</a><a class="btn" href="https://www.instagram.com/denicrunch" target="_blank">Instagram @denicrunch</a></div><div class="event"><div class="pin">⌖</div><div><b>Parque del Agua</b><br>3 al 9 de julio<br><span style="font-size:12px;color:#8b6255">Prueba DeniCrunch en vivo</span></div></div></section>
-<section><div class="rocky"><img src="rocky.jpg" alt="Rocky"><div><h3>¡Hola! Soy Rocky</h3><p>Bienvenido al mundo del cacao. ¿Cuál quieres probar hoy?</p></div></div><h2 class="title">Sabores</h2><div class="products"><div class="product"><div class="emoji">🍫</div><h3>Cacao Garapiñado</h3><p>Dulce, crujiente y con canela. Nuestro favorito para compartir.</p><div class="prices"><span class="price">25g $30</span><span class="price">50g $55</span><span class="price">100g $99</span></div></div><div class="product"><div class="emoji">🌿</div><h3>Cacao Tostado</h3><p>100% cacao, intenso y natural. Sin azúcar.</p><div class="prices"><span class="price">25g $30</span><span class="price">50g $55</span><span class="price">100g $99</span></div></div><div class="product"><div class="emoji">✨</div><h3>Stevia</h3><p>Una opción sin azúcar añadida para disfrutar el crunch del cacao.</p><div class="prices"><span class="price">25g $30</span><span class="price">50g $55</span><span class="price">100g $99</span></div></div></div><div class="values"><div class="value"><span>◌</span>100% cacao</div><div class="value"><span>♡</span>Hecho con pasión</div><div class="value"><span>⌖</span>Hecho en Nuevo León</div></div><div class="story"><h3>Pasión por el cacao.</h3><p>En DeniCrunch seleccionamos cacao de origen Tabasco y lo transformamos en un snack auténtico, crujiente y diferente.</p><img src="bag_pink.jpg" alt="DeniCrunch"><a class="btn dark" href="https://wa.me/525513513193?text=Hola%20%F0%9F%91%8B%20quiero%20saber%20m%C3%A1s%20de%20DeniCrunch." target="_blank">Conocer más</a></div></section>
-<div class="divider">★</div><section id="denicake" class="hero cake"><div class="kicker">DeniCake · Pasteles personalizados</div><h1>Momentos que se convierten en <em>recuerdos.</em></h1><p class="sub">Diseños únicos para celebraciones inolvidables.</p><div class="card-img"><img src="cake_floral.jpg" alt="Pastel elegante"></div><div class="btns"><a class="btn pink" href="https://wa.me/525513513193?text=Hola%20%F0%9F%8E%82%20vi%20DeniCake%20y%20me%20gustar%C3%ADa%20cotizar%20un%20pastel." target="_blank">Cotizar por WhatsApp</a><a class="btn" href="https://www.instagram.com/denicake7" target="_blank">Instagram @denicake7</a></div></section>
-<section><h2 class="title">Galería</h2><p class="sub">Pasteles que cuentan tu historia.</p><div class="gallery"><div class="gallery-card"><img src="cake_floral.jpg" alt="Pastel floral"><span class="label">Elegante</span></div><div class="gallery-card small"><img src="cake_heart.jpg" alt="Pastel corazón"><span class="label">Romántico</span></div><div class="gallery-card small"><img src="cake_it.jpg" alt="Pastel temático"><span class="label">Temático</span></div></div></section>
-<footer class="footer"><div class="footer-star">★</div><div class="footer-logo">DENYA</div><p>CREANDO MOMENTOS<br>PARA COMPARTIR.</p><a class="btn" href="https://wa.me/525513513193" target="_blank">Contacto por WhatsApp</a></footer><nav class="nav"><a href="#inicio">Inicio</a><a href="#denicrunch">DeniCrunch</a><a href="#denicake">DeniCake</a></nav></div><script>const hash=location.hash;setTimeout(()=>{if(hash==="#denicrunch"||hash==="#denicake"){document.querySelector(hash)?.scrollIntoView({behavior:"smooth"});}},2600);</script></body></html>
+:root{
+  --fondo:#fbf7f0;
+  --blanco:#fff;
+  --cafe:#3b261d;
+  --dorado:#c9a052;
+  --rosa:#e5869d;
+  --sombra:0 18px 45px rgba(59,38,29,.14);
+}
+
+*{box-sizing:border-box}
+
+body{
+  margin:0;
+  background:var(--fondo);
+  color:var(--cafe);
+  font-family:-apple-system,BlinkMacSystemFont,"Helvetica Neue",Arial,sans-serif;
+}
+
+html{scroll-behavior:smooth}
+
+.splash{
+  position:fixed;
+  inset:0;
+  background:radial-gradient(circle,#fff 0%,#fbf7f0 70%);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  z-index:999;
+  animation:salir .8s ease forwards;
+  animation-delay:2.2s;
+}
+
+.splash div{text-align:center}
+
+.splash .star{
+  font-size:80px;
+  color:var(--dorado);
+  animation:brillo 1.8s ease infinite;
+}
+
+.splash h1{
+  font-family:Georgia,serif;
+  letter-spacing:14px;
+  font-size:44px;
+  font-weight:400;
+}
+
+.splash p{
+  letter-spacing:4px;
+  font-size:11px;
+}
+
+@keyframes salir{to{opacity:0;visibility:hidden}}
+@keyframes brillo{50%{transform:scale(1.08);filter:drop-shadow(0 0 25px #c9a052)}}
+
+.page{
+  max-width:520px;
+  margin:auto;
+  overflow:hidden;
+}
+
+nav{
+  position:sticky;
+  top:0;
+  z-index:10;
+  background:rgba(251,247,240,.85);
+  backdrop-filter:blur(15px);
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  padding:14px 18px;
+}
+
+nav .logo{
+  font-family:Georgia,serif;
+  letter-spacing:8px;
+  font-size:18px;
+}
+
+nav a{
+  text-decoration:none;
+  color:var(--cafe);
+  font-weight:700;
+  font-size:13px;
+}
+
+section{
+  padding:35px 20px;
+  text-align:center;
+}
+
+.den-logo{
+  width:85%;
+  max-width:360px;
+  margin:20px auto;
+  display:block;
+}
+
+h1,h2,h3{
+  font-family:Georgia,serif;
+}
+
+h1{
+  font-size:42px;
+  line-height:1.05;
+  margin:10px 0;
+}
+
+h2{
+  font-size:38px;
+  margin:0 0 10px;
+}
+
+em{
+  color:var(--rosa);
+}
+
+p{
+  line-height:1.55;
+}
+
+.btn{
+  display:block;
+  text-decoration:none;
+  border-radius:999px;
+  padding:15px 18px;
+  margin:12px 0;
+  font-weight:800;
+  border:1.5px solid #e8b8c5;
+  background:white;
+  color:var(--cafe);
+}
+
+.btn.dark{
+  background:var(--cafe);
+  color:white;
+  border:0;
+}
+
+.btn.pink{
+  background:linear-gradient(135deg,#f09aad,#d9657e);
+  color:white;
+  border:0;
+}
+
+.photo{
+  border-radius:30px;
+  overflow:hidden;
+  box-shadow:var(--sombra);
+  margin:22px 0;
+  background:white;
+}
+
+.photo img{
+  width:100%;
+  height:410px;
+  object-fit:cover;
+  display:block;
+}
+
+.event{
+  background:#fff6f8;
+  border:1px solid #e8b8c5;
+  border-radius:24px;
+  padding:18px;
+  margin-top:18px;
+  text-align:left;
+}
+
+.event b{
+  font-family:Georgia,serif;
+  font-size:22px;
+}
+
+.rocky{
+  display:grid;
+  grid-template-columns:120px 1fr;
+  gap:15px;
+  align-items:center;
+  background:white;
+  border-radius:28px;
+  padding:14px;
+  box-shadow:var(--sombra);
+  text-align:left;
+}
+
+.rocky img{
+  width:120px;
+  border-radius:20px;
+}
+
+.products{
+  display:grid;
+  gap:14px;
+}
+
+.product{
+  background:white;
+  border-radius:26px;
+  padding:18px;
+  box-shadow:var(--sombra);
+  text-align:left;
+}
+
+.product h3{
+  font-size:24px;
+  margin:8px 0;
+}
+
+.prices{
+  display:flex;
+  gap:8px;
+  flex-wrap:wrap;
+  margin-top:12px;
+}
+
+.price{
+  border:1px solid var(--dorado);
+  border-radius:999px;
+  padding:8px 11px;
+  font-weight:800;
+  background:#fffaf3;
+}
+
+.gallery{
+  display:grid;
+  gap:16px;
+}
+
+.gallery img{
+  width:100%;
+  height:330px;
+  object-fit:cover;
+  border-radius:28px;
+  box-shadow:var(--sombra);
+}
+
+.footer{
+  background:linear-gradient(135deg,#3b261d,#6a4938);
+  color:white;
+  padding:35px 20px;
+  text-align:center;
+  border-radius:32px 32px 0 0;
+}
+
+.footer h2{
+  letter-spacing:12px;
+  font-weight:400;
+}
+
+.bottom{
+  position:sticky;
+  bottom:10px;
+  display:flex;
+  justify-content:center;
+  gap:8px;
+  padding:8px;
+  margin:20px auto;
+  background:rgba(255,255,255,.85);
+  backdrop-filter:blur(15px);
+  border-radius:999px;
+  width:max-content;
+  box-shadow:var(--sombra);
+}
+
+.bottom a{
+  text-decoration:none;
+  color:var(--cafe);
+  font-weight:800;
+  font-size:12px;
+  padding:10px 12px;
+}
+</style>
+</head>
+
+<body>
+
+<div class="splash">
+  <div>
+    <div class="star">★</div>
+    <h1>DENYA</h1>
+    <p>CREANDO MOMENTOS<br>PARA COMPARTIR.</p>
+  </div>
+</div>
+
+<div class="page">
+
+<nav>
+  <div class="logo">DENYA</div>
+  <a href="#denicrunch">DeniCrunch</a>
+  <a href="#denicake">DeniCake</a>
+</nav>
+
+<section id="inicio">
+  <img class="den-logo" src="denya_logo.jpg" alt="DENYA">
+  <h1>Dos marcas,<br>una historia.</h1>
+  <p>Pasteles personalizados y snacks de cacao creados para compartir momentos especiales.</p>
+  <a class="btn dark" href="#denicrunch">Entrar a DeniCrunch</a>
+  <a class="btn" href="#denicake">Entrar a DeniCake</a>
+</section>
+
+<section id="denicrunch">
+  <h2>DeniCrunch</h2>
+  <h1>Descubre el verdadero sabor del <em>cacao.</em></h1>
+
+  <div class="photo">
+    <img src="bag_green.jpg" alt="DeniCrunch">
+  </div>
+
+  <a class="btn dark" href="https://wa.me/525513513193?text=Hola%20vi%20DeniCrunch%20y%20me%20gustar%C3%ADa%20hacer%20un%20pedido." target="_blank">Comprar por WhatsApp</a>
+  <a class="btn" href="https://www.instagram.com/denicrunch" target="_blank">Instagram @denicrunch</a>
+
+  <div class="event">
+    <b>Parque del Agua</b><br>
+    3 al 9 de julio<br>
+    Prueba DeniCrunch en vivo
+  </div>
+</section>
+
+<section>
+  <div class="rocky">
+    <img src="rocky.jpg" alt="Rocky">
+    <div>
+      <h3>¡Hola! Soy Rocky</h3>
+      <p>Bienvenido al mundo del cacao. ¿Cuál quieres probar hoy?</p>
+    </div>
+  </div>
+</section>
+
+<section>
+  <h2>Sabores</h2>
+
+  <div class="products">
+    <div class="product">
+      <h3>🍫 Cacao Garapiñado</h3>
+      <p>Dulce, crujiente y con canela.</p>
+      <div class="prices">
+        <span class="price">25g $30</span>
+        <span class="price">50g $55</span>
+        <span class="price">100g $99</span>
+      </div>
+    </div>
+
+    <div class="product">
+      <h3>🌿 Cacao Tostado</h3>
+      <p>100% cacao. Intenso, natural y sin azúcar.</p>
+      <div class="prices">
+        <span class="price">25g $30</span>
+        <span class="price">50g $55</span>
+        <span class="price">100g $99</span>
+      </div>
+    </div>
+
+    <div class="product">
+      <h3>✨ Stevia</h3>
+      <p>Opción sin azúcar añadida.</p>
+      <div class="prices">
+        <span class="price">25g $30</span>
+        <span class="price">50g $55</span>
+        <span class="price">100g $99</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section>
+  <h2>Pasión por el cacao</h2>
+  <p>Seleccionamos cacao de origen Tabasco y lo transformamos en un snack auténtico, crujiente y diferente.</p>
+  <div class="photo">
+    <img src="bag_pink.jpg" alt="DeniCrunch rosa">
+  </div>
+</section>
+
+<section id="denicake">
+  <h2>DeniCake</h2>
+  <h1>Momentos que se convierten en <em>recuerdos.</em></h1>
+  <p>Pasteles personalizados para celebraciones inolvidables.</p>
+
+  <div class="photo">
+    <img src="cake_floral.jpg" alt="Pastel elegante">
+  </div>
+
+  <a class="btn pink" href="https://wa.me/525513513193?text=Hola%20vi%20DeniCake%20y%20me%20gustar%C3%ADa%20cotizar%20un%20pastel." target="_blank">Cotizar por WhatsApp</a>
+  <a class="btn" href="https://www.instagram.com/denicake7" target="_blank">Instagram @denicake7</a>
+</section>
+
+<section>
+  <h2>Galería</h2>
+  <div class="gallery">
+    <img src="cake_floral.jpg" alt="Pastel floral">
+    <img src="cake_heart.jpg" alt="Pastel corazón">
+    <img src="cake_it.jpg" alt="Pastel temático">
+  </div>
+</section>
+
+<div class="footer">
+  <div style="color:#c9a052;font-size:32px;">★</div>
+  <h2>DENYA</h2>
+  <p>CREANDO MOMENTOS<br>PARA COMPARTIR.</p>
+  <a class="btn" href="https://wa.me/525513513193" target="_blank">Contacto por WhatsApp</a>
+</div>
+
+<div class="bottom">
+  <a href="#inicio">Inicio</a>
+  <a href="#denicrunch">DeniCrunch</a>
+  <a href="#denicake">DeniCake</a>
+</div>
+
+</div>
+
+<script>
+setTimeout(()=>{
+  if(location.hash === "#denicrunch" || location.hash === "#denicake"){
+    document.querySelector(location.hash).scrollIntoView({behavior:"smooth"});
+  }
+},2600);
+</script>
+
+</body>
+</html>
