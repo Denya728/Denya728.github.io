@@ -278,6 +278,43 @@ p{
   font-size:12px;
   padding:10px 12px;
 }
+
+.managed-content{
+  display:grid;
+  gap:16px;
+}
+.managed-block{
+  background:white;
+  border-radius:26px;
+  padding:20px;
+  box-shadow:var(--sombra);
+  text-align:left;
+}
+.managed-block h1,.managed-block h2{margin:0 0 10px}
+.managed-block img{
+  width:100%;
+  max-height:440px;
+  object-fit:cover;
+  border-radius:22px;
+  margin:12px 0;
+}
+.managed-block .managed-price{
+  color:var(--dorado);
+  font-size:25px;
+  font-weight:800;
+  margin-top:10px;
+}
+.managed-block .managed-cta{
+  display:inline-block;
+  text-decoration:none;
+  border-radius:999px;
+  padding:13px 18px;
+  margin-top:12px;
+  font-weight:800;
+  background:var(--cafe);
+  color:white;
+}
+
 </style>
 </head>
 
@@ -308,6 +345,7 @@ p{
 </section>
 
 <section id="denicrunch">
+  <div class="managed-content" id="denicrunch-managed" hidden></div>
   <h2>DeniCrunch</h2>
   <h1>Descubre el verdadero sabor del <em>cacao.</em></h1>
 
@@ -380,6 +418,7 @@ p{
 </section>
 
 <section id="denicake">
+  <div class="managed-content" id="denicake-managed" hidden></div>
   <h2>DeniCake</h2>
   <h1>Momentos que se convierten en <em>recuerdos.</em></h1>
   <p>Pasteles personalizados para celebraciones inolvidables.</p>
@@ -422,6 +461,39 @@ setTimeout(()=>{
     document.querySelector(location.hash).scrollIntoView({behavior:"smooth"});
   }
 },2600);
+
+const DENYA_CONTENT_API="https://denya-admin.denicake728.workers.dev/api/public/content";
+const denyaEscape=value=>String(value??"").replace(/[&<>"']/g,char=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[char]));
+async function loadManagedBrand(brand){
+  const section=document.getElementById(brand);
+  const root=document.getElementById(brand+"-managed");
+  if(!section||!root)return;
+  try{
+    const response=await fetch(DENYA_CONTENT_API+"?brand="+encodeURIComponent(brand)+"&page=home",{cache:"no-store"});
+    const data=await response.json();
+    if(!response.ok||!data.blocks?.length)return;
+    [...section.children].forEach(child=>{if(child!==root)child.hidden=true});
+    root.hidden=false;
+    root.innerHTML=data.blocks.map(block=>{
+      const item=block.content||{};
+      const heading=block.block_type==="hero"?"h1":"h2";
+      const align=["left","center","right"].includes(item.align)?item.align:"left";
+      const background=/^#[0-9a-f]{6}$/i.test(item.background||"")?item.background:"#ffffff";
+      return '<article class="managed-block '+denyaEscape(block.block_type||"text")+'" style="text-align:'+align+';background:'+background+'">'+
+        '<'+heading+'>'+denyaEscape(item.title||"")+'</'+heading+'>'+
+        (item.subtitle?'<p><b>'+denyaEscape(item.subtitle)+'</b></p>':"")+
+        (item.imageUrl?'<img src="'+denyaEscape(item.imageUrl)+'" alt="">':"")+
+        (item.text?'<p>'+denyaEscape(item.text)+'</p>':"")+
+        (item.price?'<div class="managed-price">'+denyaEscape(item.price)+'</div>':"")+
+        (item.ctaLabel?'<a class="managed-cta" href="'+denyaEscape(item.ctaUrl||"#")+'">'+denyaEscape(item.ctaLabel)+'</a>':"")+
+      '</article>';
+    }).join("");
+  }catch(error){
+    console.warn("DENYA contenido:",error);
+  }
+}
+Promise.all([loadManagedBrand("denicrunch"),loadManagedBrand("denicake")]);
+
 </script>
 
 </body>
