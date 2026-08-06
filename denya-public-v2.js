@@ -9,7 +9,8 @@
   function blockHtml(block){
     const c=block.content||{},type=block.block_type||'text',width=['full','half','third'].includes(c.width)?c.width:'full',align=['left','center','right'].includes(c.align)?c.align:'left';
     const style=`--block-bg:${color(c.background,'#fff')};--block-color:${color(c.color,'#211d1b')};--block-align:${align};--block-radius:${Math.max(0,Math.min(48,Number(c.radius)||24))}px;--block-padding:${Math.max(8,Math.min(64,Number(c.padding)||28))}px`;
-    const mainImage=image(c.imageUrl),gallery=Array.isArray(c.galleryImages)?c.galleryImages.map(image).filter(Boolean):[];
+    const rolcyPose=window.DENYA_ROLCY_POSES?.[c.pose||'principal']||'';
+    const mainImage=image(c.imageUrl||(type==='mascot'?rolcyPose:'')),gallery=Array.isArray(c.galleryImages)?c.galleryImages.map(image).filter(Boolean):[];
     const title=c.title?`<h2>${escape(c.title)}</h2>`:'',text=c.text?`<p>${escape(c.text)}</p>`:'',price=c.price?`<strong class="site-price">${escape(c.price)}</strong>`:'';
     const cta=c.ctaLabel?`<a class="site-cta" href="${escape(safeUrl(c.ctaUrl))}" rel="noopener">${escape(c.ctaLabel)}</a>`:'';
     const media=mainImage?`<img class="site-image ${type==='mascot'?`site-mascot motion-${escape(c.motion||'none')}`:''}" src="${escape(mainImage)}" alt="${escape(c.title||'DENYA')}">`:'';
