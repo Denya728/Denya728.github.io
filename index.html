@@ -281,8 +281,12 @@ p{
 
 .managed-content{
   display:grid;
+  grid-template-columns:repeat(12,minmax(0,1fr));
   gap:16px;
 }
+.managed-block{grid-column:span 12}
+.managed-block.half{grid-column:span 6}
+.managed-block.third{grid-column:span 4}
 .managed-block{
   background:white;
   border-radius:26px;
@@ -291,13 +295,18 @@ p{
   text-align:left;
 }
 .managed-block h1,.managed-block h2{margin:0 0 10px}
-.managed-block img{
-  width:100%;
-  max-height:440px;
-  object-fit:cover;
-  border-radius:22px;
-  margin:12px 0;
-}
+.managed-media{position:relative;width:100%;overflow:hidden;border-radius:22px;margin:12px 0;background:#eee8df;aspect-ratio:var(--aspect,auto)}
+.managed-media.aspect-auto{aspect-ratio:auto}
+.managed-media img{width:100%;height:100%;max-height:none;object-fit:var(--fit,cover);object-position:var(--pos-x,50%) var(--pos-y,50%);transform:scale(var(--zoom,1)) rotate(var(--rotation,0deg));display:block;margin:0}
+.managed-media.aspect-auto img{height:auto;max-height:440px}
+.managed-gallery{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:var(--gallery-gap,12px);margin:12px 0}
+.managed-gallery .managed-media{margin:0;aspect-ratio:1}
+.managed-gallery.mosaic .managed-media:first-child{grid-row:span 2;aspect-ratio:auto}
+.managed-gallery.editorial{grid-template-columns:2fr 1fr}
+.managed-gallery.editorial .managed-media:first-child{grid-row:span 2;aspect-ratio:auto}
+.managed-gallery.stack{display:flex;overflow:auto;scroll-snap-type:x mandatory}
+.managed-gallery.stack .managed-media{min-width:82%;scroll-snap-align:center}
+@media(max-width:520px){.managed-block.half,.managed-block.third{grid-column:span 12}}
 .managed-block .managed-price{
   color:var(--dorado);
   font-size:25px;
@@ -464,6 +473,12 @@ setTimeout(()=>{
 
 const DENYA_CONTENT_API="https://denya-admin.denicake728.workers.dev/api/public/content";
 const denyaEscape=value=>String(value??"").replace(/[&<>"']/g,char=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[char]));
+const managedNumber=(value,fallback)=>Number.isFinite(Number(value))?Number(value):fallback;
+function managedMediaMarkup(url,item){
+  if(!url)return "";
+  const aspect=item.imageAspect||"auto",aspectValue=aspect==="square"?"1 / 1":aspect==="portrait"?"4 / 5":aspect==="landscape"?"16 / 9":aspect==="banner"?"21 / 9":"auto";
+  return '<div class="managed-media aspect-'+denyaEscape(aspect)+'" style="--aspect:'+denyaEscape(aspectValue)+';--fit:'+denyaEscape(item.imageFit||"cover")+';--pos-x:'+managedNumber(item.imagePositionX,50)+'%;--pos-y:'+managedNumber(item.imagePositionY,50)+'%;--zoom:'+managedNumber(item.imageZoom,1)+';--rotation:'+managedNumber(item.imageRotation,0)+'deg"><img src="'+denyaEscape(url)+'" alt=""></div>';
+}
 async function loadManagedBrand(brand){
   const section=document.getElementById(brand);
   const root=document.getElementById(brand+"-managed");
@@ -479,10 +494,14 @@ async function loadManagedBrand(brand){
       const heading=block.block_type==="hero"?"h1":"h2";
       const align=["left","center","right"].includes(item.align)?item.align:"left";
       const background=/^#[0-9a-f]{6}$/i.test(item.background||"")?item.background:"#ffffff";
-      return '<article class="managed-block '+denyaEscape(block.block_type||"text")+'" style="text-align:'+align+';background:'+background+'">'+
+      const width=["full","half","third"].includes(item.width)?item.width:"full";
+      const media=block.block_type==="gallery"
+        ?'<div class="managed-gallery '+denyaEscape(item.collageLayout||"grid")+'" style="--gallery-gap:'+managedNumber(item.galleryGap,12)+'px">'+(item.galleryImages||[]).map(url=>managedMediaMarkup(url,item)).join("")+'</div>'
+        :managedMediaMarkup(item.imageUrl,item);
+      return '<article class="managed-block '+width+' '+denyaEscape(block.block_type||"text")+'" style="text-align:'+align+';background:'+background+';border-radius:'+managedNumber(item.radius,26)+'px;padding:'+managedNumber(item.padding,20)+'px;color:'+denyaEscape(item.color||"#3b261d")+'">'+
         '<'+heading+'>'+denyaEscape(item.title||"")+'</'+heading+'>'+
         (item.subtitle?'<p><b>'+denyaEscape(item.subtitle)+'</b></p>':"")+
-        (item.imageUrl?'<img src="'+denyaEscape(item.imageUrl)+'" alt="">':"")+
+        media+
         (item.text?'<p>'+denyaEscape(item.text)+'</p>':"")+
         (item.price?'<div class="managed-price">'+denyaEscape(item.price)+'</div>':"")+
         (item.ctaLabel?'<a class="managed-cta" href="'+denyaEscape(item.ctaUrl||"#")+'">'+denyaEscape(item.ctaLabel)+'</a>':"")+
