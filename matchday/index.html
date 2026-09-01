@@ -1,0 +1,203 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"/>
+<meta name="theme-color" content="#f7e9e8"/>
+<link rel="manifest" href="manifest.json"/>
+<title>MATCHDAY</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+:root{--bg:#fbf7f4;--card:#fffdfa;--ink:#2f2526;--muted:#8a7477;--rose:#e9c3c4;--cherry:#a94652;--line:#eadfdc;--cream:#f5eee7;--green:#85b59c;--yellow:#d8b45e;--red:#c66d70}
+*{box-sizing:border-box} body{margin:0;font-family:Inter,system-ui,-apple-system,sans-serif;background:linear-gradient(#fbf8f6,#f7efed);color:var(--ink)} button,input,textarea,select{font:inherit}
+.app{max-width:480px;min-height:100vh;margin:auto;background:var(--bg);position:relative;padding-bottom:88px}
+.top{padding:20px;display:flex;justify-content:space-between;align-items:center} .brand{font-weight:900;letter-spacing:.12em} .tag{font-family:Georgia,serif;font-style:italic;color:var(--muted);font-size:12px}
+.view{display:none;padding:10px 20px 30px} .view.on{display:block} h1{font-size:30px;line-height:1.05;margin:10px 0} p{color:var(--muted);line-height:1.5}
+.card{background:var(--card);border:1px solid var(--line);border-radius:24px;padding:18px;margin:12px 0} .btn{border:0;border-radius:16px;padding:14px 17px;font-weight:800;cursor:pointer} .primary{background:var(--cherry);color:white} .secondary{background:var(--rose)} .ghost{background:white;border:1px solid var(--line)} .full{width:100%}
+.field{width:100%;border:1px solid var(--line);border-radius:14px;padding:13px;background:white;margin:6px 0 12px} .label{font-weight:800;font-size:13px}
+.chips{display:flex;flex-wrap:wrap;gap:8px} .chip{border:1px solid var(--line);background:white;padding:9px 11px;border-radius:999px} .chip.sel{background:var(--rose)}
+.prefgrid{display:grid;grid-template-columns:1fr 1fr;gap:9px} .pref{border:1px solid var(--line);background:white;border-radius:18px;padding:12px;text-align:left} .pref strong{display:block} .pref small{color:var(--muted)} .pref .state{margin-top:8px;font-size:12px}
+.kicker{font-size:11px;font-weight:900;color:var(--cherry);letter-spacing:.12em;text-transform:uppercase} .code{font-size:28px;text-align:center;font-weight:900;letter-spacing:.12em;padding:18px;background:var(--cream);border-radius:18px}
+.energy{display:flex;gap:10px} .light{width:38px;height:38px;border-radius:50%;opacity:.25;border:2px solid white;box-shadow:0 0 0 1px var(--line)} .light.on{opacity:1} .g{background:var(--green)} .y{background:var(--yellow)} .r{background:var(--red)}
+.bottom{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:min(480px,100%);background:rgba(255,253,250,.96);border-top:1px solid var(--line);display:grid;grid-template-columns:repeat(4,1fr);padding:8px 8px 14px} .nav{border:0;background:transparent;color:var(--muted);font-size:12px} .nav b{display:block;font-size:18px} .hidden{display:none!important}
+.row{display:grid;grid-template-columns:1fr 1fr;gap:10px} .note{background:#fff6e9} .mini{font-size:12px;color:var(--muted)} .msg{padding:10px 12px;border-radius:12px;background:var(--cream);margin-top:10px;font-size:13px}
+</style>
+</head>
+<body>
+<div class="app">
+<div class="top"><div><div class="brand">MATCHDAY</div><div class="tag">make time for us. ♡</div></div><button class="btn ghost hidden" id="logoutBtn">Salir</button></div>
+
+<section class="view on" id="auth">
+  <div style="padding-top:40px;text-align:center"><div style="font-size:52px">♥</div><h1>MATCHDAY</h1><p>Un espacio privado para encontrar tiempo, hacer planes y guardar lo bonito.</p></div>
+  <div class="card">
+    <div class="label">Correo</div><input class="field" id="email" type="email" placeholder="tu@correo.com"/>
+    <div class="label">Contraseña</div><input class="field" id="password" type="password" minlength="6" placeholder="Mínimo 6 caracteres"/>
+    <div class="row"><button class="btn primary" id="signup">Crear cuenta</button><button class="btn secondary" id="signin">Entrar</button></div>
+    <div id="authMsg" class="mini" style="margin-top:10px"></div>
+  </div>
+</section>
+
+<section class="view" id="onboarding">
+  <div class="kicker">Tu perfil</div><h1>Primero, tú. 👋</h1>
+  <div class="label">Nombre</div><input class="field" id="name" placeholder="Tu nombre"/>
+  <div class="label">Inicio de la relación</div><input class="field" id="relDate" type="date"/>
+  <div class="label">¿Cómo eres?</div><div class="chips" id="personality">
+    <button class="chip">😌 Tranquilo</button><button class="chip">⚡ Espontáneo</button><button class="chip">💌 Detallista</button><button class="chip">🏠 Casero</button><button class="chip">🌎 Aventurero</button><button class="chip">😂 Bromista</button>
+  </div>
+  <div class="label" style="margin-top:16px">Presupuesto cómodo</div><select class="field" id="budget"><option>$0–100</option><option>$100–300</option><option>$300–600</option><option>$600+</option></select>
+  <div class="label">Actividad principal</div><input class="field" id="activity" placeholder="Trabajo, escuela..."/>
+  <button class="btn primary full" id="saveProfile">Guardar y seguir</button>
+</section>
+
+<section class="view" id="preferences">
+  <div class="kicker">Tus gustos</div><h1>¿Qué te mueve? ✨</h1><p>Toca para cambiar entre ❤️, 👍, 👀, 😐 y 🙅.</p>
+  <div class="prefgrid" id="prefGrid"></div>
+  <button class="btn primary full" style="margin-top:18px" id="savePrefs">Guardar gustos</button>
+</section>
+
+<section class="view" id="couple">
+  <div class="kicker">Vincular pareja</div><h1>Ahora falta tu persona. 💌</h1>
+  <div class="card">
+    <button class="btn primary full" id="createCouple">Crear código para mi pareja</button>
+    <div id="inviteBox" class="hidden"><div class="mini" style="text-align:center;margin-top:14px">CÓDIGO</div><div class="code" id="inviteCode"></div></div>
+  </div>
+  <div class="card">
+    <div class="label">¿Ya tienes código?</div><input class="field" id="joinCode" placeholder="MATCH-ABC123"/>
+    <button class="btn secondary full" id="joinCouple">Vincularme</button>
+  </div>
+  <div id="coupleMsg" class="mini"></div>
+</section>
+
+<section class="view" id="home">
+  <div class="kicker">Hoy</div><h1 id="hello">Hola ❤️</h1><p>Cómo están y cuándo pueden encontrarse.</p>
+  <div class="card" id="waitingPartner" style="display:none"><div class="kicker">Esperando a tu persona 💌</div><div class="msg">Ya puedes usar MATCHDAY. Cuando tu pareja ingrese el código, aparecerá aquí automáticamente.</div><div class="code" id="homeInviteCode"></div></div>
+  <div class="row">
+    <div class="card"><div class="kicker">Tu energía</div><div class="energy" id="myEnergy"><button class="light g" data-v="green"></button><button class="light y" data-v="yellow"></button><button class="light r" data-v="red"></button></div><input class="field" id="energyNote" placeholder="Ej. día pesado, quiero apapacho"/></div>
+    <div class="card"><div class="kicker">Su energía</div><div id="partnerEnergy" style="font-size:40px;margin-top:8px">—</div><div class="mini" id="partnerEnergyNote">Sin actualizar</div></div>
+  </div>
+  <div class="card note"><div class="kicker">Recadito</div><textarea class="field" id="noteBody" maxlength="500" placeholder="Déjale un recadito..."></textarea><button class="btn secondary full" id="sendNote">Enviar recado</button><div id="latestNote" class="msg">Aún no hay recados.</div></div>
+  <div class="card"><div class="kicker">Horario</div>
+    <div class="row"><select class="field" id="dow"><option value="1">Lunes</option><option value="2">Martes</option><option value="3">Miércoles</option><option value="4">Jueves</option><option value="5">Viernes</option><option value="6">Sábado</option><option value="0">Domingo</option></select><input class="field" id="schedTitle" placeholder="Trabajo"/></div>
+    <div class="row"><input class="field" id="startTime" type="time" value="07:00"/><input class="field" id="endTime" type="time" value="17:00"/></div>
+    <button class="btn ghost full" id="addSchedule">Agregar horario</button>
+    <div id="scheduleList" class="mini" style="margin-top:10px"></div>
+  </div>
+</section>
+
+<div class="bottom hidden" id="bottom"><button class="nav"><b>⌂</b>Inicio</button><button class="nav"><b>♡</b>Nosotros</button><button class="nav"><b>✦</b>Citas</button><button class="nav"><b>✉</b>Recados</button></div>
+</div>
+
+<script>
+const SUPABASE_URL="https://eyyzeeqvaajkrpwquaui.supabase.co";
+const SUPABASE_KEY="sb_publishable_5g1TEdIr5-npVpU-0HY7Rw_GFk1TEFy";
+const sb=supabase.createClient(SUPABASE_URL,SUPABASE_KEY);
+let me=null, coupleId=null, partnerId=null;
+const states=[['love','❤️ Me encanta'],['like','👍 Me gusta'],['try','👀 Quiero probar'],['neutral','😐 Me da igual'],['no','🙅 No me gusta']];
+const items=['🍝 Comer','🎬 Cine','☕ Cafecito','🌳 Naturaleza','🎮 Juegos','🎨 Talleres','🏠 En casa','✈️ Viajes','🎤 Eventos','🥾 Senderismo','🎳 Boliche','📸 Fotos'];
+const grid=document.getElementById('prefGrid');
+items.forEach((item,i)=>{let st=states[i%states.length];grid.insertAdjacentHTML('beforeend',`<button class="pref" data-item="${item}" data-state="${st[0]}"><strong>${item}</strong><small>Plan de pareja</small><div class="state">${st[1]}</div></button>`)});
+
+document.querySelectorAll('.chip').forEach(b=>b.onclick=e=>{e.preventDefault();b.classList.toggle('sel')})
+grid.addEventListener('click',e=>{const b=e.target.closest('.pref');if(!b)return;e.preventDefault();let i=states.findIndex(s=>s[0]===b.dataset.state);let n=states[(i+1)%states.length];b.dataset.state=n[0];b.querySelector('.state').textContent=n[1]})
+
+function show(id){document.querySelectorAll('.view').forEach(v=>v.classList.remove('on'));document.getElementById(id).classList.add('on');document.getElementById('logoutBtn').classList.toggle('hidden',!me);document.getElementById('bottom').classList.toggle('hidden',id!=='home')}
+function msg(id,t){document.getElementById(id).textContent=t}
+async function route(){
+  const {data:{session}}=await sb.auth.getSession(); me=session?.user||null;
+  if(!me) return show('auth');
+  const {data:p}=await sb.from('profiles').select('*').eq('id',me.id).maybeSingle();
+  if(!p || !p.name) return show('onboarding');
+  const {data:pref}=await sb.from('preferences').select('item').eq('user_id',me.id).limit(1);
+  if(!pref?.length) return show('preferences');
+  const {data:mem}=await sb.from('couple_members').select('couple_id').eq('user_id',me.id).maybeSingle();
+  if(!mem) return show('couple');
+  coupleId=mem.couple_id;
+  await loadPartner(); await loadHome(); subscribeRealtime(); show('home');
+}
+document.getElementById('signup').onclick=async()=>{
+ const emailEl=document.getElementById('email'), passwordEl=document.getElementById('password');
+ const mail=emailEl.value.trim(), pass=passwordEl.value;
+ if(!mail || pass.length<6){msg('authMsg','Escribe tu correo y una contraseña de mínimo 6 caracteres.');return;}
+ msg('authMsg','Creando cuenta...');
+ const {data,error}=await sb.auth.signUp({email:mail,password:pass,options:{emailRedirectTo:location.origin}});
+ if(error){msg('authMsg',error.message);return;}
+ if(data.session){me=data.user;await route();}
+ else msg('authMsg','Cuenta creada ❤️ Revisa tu correo para confirmar y después toca Entrar.');
+}
+document.getElementById('signin').onclick=async()=>{
+ const mail=document.getElementById('email').value.trim(), pass=document.getElementById('password').value;
+ if(!mail || !pass){msg('authMsg','Escribe tu correo y contraseña.');return;}
+ const {data,error}=await sb.auth.signInWithPassword({email:mail,password:pass});
+ if(error){msg('authMsg',error.message);return;}
+ me=data.user;msg('authMsg','Entrando...');await route();
+}
+document.getElementById('logoutBtn').onclick=async()=>{await sb.auth.signOut();location.reload()}
+
+let savingProfile=false;
+document.getElementById('saveProfile').onclick=async()=>{
+ if(savingProfile)return;
+ const btn=document.getElementById('saveProfile');
+ const nameEl=document.getElementById('name'), relEl=document.getElementById('relDate'), budgetEl=document.getElementById('budget'), activityEl=document.getElementById('activity');
+ const cleanName=nameEl.value.trim();
+ if(!cleanName){alert('Pon tu nombre para continuar ❤️');return;}
+ savingProfile=true;btn.disabled=true;btn.textContent='Guardando...';
+ const personality=[...document.querySelectorAll('#personality .sel')].map(x=>x.textContent.trim());
+ const {error}=await sb.from('profiles').upsert({id:me.id,name:cleanName,relationship_start:relEl.value||null,personality,budget:budgetEl.value,activity:activityEl.value.trim(),updated_at:new Date().toISOString()},{onConflict:'id'});
+ savingProfile=false;btn.disabled=false;btn.textContent='Guardar y seguir';
+ if(error){alert('No se pudo guardar: '+error.message);return;}
+ show('preferences');
+}
+document.getElementById('savePrefs').onclick=async()=>{
+ const rows=[...document.querySelectorAll('.pref')].map(b=>({user_id:me.id,item:b.dataset.item,state:b.dataset.state,updated_at:new Date().toISOString()}));
+ const {error}=await sb.from('preferences').upsert(rows);
+ if(error) alert(error.message); else show('couple');
+}
+document.getElementById('createCouple').onclick=async()=>{
+ const btn=document.getElementById('createCouple'); btn.disabled=true; btn.textContent='Creando código...';
+ const {data,error}=await sb.rpc('create_couple_and_join');
+ btn.disabled=false; btn.textContent='Crear código para mi pareja';
+ if(error)return msg('coupleMsg',error.message);
+ coupleId=data[0].couple_id;
+ inviteCode.textContent=data[0].invite_code; inviteBox.classList.remove('hidden');
+ msg('coupleMsg','Código creado ❤️ Ya puedes entrar a MATCHDAY.');
+ await loadPartner(); await loadHome(); subscribeRealtime(); show('home');
+}
+document.getElementById('joinCouple').onclick=async()=>{
+ const {data,error}=await sb.rpc('join_couple_by_code',{code_input:joinCode.value}); if(error)return msg('coupleMsg',error.message); coupleId=data; msg('coupleMsg','¡Vinculados! ❤️'); setTimeout(route,500);
+}
+async function loadPartner(){
+ const {data:members}=await sb.from('couple_members').select('user_id').eq('couple_id',coupleId);
+ partnerId=members?.map(x=>x.user_id).find(id=>id!==me.id)||null;
+ return partnerId;
+}
+async function loadHome(){
+ const {data:p}=await sb.from('profiles').select('name').eq('id',me.id).single(); hello.textContent=`Hola, ${p?.name||''} ❤️`;
+ await loadPartner();
+ const waiting=document.getElementById('waitingPartner');
+ if(!partnerId){
+   waiting.style.display='block';
+   const {data:c}=await sb.from('couples').select('invite_code').eq('id',coupleId).maybeSingle();
+   document.getElementById('homeInviteCode').textContent=c?.invite_code||'';
+   partnerEnergy.textContent='💌'; partnerEnergyNote.textContent='Esperando a tu persona';
+ }else{ waiting.style.display='none'; }
+ const {data:eng}=await sb.from('energy_status').select('*').in('user_id',[me.id,partnerId].filter(Boolean));
+ eng?.forEach(e=>{if(e.user_id===me.id){document.querySelectorAll('#myEnergy .light').forEach(x=>x.classList.toggle('on',x.dataset.v===e.level));energyNote.value=e.note||''}else{partnerEnergy.textContent=e.level==='green'?'🟢':e.level==='yellow'?'🟡':'🔴';partnerEnergyNote.textContent=e.note||'Sin nota'}});
+ const {data:notes}=await sb.from('notes').select('body,created_at').eq('couple_id',coupleId).order('created_at',{ascending:false}).limit(1); if(notes?.[0]) latestNote.textContent=notes[0].body;
+ const {data:schedules}=await sb.from('schedules').select('*').order('day_of_week'); scheduleList.innerHTML=(schedules||[]).map(s=>`${['Dom','Lun','Mar','Mié','Jue','Vie','Sáb'][s.day_of_week]} · ${s.title} · ${s.start_time.slice(0,5)}–${s.end_time.slice(0,5)}`).join('<br>')||'Aún no hay horarios.';
+}
+document.querySelectorAll('#myEnergy .light').forEach(b=>b.onclick=async()=>{document.querySelectorAll('#myEnergy .light').forEach(x=>x.classList.remove('on'));b.classList.add('on');const {error}=await sb.from('energy_status').upsert({user_id:me.id,level:b.dataset.v,note:energyNote.value,updated_at:new Date().toISOString()});if(error)alert(error.message)})
+energyNote.onchange=async()=>{const cur=document.querySelector('#myEnergy .light.on')?.dataset.v||'green';await sb.from('energy_status').upsert({user_id:me.id,level:cur,note:energyNote.value,updated_at:new Date().toISOString()})}
+sendNote.onclick=async()=>{if(!noteBody.value.trim())return;const {error}=await sb.from('notes').insert({couple_id:coupleId,author_id:me.id,body:noteBody.value.trim()});if(error)alert(error.message);else{noteBody.value='';loadHome()}}
+addSchedule.onclick=async()=>{const {error}=await sb.from('schedules').insert({user_id:me.id,title:schedTitle.value||'Ocupado',day_of_week:+dow.value,start_time:startTime.value,end_time:endTime.value});if(error)alert(error.message);else loadHome()}
+function subscribeRealtime(){
+ sb.channel('matchday-live')
+ .on('postgres_changes',{event:'*',schema:'public',table:'energy_status'},()=>loadHome())
+ .on('postgres_changes',{event:'INSERT',schema:'public',table:'notes',filter:`couple_id=eq.${coupleId}`},()=>loadHome())
+ .on('postgres_changes',{event:'*',schema:'public',table:'schedules'},()=>loadHome())
+ .on('postgres_changes',{event:'INSERT',schema:'public',table:'couple_members',filter:`couple_id=eq.${coupleId}`},async()=>{await loadPartner();await loadHome()})
+ .subscribe();
+}
+route();
+</script>
+<script>if('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js');</script>
+</body></html>
