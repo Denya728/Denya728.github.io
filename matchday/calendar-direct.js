@@ -1,0 +1,1 @@
+(()=>{document.addEventListener('click',e=>{const b=e.target.closest?.('button.nav');if(!b)return;const label=(b.textContent||'').toLowerCase(),target=b.dataset?.view||b.dataset?.target||'';if(label.includes('calendario')||target==='calendarTab'){e.preventDefault();e.stopImmediatePropagation();location.href='calendar-event.html'}},true)})();
