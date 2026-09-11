@@ -1,0 +1,1 @@
+DENYA 2.0 client demo. Public path: /denya2/
