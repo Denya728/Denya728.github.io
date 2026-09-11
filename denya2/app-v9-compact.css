@@ -1,0 +1,14 @@
+/* DENYA v9 · compact product options inside quotations */
+#dynamicComponents{border:1px solid #e9dfd6;border-radius:16px;padding:0 16px 6px;margin-top:14px;background:#fff;overflow:hidden}
+#dynamicComponents:not(:empty)::before{content:'Opciones del producto';display:block;font-size:18px;font-weight:800;padding:16px 0 12px;border-bottom:1px solid #eee5de;margin-bottom:2px}
+#dynamicComponents>.section{display:grid;grid-template-columns:minmax(150px,.7fr) minmax(90px,.35fr) minmax(280px,1.4fr);gap:16px;align-items:center;margin:0!important;padding:11px 0!important;border:0!important;border-bottom:1px solid #f0e9e3!important;border-radius:0!important;background:transparent!important}
+#dynamicComponents>.section:last-child{border-bottom:0!important}
+#dynamicComponents>.section h3{margin:0!important;font-size:15px;line-height:1.2}
+#dynamicComponents>.section .hint{font-size:12px;line-height:1.25;margin:0;color:#87796f}
+#dynamicComponents>.section .field{margin:0!important;display:block;font-size:0}
+#dynamicComponents>.section .field select{font-size:14px;margin:0;width:100%;min-height:40px;padding:8px 12px;border-radius:10px}
+#dynamicComponents>.helper{margin:10px 0}
+@media(max-width:760px){
+ #dynamicComponents>.section{grid-template-columns:1fr;gap:5px;padding:12px 0!important}
+ #dynamicComponents>.section .hint{margin-bottom:4px}
+}
