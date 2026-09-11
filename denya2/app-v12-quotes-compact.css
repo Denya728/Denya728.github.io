@@ -1,0 +1,29 @@
+/* DENYA v12 · compact quotations list */
+/* Scope only the quotations table so other modules keep their spacing */
+#quotesBody tr{height:auto}
+#quotesBody td{padding:9px 12px!important;vertical-align:middle;line-height:1.2;font-size:14px}
+#quotesBody td:first-child{white-space:nowrap;font-weight:800;min-width:105px}
+#quotesBody td:nth-child(2){min-width:150px}
+#quotesBody td:nth-child(3){white-space:nowrap;min-width:110px}
+#quotesBody td:nth-child(5),#quotesBody td:nth-child(6){white-space:nowrap;min-width:92px}
+#quotesBody .status{padding:6px 10px!important;font-size:13px!important;min-width:150px;max-width:185px}
+#quotesBody .quote-actions{display:flex;gap:5px;flex-wrap:nowrap;align-items:center;white-space:nowrap}
+#quotesBody .quote-actions button{padding:6px 9px!important;font-size:11px!important;border-radius:9px!important;line-height:1.1;white-space:nowrap}
+#quotesBody .danger{padding:6px 9px!important;font-size:11px!important;border-radius:9px!important;white-space:nowrap}
+#quotesBody+*{margin-top:0}
+/* quotations header/filter bar */
+#quoteSearch,#quoteFilter{min-height:42px!important;padding:8px 12px!important}
+#quoteFilter{min-width:190px}
+/* reduce table header height */
+#quotesBody.closest{}
+.table-wrap:has(#quotesBody) .table th{padding:9px 12px!important;font-size:11px}
+.table-wrap:has(#quotesBody) .table{min-width:1040px}
+@media(max-width:1100px){
+  #quotesBody .quote-actions{flex-wrap:wrap}
+  #quotesBody td{padding:8px 10px!important}
+  #quotesBody .status{min-width:135px}
+}
+@media(max-width:760px){
+  .table-wrap:has(#quotesBody) .table{min-width:980px}
+  #quotesBody td{font-size:13px}
+}
