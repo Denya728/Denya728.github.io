@@ -59,18 +59,13 @@
   const baseProduction=views.production;
   if(baseProduction)views.production=function(){syncPaymentOrders();baseProduction()};
 
+  // Importante: no convertimos temporalmente "Aceptada y anticipo pagado" a "Aceptada".
+  // Hacerlo provocaba que Resumen guardara el estado temporal y la cotización perdiera su estatus real.
   const baseHome=views.home;
-  if(baseHome)views.home=function(){
-    syncPaymentOrders();
-    const changed=[];(state.quotes||[]).forEach(q=>{if(q.status===STATUS_DEPOSIT){changed.push(q);q.status='Aceptada'}});
-    try{return baseHome()}finally{changed.forEach(q=>q.status=STATUS_DEPOSIT)}
-  };
+  if(baseHome)views.home=function(){syncPaymentOrders();return baseHome()};
 
   const baseClients=views.clients;
-  if(baseClients)views.clients=function(){
-    const changed=[];(state.quotes||[]).forEach(q=>{if(q.status===STATUS_DEPOSIT){changed.push(q);q.status='Aceptada'}});
-    try{return baseClients()}finally{changed.forEach(q=>q.status=STATUS_DEPOSIT)}
-  };
+  if(baseClients)views.clients=function(){return baseClients()};
 
   const baseQuoteAction=window.quoteAction;
   if(baseQuoteAction)window.quoteAction=function(id,act){const r=baseQuoteAction(id,act);syncPaymentOrders();return r};
