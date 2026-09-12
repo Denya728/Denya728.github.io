@@ -3,16 +3,22 @@
 Regla del proyecto: no abrir nuevos frentes fuera de esta lista hasta cerrar los puntos activos. Si surge una buena idea, se agrega aquí como punto nuevo y se prioriza después de los pendientes actuales, salvo que sea necesaria para desbloquear un punto en curso.
 
 ## 1. Cotización → Pedido → Producción → Venta
-Estado: EN CURSO
+Estado: EN CURSO / PRIMERA IMPLEMENTACIÓN HECHA
 
-Objetivo:
+Implementado:
 - Cotización aceptada crea pedido automáticamente.
-- Pedido aparece en calendario.
+- Pedido aparece en calendario a partir de la fecha del evento.
 - Pedido genera lista de materiales.
 - Pedido alimenta producción.
-- Inventario se descuenta al iniciar producción, sin duplicar descuentos.
-- Pedido entregado y pagado se convierte en venta/rentabilidad.
-- Cancelación revierte o evita movimientos cuando aplique.
+- Inventario se descuenta al iniciar producción, una sola vez.
+- Se registran movimientos de salida de inventario por producción.
+- Si se cancela la cotización después de haber descontado inventario, se repone y queda movimiento de reverso.
+- Pedido entregado y pagado cambia la cotización a venta cerrada y entra a finanzas/rentabilidad.
+
+Pendiente para cerrar el punto:
+- Validar visualmente todo el flujo de punta a punta.
+- Revisar qué debe pasar si una cotización cambia después de iniciar producción.
+- Mejorar mensajes y bloqueos de estados inconsistentes.
 
 ## 2. Pedidos profesional
 Estado: PENDIENTE
