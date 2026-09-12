@@ -3,7 +3,7 @@
 Regla del proyecto: no abrir nuevos frentes fuera de esta lista hasta cerrar los puntos activos. Si surge una buena idea, se agrega aquí como punto nuevo y se prioriza después de los pendientes actuales, salvo que sea necesaria para desbloquear un punto en curso.
 
 ## 1. Cotización → Pedido → Producción → Venta
-Estado: EN CURSO / PRIMERA IMPLEMENTACIÓN HECHA
+Estado: EN CURSO / FLUJO PRINCIPAL CERRADO, FALTA VALIDACIÓN VISUAL
 
 Implementado:
 - Cotización aceptada crea pedido automáticamente.
@@ -14,11 +14,12 @@ Implementado:
 - Se registran movimientos de salida de inventario por producción.
 - Si se cancela la cotización después de haber descontado inventario, se repone y queda movimiento de reverso.
 - Pedido entregado y pagado cambia la cotización a venta cerrada y entra a finanzas/rentabilidad.
+- Una cotización no puede cambiar producto, presentación, recetas o materiales mientras el pedido esté en producción, listo o entregado.
+- Se bloquearon cambios de estado inconsistentes en pedidos.
+- Un pedido en producción o listo puede regresar a Pendiente con confirmación y reposición del inventario descontado.
 
 Pendiente para cerrar el punto:
-- Validar visualmente todo el flujo de punta a punta.
-- Revisar qué debe pasar si una cotización cambia después de iniciar producción.
-- Mejorar mensajes y bloqueos de estados inconsistentes.
+- Validar visualmente todo el flujo de punta a punta en la versión publicada.
 
 ## 2. Pedidos profesional
 Estado: PENDIENTE
