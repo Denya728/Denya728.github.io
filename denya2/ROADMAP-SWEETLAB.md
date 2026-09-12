@@ -20,7 +20,7 @@ Implementado:
 - El resumen de Inicio toma ventas cerradas, anticipos cobrados y saldo pendiente desde el flujo real de pedidos.
 
 ## 2. Pedidos y producción profesional
-Estado: EN CURSO — PEDIDOS PROFESIONAL IMPLEMENTADO, PENDIENTE VALIDACIÓN
+Estado: CERRADO ✅
 
 Implementado en Pedidos:
 - Una sola área operativa con pestañas internas Pedidos / Producción.
@@ -35,19 +35,24 @@ Implementado en Pedidos:
 - Vista compacta tipo tabla para operación diaria.
 - Ficha de detalle por pedido con progreso, estatus comercial, anticipo, saldo, producto y fechas.
 
-Pendiente para cerrar el punto:
-- Validar visualmente la nueva vista publicada.
-- Confirmar que la pestaña Producción conserva el flujo correcto junto con la nueva vista de Pedidos.
-- Completar, si hace falta tras la validación, información operativa adicional de recetas, insumos, faltantes y costo estimado dentro de la ficha del pedido.
-
 ## 3. Planeación de producción
-Estado: PENDIENTE
+Estado: EN CURSO
 
-- Vista semanal de carga de trabajo.
-- Agrupar pedidos por fecha de entrega.
-- Consolidar cantidades de recetas a preparar.
-- Prioridades y capacidad de producción.
-- Enviar pedidos seleccionados a producción.
+Implementado:
+- Vista semanal de carga de trabajo dentro de Pedidos y producción.
+- Navegación entre semanas y acceso rápido a la semana actual.
+- Pedidos agrupados por fecha de entrega.
+- Capacidad diaria configurable y alerta visual cuando se rebasa.
+- Prioridad por pedido: Alta, Normal o Baja.
+- Selección múltiple de pedidos pendientes.
+- Acción “Producir seleccionados” usando el flujo real de producción e inventario.
+- Consolidado semanal de recetas a preparar.
+- Consolidado semanal de insumos necesarios.
+- KPIs semanales de pedidos, pendientes, en producción y listos.
+
+Pendiente para cerrar el punto:
+- Validar visualmente la versión publicada.
+- Confirmar que los consolidados de recetas e insumos cubren correctamente todos los tipos de producto configurados.
 
 ## 4. Compras automáticas
 Estado: PENDIENTE
