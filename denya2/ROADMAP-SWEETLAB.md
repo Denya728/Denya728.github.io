@@ -95,17 +95,23 @@ Se retomará después por decisión del proyecto.
 ## 7. Planes y permisos reales
 Estado: EN CURSO
 
+Filosofía de planes definida:
+- Emprende = lo esencial para empezar y trabajar sin complicarse.
+- Negocio = operación completa para cuando ya hay más movimiento.
+- Pro = extras útiles, capacidad adicional y funciones avanzadas; no debe ser necesario para operar bien.
+
 Implementado:
 - Definiciones de Emprende / Negocio / Pro centralizadas.
-- Bloqueo funcional de Inventario, Compras, Producción y Usuarios según el plan.
-- Los bloqueos se validan también al ejecutar acciones críticas, no solo visualmente.
-- Emprende: 1 usuario, 1 marca, sin Producción ni Inventario/Compras.
-- Negocio: hasta 3 usuarios, 2 marcas, Producción e Inventario/Compras habilitados.
-- Pro: hasta 10 usuarios, 5 marcas, reportes avanzados y roles personalizados habilitables.
+- Protección funcional por plan, no solo visual.
+- Bloqueo de acciones críticas según el plan.
+- Emprende: 1 usuario, 1 marca, cotizaciones, clientes básicos, calendario, productos/recetas/presentaciones, pedidos básicos y finanzas básicas.
+- Negocio: todo Emprende + producción, planeación semanal, inventario, compras automáticas, clientes avanzados, finanzas completas, hasta 3 usuarios y 2 marcas.
+- Pro: todo Negocio + reportes avanzados, roles personalizados, finanzas avanzadas, hasta 10 usuarios y 5 marcas.
+- Vista Mi plan rediseñada para comunicar claramente qué problema resuelve cada nivel.
+- Negocio se presenta como el plan recomendado para operar un negocio en crecimiento.
+- Pro se presenta como capa de extras y capacidad, no como requisito para tener el flujo completo.
 - Límite real de alta de usuarios según plan.
 - Límite real de marcas activas según plan.
-- Vista Mi plan accesible desde Cuenta.
-- Resumen visible de uso de usuarios, marcas y nivel de Finanzas.
 - Mensajes de bloqueo con el plan mínimo requerido.
 - Registro local de intentos bloqueados.
 
@@ -113,8 +119,8 @@ Importante:
 - En esta versión estática/local los permisos son controles funcionales del frontend. La protección de seguridad a nivel servidor y aislamiento real por negocio se implementará con el punto 10.
 
 Pendiente para cerrar el punto:
-- Validar visualmente los tres planes y sus bloqueos.
-- Confirmar que ninguna acción agregada en módulos posteriores evada el guard central de permisos.
+- Validar visualmente la nueva presentación de planes.
+- Confirmar que la separación Emprende / Negocio / Pro se sienta correcta durante uso real.
 
 ## 8. Suscripciones
 Estado: PENDIENTE
