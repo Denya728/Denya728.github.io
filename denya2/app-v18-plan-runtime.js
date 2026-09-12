@@ -1,12 +1,12 @@
 (function(){
   const planDefs={
-    Emprende:{price:249,users:1,brands:1,modules:['home','calendar','clients','products','recipes','measures','extras','quotations','orders','inventory','finance','plan'],finance:'Resumen',purchases:false,roles:false,reports:false},
-    Negocio:{price:449,users:3,brands:2,modules:['home','calendar','clients','products','recipes','measures','extras','quotations','orders','inventory','purchases','finance','users','plan'],finance:'Completo',purchases:true,roles:false,reports:false},
-    Pro:{price:699,users:10,brands:5,modules:['home','calendar','clients','products','recipes','measures','extras','quotations','orders','inventory','purchases','finance','users','plan'],finance:'Avanzado',purchases:true,roles:true,reports:true}
+    Emprende:{price:249,users:1,brands:1,modules:['home','calendar','clients','products','recipes','measures','extras','quotations','orders','finance','plan'],finance:'Resumen',purchases:false,roles:false,reports:false},
+    Negocio:{price:449,users:3,brands:2,modules:['home','calendar','clients','products','recipes','measures','extras','quotations','orders','production','inventory','purchases','finance','users','plan'],finance:'Completo',purchases:true,roles:false,reports:false},
+    Pro:{price:699,users:10,brands:5,modules:['home','calendar','clients','products','recipes','measures','extras','quotations','orders','production','inventory','purchases','finance','users','plan'],finance:'Avanzado',purchases:true,roles:true,reports:true}
   };
   function currentPlan(){return (state.subscription&&state.subscription.plan)||state.plan||'Negocio'}
   function def(){return planDefs[currentPlan()]||planDefs.Negocio}
-  function planLabelForModule(v){if(v==='purchases')return 'Negocio';if(v==='users')return 'Negocio';return 'Pro'}
+  function planLabelForModule(v){if(v==='purchases'||v==='inventory'||v==='production'||v==='users')return 'Negocio';return 'Pro'}
   function applyNavLocks(){
     const d=def();
     $$('.nav button[data-view]').forEach(b=>{
@@ -17,7 +17,8 @@
   }
   function lockedView(v){
     const d=def(),needed=planLabelForModule(v);titleEl.textContent='Función no incluida';
-    content.innerHTML=`<div class="card plan-gate-card"><div class="lock">🔒</div><h2>${esc(v==='purchases'?'Compras':v==='users'?'Usuarios':'Esta función')}</h2><p class="muted">Tu plan <b>${esc(currentPlan())}</b> no incluye este módulo.</p><p>Disponible desde el plan <b>${needed}</b>.</p><button class="primary" onclick="show('plan')">Ver planes</button></div>`;
+    const label=v==='purchases'?'Compras':v==='inventory'?'Inventario y compras':v==='production'?'Producción':v==='users'?'Usuarios':'Esta función';
+    content.innerHTML=`<div class="card plan-gate-card"><div class="lock">🔒</div><h2>${esc(label)}</h2><p class="muted">Tu plan <b>${esc(currentPlan())}</b> no incluye este módulo.</p><p>Disponible desde el plan <b>${needed}</b>.</p><button class="primary" onclick="show('plan')">Ver planes</button></div>`;
   }
   const baseShow=window.show;
   window.show=function(v){
@@ -47,9 +48,9 @@
   views.plan=function(){
     titleEl.textContent='Mi plan';const cur=currentPlan(),d=def();
     const rows=[
-      ['Productos, recetas, presentaciones y extras','✓','✓','✓'],['Clientes y calendario','✓','✓','✓'],['Cotizaciones, PDF y WhatsApp','✓','✓','✓'],['Pedidos','✓','✓','✓'],['Inventario','Básico','Completo','Completo'],['Compras','—','✓','✓'],['Finanzas','Resumen','Completo','Avanzado'],['Usuarios','1 propietario','Hasta 3','Hasta 10'],['Marcas / subempresas','1','2','5'],['Roles personalizados','—','—','✓'],['Reportes avanzados','—','—','✓'],['Soporte prioritario','—','—','✓']
+      ['Productos, recetas, presentaciones y extras','✓','✓','✓'],['Clientes y calendario','✓','✓','✓'],['Cotizaciones, PDF y WhatsApp','✓','✓','✓'],['Pedidos','✓','✓','✓'],['Producción','—','✓','✓'],['Inventario y compras','—','✓','✓'],['Finanzas','Resumen','Completo','Avanzado'],['Usuarios','1 propietario','Hasta 3','Hasta 10'],['Marcas / subempresas','1','2','5'],['Roles personalizados','—','—','✓'],['Reportes avanzados','—','—','✓'],['Soporte prioritario','—','—','✓']
     ];
-    content.innerHTML=pageHead('Mi plan','Cambiar el plan modifica de inmediato lo que puedes usar en esta demo.')+`<div class="plan-current-strip"><div><strong>Plan activo: ${esc(cur)}</strong><div class="plan-limit">${d.users} usuario${d.users===1?'':'s'} · ${d.brands} marca${d.brands===1?'':'s'} · Finanzas ${d.finance}</div></div><span class="badge ok">Activo</span></div><div class="grid3">${Object.entries(planDefs).map(([name,p])=>`<div class="card ${cur===name?'plan-card-selected':''}"><div class="muted">${cur===name?'PLAN ACTUAL':'PLAN'}</div><h2>${name}</h2><div style="font-size:32px;font-weight:900">${money(p.price)}<span class="muted" style="font-size:14px"> / mes</span></div><div class="usage" style="margin:14px 0"><span>✓ ${p.users} usuario${p.users===1?'':'s'}</span><span>✓ ${p.brands} marca${p.brands===1?'':'s'}</span><span>${p.purchases?'✓':'—'} Compras</span><span>✓ Finanzas ${p.finance}</span><span>${p.roles?'✓':'—'} Roles personalizados</span></div><button class="${cur===name?'secondary':'primary'}" onclick="setDemoPlanV18('${name}')">${cur===name?'Seleccionado':'Cambiar a '+name}</button></div>`).join('')}</div><div class="table-wrap" style="margin-top:18px"><table class="table"><thead><tr><th>Función</th><th>Emprende</th><th>Negocio</th><th>Pro</th></tr></thead><tbody>${rows.map(r=>`<tr><td><b>${r[0]}</b></td><td>${r[1]}</td><td>${r[2]}</td><td>${r[3]}</td></tr>`).join('')}</tbody></table></div>`;
+    content.innerHTML=pageHead('Mi plan','Cambiar el plan modifica de inmediato lo que puedes usar en esta demo.')+`<div class="plan-current-strip"><div><strong>Plan activo: ${esc(cur)}</strong><div class="plan-limit">${d.users} usuario${d.users===1?'':'s'} · ${d.brands} marca${d.brands===1?'':'s'} · Finanzas ${d.finance}</div></div><span class="badge ok">Activo</span></div><div class="grid3">${Object.entries(planDefs).map(([name,p])=>`<div class="card ${cur===name?'plan-card-selected':''}"><div class="muted">${cur===name?'PLAN ACTUAL':'PLAN'}</div><h2>${name}</h2><div style="font-size:32px;font-weight:900">${money(p.price)}<span class="muted" style="font-size:14px"> / mes</span></div><div class="usage" style="margin:14px 0"><span>✓ ${p.users} usuario${p.users===1?'':'s'}</span><span>✓ ${p.brands} marca${p.brands===1?'':'s'}</span><span>${p.modules.includes('production')?'✓':'—'} Producción</span><span>${p.purchases?'✓':'—'} Inventario y compras</span><span>✓ Finanzas ${p.finance}</span><span>${p.roles?'✓':'—'} Roles personalizados</span></div><button class="${cur===name?'secondary':'primary'}" onclick="setDemoPlanV18('${name}')">${cur===name?'Seleccionado':'Cambiar a '+name}</button></div>`).join('')}</div><div class="table-wrap" style="margin-top:18px"><table class="table"><thead><tr><th>Función</th><th>Emprende</th><th>Negocio</th><th>Pro</th></tr></thead><tbody>${rows.map(r=>`<tr><td><b>${r[0]}</b></td><td>${r[1]}</td><td>${r[2]}</td><td>${r[3]}</td></tr>`).join('')}</tbody></table></div>`;
     applyNavLocks();
   };
 
