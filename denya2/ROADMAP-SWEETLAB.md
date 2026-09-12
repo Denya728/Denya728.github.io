@@ -93,7 +93,7 @@ Se retomará después por decisión del proyecto.
 - Integración futura con PAC.
 
 ## 7. Planes y permisos reales
-Estado: EN CURSO
+Estado: CERRADO ✅
 
 Filosofía de planes definida:
 - Emprende = lo esencial para empezar y trabajar sin complicarse.
@@ -118,19 +118,30 @@ Implementado:
 Importante:
 - En esta versión estática/local los permisos son controles funcionales del frontend. La protección de seguridad a nivel servidor y aislamiento real por negocio se implementará con el punto 10.
 
-Pendiente para cerrar el punto:
-- Validar visualmente la nueva presentación de planes.
-- Confirmar que la separación Emprende / Negocio / Pro se sienta correcta durante uso real.
-
 ## 8. Suscripciones
-Estado: PENDIENTE
+Estado: EN CURSO
 
-- Registro.
+Implementado:
+- Pantalla de Suscripción dentro de Cuenta.
+- Registro local de nombre, correo y negocio para simular alta de cuenta.
 - Prueba de 14 días.
-- Elegir plan.
-- Pago.
-- Renovación/cancelación.
-- Cambio de plan.
+- Selección de Emprende / Negocio / Pro durante la prueba.
+- Activación de suscripción sin cobro real.
+- Ciclo mensual o anual.
+- Cambio de plan desde la suscripción.
+- Cambio de ciclo de cobro.
+- Próxima fecha de renovación calculada.
+- Cancelación inmediata de prueba.
+- Cancelación de suscripción al final del periodo.
+- Reanudación de suscripción cancelada o programada para cancelar.
+- Historial local de movimientos de suscripción.
+- Estado, plan, ciclo, renovación y método de pago demo visibles.
+- Integración con los permisos actuales: cambiar el plan actualiza inmediatamente las capacidades del sistema.
+
+Pendiente para cerrar el punto:
+- Validar visualmente el flujo completo publicado.
+- Conectar una pasarela de pago real cuando exista backend y se elija proveedor de pagos.
+- Llevar registro, prueba, renovaciones y cancelaciones al backend real del punto 10.
 
 ## 9. Usuarios y roles
 Estado: PENDIENTE
