@@ -3,7 +3,7 @@
 Regla del proyecto: no abrir nuevos frentes fuera de esta lista hasta cerrar los puntos activos. Si surge una buena idea, se agrega aquí como punto nuevo y se prioriza después de los pendientes actuales, salvo que sea necesaria para desbloquear un punto en curso.
 
 ## 1. Cotización → Pedido → Producción → Venta
-Estado: EN CURSO / FLUJO PRINCIPAL CERRADO, FALTA VALIDACIÓN VISUAL
+Estado: CERRADO ✅
 
 Implementado:
 - Cotización aceptada crea pedido automáticamente.
@@ -17,25 +17,28 @@ Implementado:
 - Una cotización no puede cambiar producto, presentación, recetas o materiales mientras el pedido esté en producción, listo o entregado.
 - Se bloquearon cambios de estado inconsistentes en pedidos.
 - Un pedido en producción o listo puede regresar a Pendiente con confirmación y reposición del inventario descontado.
-- El resumen de Inicio ahora toma ventas cerradas desde Pedidos y prioriza la fecha real de cierre; si un pedido antiguo no tiene fecha de cierre usa la fecha del evento.
-
-Pendiente para cerrar el punto:
-- Validar visualmente todo el flujo de punta a punta en la versión publicada.
+- El resumen de Inicio toma ventas cerradas, anticipos cobrados y saldo pendiente desde el flujo real de pedidos.
 
 ## 2. Pedidos y producción profesional
-Estado: EN CURSO
+Estado: EN CURSO — PEDIDOS PROFESIONAL IMPLEMENTADO, PENDIENTE VALIDACIÓN
 
+Implementado en Pedidos:
 - Una sola área operativa con pestañas internas Pedidos / Producción.
-- Filtros: próximos, producción, listos, entregados, cancelados.
-- Saldo pendiente visible.
-- Acciones rápidas: producir, listo, entregar/cobrar.
-- Vista compacta y operativa.
-- Qué preparar por pedido.
-- Cantidades de recetas.
-- Insumos necesarios.
-- Faltantes por comprar.
-- Costo estimado.
-- Estado de producción.
+- Buscador por folio, cliente, producto, fecha y estatus.
+- Filtros por Activos, Todos, Próximos, Pendiente, En producción, Listo, Entregado y pagado y Cancelado.
+- Filtro por mes del evento.
+- KPIs de pedidos activos, próximos, en producción y por cobrar.
+- Saldo pendiente visible por pedido.
+- Total del pedido visible.
+- Acciones rápidas: producir, marcar listo, entregar + cobrar.
+- Acceso directo a lista de materiales.
+- Vista compacta tipo tabla para operación diaria.
+- Ficha de detalle por pedido con progreso, estatus comercial, anticipo, saldo, producto y fechas.
+
+Pendiente para cerrar el punto:
+- Validar visualmente la nueva vista publicada.
+- Confirmar que la pestaña Producción conserva el flujo correcto junto con la nueva vista de Pedidos.
+- Completar, si hace falta tras la validación, información operativa adicional de recetas, insumos, faltantes y costo estimado dentro de la ficha del pedido.
 
 ## 3. Planeación de producción
 Estado: PENDIENTE
