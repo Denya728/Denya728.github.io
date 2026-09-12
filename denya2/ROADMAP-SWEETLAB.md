@@ -22,67 +22,66 @@ Implementado:
 ## 2. Pedidos y producción profesional
 Estado: CERRADO ✅
 
-Implementado en Pedidos:
+Implementado:
 - Una sola área operativa con pestañas internas Pedidos / Producción.
-- Buscador por folio, cliente, producto, fecha y estatus.
-- Filtros por Activos, Todos, Próximos, Pendiente, En producción, Listo, Entregado y pagado y Cancelado.
-- Filtro por mes del evento.
+- Buscador y filtros por estatus y mes.
 - KPIs de pedidos activos, próximos, en producción y por cobrar.
-- Saldo pendiente visible por pedido.
-- Total del pedido visible.
-- Acciones rápidas: producir, marcar listo, entregar + cobrar.
-- Acceso directo a lista de materiales.
-- Vista compacta tipo tabla para operación diaria.
-- Ficha de detalle por pedido con progreso, estatus comercial, anticipo, saldo, producto y fechas.
+- Saldo y total visibles.
+- Acciones rápidas de producción y cobro.
+- Lista de materiales y ficha completa por pedido.
 
 ## 3. Planeación de producción
 Estado: CERRADO ✅
 
 Implementado:
-- Vista semanal de carga de trabajo dentro de Pedidos y producción.
-- Navegación entre semanas y acceso rápido a la semana actual.
+- Vista semanal de carga de trabajo.
+- Navegación entre semanas.
 - Pedidos agrupados por fecha de entrega.
-- Capacidad diaria configurable y alerta visual cuando se rebasa.
-- Prioridad por pedido: Alta, Normal o Baja.
-- Selección múltiple de pedidos pendientes.
-- Acción “Producir seleccionados” usando el flujo real de producción e inventario.
-- Consolidado semanal de recetas a preparar.
-- Consolidado semanal de insumos necesarios.
-- KPIs semanales de pedidos, pendientes, en producción y listos.
+- Capacidad diaria configurable.
+- Prioridad por pedido.
+- Selección múltiple para producir.
+- Consolidado semanal de recetas e insumos.
 
 ## 4. Compras automáticas
-Estado: EN CURSO
+Estado: CERRADO ✅
 
 Implementado:
 - Vista de compras automáticas por semana.
-- Toma únicamente pedidos pendientes de la semana para evitar volver a contar inventario ya consumido por producción.
-- Consolida insumos requeridos desde las recetas/materiales reales de cada cotización.
+- Consolida insumos de pedidos pendientes.
 - Compara necesidad contra stock actual.
 - Muestra únicamente faltantes por comprar.
 - Costo estimado por artículo y total semanal.
-- Identifica qué pedidos generan cada necesidad.
-- Muestra proveedor cuando el artículo ya lo tiene configurado; en caso contrario aparece “Sin proveedor”.
-- Registro de recepción por artículo.
-- Opción para recibir todos los faltantes de la semana.
-- Cada recepción incrementa inventario y registra movimiento de entrada.
-- Historial de recepciones de compras automáticas por semana.
-- Acceso desde Inventario y compras y desde Planeación semanal.
+- Identifica los pedidos que generan cada faltante.
+- Muestra proveedor si está configurado.
+- Recepción por artículo o recepción masiva.
+- Cada recepción incrementa inventario y registra movimiento.
+- Historial de recepciones automáticas.
+
+## 5. Clientes
+Estado: EN CURSO
+
+Implementado:
+- Vista profesional tipo CRM.
+- Buscador por nombre, teléfono, Instagram y notas.
+- Filtros por estado y segmento.
+- Segmentos: con saldo, recurrentes y sin compras.
+- Comprado acumulado.
+- Número de compras cerradas.
+- Frecuencia promedio de compra.
+- Ticket promedio.
+- Última compra.
+- Saldo pendiente real desde pedidos activos.
+- Productos favoritos por recurrencia.
+- Ficha completa de cliente.
+- Historial comercial de cotizaciones/pedidos.
+- Notas visibles dentro de la ficha.
+- Acceso a WhatsApp.
+- Visibilidad por plan: Emprende conserva contactos/notas; métricas e historial avanzado desde Negocio.
+- Alta automática en Clientes cuando aparece un cliente nuevo en cotizaciones.
 
 Pendiente para cerrar el punto:
 - Validar visualmente la versión publicada.
-- Confirmar con datos reales que las unidades de compra coincidan con las unidades configuradas en inventario.
-
-## 5. Clientes
-Estado: PENDIENTE
-
-- Historial completo.
-- Comprado acumulado.
-- Frecuencia.
-- Ticket promedio.
-- Última compra.
-- Productos favoritos.
-- Notas.
-- Visibilidad por plan.
+- Confirmar con datos reales que frecuencia, favorito y saldo coincidan con el historial esperado.
 
 ## 6. Facturación
 Estado: PENDIENTE
