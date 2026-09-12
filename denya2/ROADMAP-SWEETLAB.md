@@ -36,7 +36,7 @@ Implementado en Pedidos:
 - Ficha de detalle por pedido con progreso, estatus comercial, anticipo, saldo, producto y fechas.
 
 ## 3. Planeación de producción
-Estado: EN CURSO
+Estado: CERRADO ✅
 
 Implementado:
 - Vista semanal de carga de trabajo dentro de Pedidos y producción.
@@ -50,17 +50,27 @@ Implementado:
 - Consolidado semanal de insumos necesarios.
 - KPIs semanales de pedidos, pendientes, en producción y listos.
 
+## 4. Compras automáticas
+Estado: EN CURSO
+
+Implementado:
+- Vista de compras automáticas por semana.
+- Toma únicamente pedidos pendientes de la semana para evitar volver a contar inventario ya consumido por producción.
+- Consolida insumos requeridos desde las recetas/materiales reales de cada cotización.
+- Compara necesidad contra stock actual.
+- Muestra únicamente faltantes por comprar.
+- Costo estimado por artículo y total semanal.
+- Identifica qué pedidos generan cada necesidad.
+- Muestra proveedor cuando el artículo ya lo tiene configurado; en caso contrario aparece “Sin proveedor”.
+- Registro de recepción por artículo.
+- Opción para recibir todos los faltantes de la semana.
+- Cada recepción incrementa inventario y registra movimiento de entrada.
+- Historial de recepciones de compras automáticas por semana.
+- Acceso desde Inventario y compras y desde Planeación semanal.
+
 Pendiente para cerrar el punto:
 - Validar visualmente la versión publicada.
-- Confirmar que los consolidados de recetas e insumos cubren correctamente todos los tipos de producto configurados.
-
-## 4. Compras automáticas
-Estado: PENDIENTE
-
-- Necesidades semanales.
-- Comparar contra inventario.
-- Generar solo faltantes.
-- Agrupar por artículo/proveedor cuando sea posible.
+- Confirmar con datos reales que las unidades de compra coincidan con las unidades configuradas en inventario.
 
 ## 5. Clientes
 Estado: PENDIENTE
