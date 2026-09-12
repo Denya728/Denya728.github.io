@@ -17,27 +17,34 @@ Implementado:
 - Una cotización no puede cambiar producto, presentación, recetas o materiales mientras el pedido esté en producción, listo o entregado.
 - Se bloquearon cambios de estado inconsistentes en pedidos.
 - Un pedido en producción o listo puede regresar a Pendiente con confirmación y reposición del inventario descontado.
+- El resumen de Inicio ahora toma ventas cerradas desde Pedidos y prioriza la fecha real de cierre; si un pedido antiguo no tiene fecha de cierre usa la fecha del evento.
 
 Pendiente para cerrar el punto:
 - Validar visualmente todo el flujo de punta a punta en la versión publicada.
 
-## 2. Pedidos profesional
-Estado: PENDIENTE
+## 2. Pedidos y producción profesional
+Estado: EN CURSO
 
+- Una sola área operativa con pestañas internas Pedidos / Producción.
 - Filtros: próximos, producción, listos, entregados, cancelados.
 - Saldo pendiente visible.
 - Acciones rápidas: producir, listo, entregar/cobrar.
 - Vista compacta y operativa.
-
-## 3. Producción
-Estado: PENDIENTE
-
 - Qué preparar por pedido.
 - Cantidades de recetas.
 - Insumos necesarios.
 - Faltantes por comprar.
 - Costo estimado.
 - Estado de producción.
+
+## 3. Planeación de producción
+Estado: PENDIENTE
+
+- Vista semanal de carga de trabajo.
+- Agrupar pedidos por fecha de entrega.
+- Consolidar cantidades de recetas a preparar.
+- Prioridades y capacidad de producción.
+- Enviar pedidos seleccionados a producción.
 
 ## 4. Compras automáticas
 Estado: PENDIENTE
