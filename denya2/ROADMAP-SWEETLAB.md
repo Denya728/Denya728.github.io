@@ -58,7 +58,7 @@ Implementado:
 - Historial de recepciones automáticas.
 
 ## 5. Clientes
-Estado: EN CURSO
+Estado: CERRADO ✅
 
 Implementado:
 - Vista profesional tipo CRM.
@@ -76,15 +76,13 @@ Implementado:
 - Historial comercial de cotizaciones/pedidos.
 - Notas visibles dentro de la ficha.
 - Acceso a WhatsApp.
-- Visibilidad por plan: Emprende conserva contactos/notas; métricas e historial avanzado desde Negocio.
+- Visibilidad por plan.
 - Alta automática en Clientes cuando aparece un cliente nuevo en cotizaciones.
 
-Pendiente para cerrar el punto:
-- Validar visualmente la versión publicada.
-- Confirmar con datos reales que frecuencia, favorito y saldo coincidan con el historial esperado.
-
 ## 6. Facturación
-Estado: PENDIENTE
+Estado: POSPUESTO ⏸️
+
+Se retomará después por decisión del proyecto.
 
 - IVA.
 - RFC.
@@ -95,11 +93,28 @@ Estado: PENDIENTE
 - Integración futura con PAC.
 
 ## 7. Planes y permisos reales
-Estado: PENDIENTE
+Estado: EN CURSO
 
-- Emprende / Negocio / Pro.
-- Protección real de permisos, no solo visual.
-- Límites por usuarios, marcas y funciones.
+Implementado:
+- Definiciones de Emprende / Negocio / Pro centralizadas.
+- Bloqueo funcional de Inventario, Compras, Producción y Usuarios según el plan.
+- Los bloqueos se validan también al ejecutar acciones críticas, no solo visualmente.
+- Emprende: 1 usuario, 1 marca, sin Producción ni Inventario/Compras.
+- Negocio: hasta 3 usuarios, 2 marcas, Producción e Inventario/Compras habilitados.
+- Pro: hasta 10 usuarios, 5 marcas, reportes avanzados y roles personalizados habilitables.
+- Límite real de alta de usuarios según plan.
+- Límite real de marcas activas según plan.
+- Vista Mi plan accesible desde Cuenta.
+- Resumen visible de uso de usuarios, marcas y nivel de Finanzas.
+- Mensajes de bloqueo con el plan mínimo requerido.
+- Registro local de intentos bloqueados.
+
+Importante:
+- En esta versión estática/local los permisos son controles funcionales del frontend. La protección de seguridad a nivel servidor y aislamiento real por negocio se implementará con el punto 10.
+
+Pendiente para cerrar el punto:
+- Validar visualmente los tres planes y sus bloqueos.
+- Confirmar que ninguna acción agregada en módulos posteriores evada el guard central de permisos.
 
 ## 8. Suscripciones
 Estado: PENDIENTE
