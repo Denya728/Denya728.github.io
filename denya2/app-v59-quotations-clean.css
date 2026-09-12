@@ -1,0 +1,28 @@
+/* DENYA v59 · quotations clean workspace */
+body[data-view="quotations"] .content{max-width:none}
+.quote-v59-kpis{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin:0 0 12px}
+.quote-v59-kpi{background:#fff;border:1px solid #eee4dc;border-radius:14px;padding:11px 13px;min-height:66px;display:flex;flex-direction:column;justify-content:center}
+.quote-v59-kpi small{font-size:10px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:#8e8177;margin-bottom:3px}
+.quote-v59-kpi strong{font-size:19px;line-height:1.05;color:#2e2926}
+.quote-v59-kpi span{font-size:11px;color:#9b8d83;margin-top:3px}
+.quote-v59-toolbar{display:flex;gap:8px;align-items:center;margin:0 0 10px}
+.quote-v59-toolbar #quoteSearch{flex:1;min-width:180px}
+.quote-v59-toolbar #quoteFilter{width:210px;min-width:180px}
+#quoteSearch,#quoteFilter{height:38px!important;min-height:38px!important;padding:7px 10px!important;border-radius:11px!important;font-size:13px!important}
+.table-wrap:has(#quotesBody){border:1px solid #eee4dc;border-radius:15px;background:#fff;overflow:auto;box-shadow:none!important}
+.table-wrap:has(#quotesBody) .table{min-width:930px!important;margin:0}
+.table-wrap:has(#quotesBody) .table th{padding:8px 10px!important;font-size:10px!important;letter-spacing:.055em;text-transform:uppercase;color:#8f8177;background:#fbf8f5;white-space:nowrap}
+#quotesBody tr{transition:background .15s ease}
+#quotesBody tr:hover{background:#fcfaf8}
+#quotesBody td{padding:8px 10px!important;font-size:12.5px!important;line-height:1.15!important;border-top:1px solid #f3ece7;vertical-align:middle!important}
+#quotesBody td:first-child{min-width:94px!important;font-size:12px}
+#quotesBody td:nth-child(2){min-width:138px!important;max-width:185px;white-space:normal!important;font-weight:650}
+#quotesBody td:nth-child(3){min-width:96px!important}
+#quotesBody td:nth-child(4){min-width:145px!important}
+#quotesBody td:nth-child(5),#quotesBody td:nth-child(6){min-width:86px!important}
+#quotesBody .status{min-width:142px!important;max-width:158px!important;height:32px!important;padding:5px 8px!important;font-size:11px!important;border-radius:9px!important}
+#quotesBody .quote-actions{gap:4px!important;flex-wrap:nowrap!important}
+#quotesBody .quote-actions button,#quotesBody .danger{min-height:30px!important;padding:5px 8px!important;font-size:10.5px!important;border-radius:8px!important;white-space:nowrap}
+.quote-v59-empty{padding:34px 16px;text-align:center;color:#9b8d83}
+@media(max-width:1050px){.quote-v59-kpis{grid-template-columns:repeat(2,minmax(0,1fr))}.quote-v59-toolbar{flex-wrap:wrap}.quote-v59-toolbar #quoteFilter{width:100%}}
+@media(max-width:650px){.quote-v59-kpis{grid-template-columns:1fr 1fr}.quote-v59-kpi{padding:9px 10px;min-height:58px}.quote-v59-kpi strong{font-size:16px}.table-wrap:has(#quotesBody) .table{min-width:860px!important}}
