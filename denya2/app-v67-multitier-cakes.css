@@ -1,0 +1,11 @@
+/* DENYA v67 · multi-tier cakes */
+.v67-tier-builder{margin:14px 0 0;padding:14px;border:1px solid #eadfd7;border-radius:14px;background:#fcfaf8}
+.v67-tier-head{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:10px}
+.v67-tier-head h3{margin:0;font-size:15px}.v67-tier-head .hint{margin-top:3px}
+.v67-tier-list{display:grid;gap:10px}
+.v67-tier-card{border:1px solid #eadfd7;border-radius:12px;background:#fff;padding:12px}
+.v67-tier-card-head{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:10px}.v67-tier-card-head strong{font-size:13px}.v67-tier-card-head button{min-height:30px;padding:5px 9px!important}
+.v67-tier-grid{display:grid;grid-template-columns:minmax(180px,1fr) minmax(130px,.55fr);gap:10px;align-items:end}
+.v67-tier-options{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:9px;margin-top:10px}
+.v67-tier-meta{font-size:11px;color:#776d66;margin-top:8px}.v67-tier-total{display:flex;justify-content:flex-end;gap:8px;align-items:center;margin-top:8px;font-size:12px}.v67-tier-total strong{font-size:15px}
+@media(max-width:760px){.v67-tier-head{align-items:flex-start;flex-direction:column}.v67-tier-grid,.v67-tier-options{grid-template-columns:1fr}.v67-tier-head button{width:100%}}
