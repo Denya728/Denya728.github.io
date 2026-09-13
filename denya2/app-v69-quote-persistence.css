@@ -1,0 +1,10 @@
+/* DENYA v69 · Piso 1 visual parity */
+.v69-floor-one-card{margin-top:12px}
+.v69-main-badge{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;padding:4px 7px;border-radius:999px;background:#f4ece6;color:#6f5f55}
+.v69-floor-one-grid{display:grid;grid-template-columns:minmax(180px,1fr) minmax(130px,.55fr);gap:10px;align-items:end}
+.v69-floor-one-options{margin-top:10px}
+.v69-floor-one-options>#dynamicComponents{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:9px}
+.v69-floor-one-options>#dynamicComponents>.section{margin:0;padding:0;border:0;background:transparent}
+.v69-floor-one-options>#dynamicComponents>.section h3{font-size:12px;margin:0 0 4px}
+.v69-floor-one-options>#dynamicComponents>.section .hint{font-size:10.5px;margin-bottom:6px}
+@media(max-width:760px){.v69-floor-one-grid,.v69-floor-one-options>#dynamicComponents{grid-template-columns:1fr}}
