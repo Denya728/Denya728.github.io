@@ -1,0 +1,21 @@
+/* DENYA v62 · clearer quotation order step */
+.v62-order-intro{display:flex;align-items:flex-start;justify-content:space-between;gap:16px;padding:14px 16px;margin-bottom:14px;border:1px solid #eee7e1;border-radius:14px;background:#faf8f6}
+.v62-order-intro strong{display:block;font-size:14px;color:#2b211c}.v62-order-intro span{display:block;margin-top:3px;font-size:12px;line-height:1.4;color:#7a7069}
+.v62-order-summary{display:flex;gap:8px;flex-wrap:wrap}.v62-chip{padding:7px 10px;border-radius:999px;background:#fff;border:1px solid #e9e1db;font-size:11px;font-weight:800;color:#4a403a;white-space:nowrap}
+.v61-quote-modal [data-v61-pane="1"]>.quote-section{position:relative}
+.v61-quote-modal [data-v61-pane="1"]>.quote-section>h3{display:none}
+.v61-quote-modal #dynamicComponents{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin-top:12px}
+.v61-quote-modal #dynamicComponents>.section{margin:0!important;padding:13px!important;border:1px solid #eee7e1;border-radius:12px;background:#fff}
+.v61-quote-modal #dynamicComponents>.section h3{font-size:13px!important;margin:0 0 4px!important}
+.v61-quote-modal #dynamicComponents>.section .hint{margin-bottom:8px;color:#8a7e76}
+.v61-quote-modal #dynamicComponents>.section .field{margin:0}
+.v61-quote-modal [data-v61-pane="1"] #qpeople{justify-content:end}
+.v61-quote-modal [data-v61-pane="1"] #qpeople>span{font-size:11px;text-transform:uppercase;letter-spacing:.04em;color:#8a7e76;font-weight:800}
+.v61-quote-modal [data-v61-pane="1"] #qpeople .helper{font-weight:800;color:#2b211c!important;font-size:13px!important;background:#f7f3ef;padding:9px 10px;border-radius:10px}
+.v61-quote-modal .v62-option-title{display:flex;align-items:center;gap:8px;margin:3px 0 10px;font-size:12px;font-weight:900;color:#5b4d45;text-transform:uppercase;letter-spacing:.04em}
+.v61-quote-modal .v62-option-title:before{content:'';width:5px;height:5px;border-radius:50%;background:#2b211c}
+.v61-quote-modal .v62-package-card{border:1px dashed #d8ccc3!important;background:#fcfbfa!important}
+.v61-quote-modal .v62-package-card>.hint{margin-bottom:10px}
+.v61-quote-modal #addPackage{width:100%;justify-content:center;border-style:dashed!important}
+.v61-quote-modal [data-v61-pane="1"] select{background-color:#fff}
+@media(max-width:760px){.v62-order-intro{flex-direction:column}.v61-quote-modal #dynamicComponents{grid-template-columns:1fr}.v62-order-summary{width:100%}}
