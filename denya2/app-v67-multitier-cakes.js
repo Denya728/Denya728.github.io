@@ -1,97 +1,142 @@
-// DENYA v67 · multi-tier cakes on the stable quotation editor (no observers)
+// DENYA v68 · multi-tier cakes on stable quotation editor
 (function(){
-  const stableNewQuote=window.newQuote;
-  if(typeof stableNewQuote!=='function') return;
+  const previous=window.newQuote;
+  if(typeof previous!=='function') return;
 
-  const kindCats={
-    base:['Bases'],filling:['Rellenos'],cover:['Coberturas','Buttercream','Ganache'],
-    syrup:['Jarabes'],decoration:['Decoraciones']
-  };
-  const kindLabels={base:'Sabor del pastel',filling:'Relleno',cover:'Cobertura',syrup:'Salsa o jarabe',decoration:'Decoración'};
-  const reqsOf=m=>Array.isArray(m?.requirements)?m.requirements:(m?.components||[]).map(c=>({kind:c.kind,qty:Number(c.qty)||0}));
-  const recipesFor=kind=>(state.recipes||[]).filter(r=>(kindCats[kind]||[]).includes(r.category));
-  const isCakeProduct=p=>/pastel/i.test(String(p?.category||''))||/pastel/i.test(String(p?.name||''));
+  const cats={base:['Bases'],filling:['Rellenos'],cover:['Coberturas','Buttercream','Ganache'],syrup:['Jarabes'],decoration:['Decoraciones']};
+  const labels={base:'Sabor del pastel',filling:'Relleno',cover:'Cobertura',syrup:'Salsa o jarabe',decoration:'Decoración'};
+  const requirements=m=>Array.isArray(m?.requirements)?m.requirements:(m?.components||[]).map(c=>({kind:c.kind,qty:Number(c.qty)||0}));
+  const recipes=kind=>(state.recipes||[]).filter(r=>(cats[kind]||[]).includes(r.category));
+  const isCake=p=>/pastel/i.test(String(p?.name||''))||/pastel/i.test(String(p?.category||''));
 
-  function floorCost(floor){
-    const m=getMeasure(floor.measureId);if(!m)return 0;
+  function tierCost(tier){
+    const m=getMeasure(tier.measureId); if(!m) return 0;
     let cost=0;
-    reqsOf(m).forEach(r=>{const rec=getRecipe(floor.selections?.[r.kind]);if(rec)cost+=recipeCost(rec)*(Number(r.qty)||0)});
-    (m.materials||[]).forEach(mat=>{const inv=(state.inventory||[]).find(i=>i.id===mat.inventoryId);if(inv)cost+=(Number(mat.qty)||0)*(Number(inv.cost)||0)});
+    requirements(m).forEach(r=>{
+      const rec=getRecipe(tier.selections?.[r.kind]);
+      if(rec) cost+=recipeCost(rec)*(Number(r.qty)||0);
+    });
+    (m.materials||[]).forEach(mat=>{
+      const inv=(state.inventory||[]).find(i=>i.id===mat.inventoryId);
+      if(inv) cost+=(Number(mat.qty)||0)*(Number(inv.cost)||0);
+    });
     return cost;
-  }
-  function floorSubtotal(floor,product){
-    const cost=floorCost(floor),margin=(Number(product?.margin)||50)/100;
-    return margin>=1?cost:cost/(1-margin);
   }
 
   window.newQuote=function(editId=null){
-    const result=stableNewQuote(editId);
-    const modal=document.querySelector('.modal-bg:last-of-type .modal');
-    const productSel=modal?.querySelector('#qproduct'),measureSel=modal?.querySelector('#qmeasure');
-    if(!modal||!productSel||!measureSel)return result;
+    const result=previous(editId);
+    const modals=[...document.querySelectorAll('.modal-bg .modal')];
+    const modal=modals[modals.length-1];
+    if(!modal) return result;
+
+    const productSel=modal.querySelector('#qproduct');
+    const measureSel=modal.querySelector('#qmeasure');
+    const productSection=productSel?.closest('.quote-section');
+    if(!productSel||!measureSel||!productSection) return result;
 
     const existing=editId?(state.quotes||[]).find(q=>q.id===editId):null;
-    let extraFloors=Array.isArray(existing?.floors)?clone(existing.floors.slice(1)):[];
-    let baseDisplay={};
+    let tiers=Array.isArray(existing?.floors)?clone(existing.floors.slice(1)):[];
 
-    const productSection=productSel.closest('.quote-section');
-    if(!productSection)return result;
-    const builder=document.createElement('div');builder.className='v67-tier-builder';
-    builder.innerHTML=`<div class="v67-tier-head"><div><h3>🎂 Pisos del pastel</h3><div class="hint">El Piso 1 es el pastel principal. Agrega otro piso solo si el diseño lo necesita.</div></div><button type="button" class="secondary" data-v67-add>+ Agregar otro piso</button></div><div class="v67-tier-list" data-v67-list></div>`;
-    productSection.appendChild(builder);
-    const list=builder.querySelector('[data-v67-list]'),addBtn=builder.querySelector('[data-v67-add]');
+    const wrap=document.createElement('div');
+    wrap.className='v67-tier-builder';
+    wrap.innerHTML='<div class="v67-tier-head"><div><h3>🎂 Pisos del pastel</h3><div class="hint">El Piso 1 es el pastel principal. Agrega más pisos cuando el diseño lo necesite.</div></div><button type="button" class="secondary" data-add-tier>+ Agregar otro piso</button></div><div class="v67-tier-list" data-tier-list></div>';
+    productSection.appendChild(wrap);
+
+    const list=wrap.querySelector('[data-tier-list]');
+    const add=wrap.querySelector('[data-add-tier]');
 
     function product(){return getProduct(productSel.value)}
-    function measures(){return (state.measures||[]).filter(m=>m.productId===productSel.value)}
-    function makeFloor(measureId=''){
-      const ms=measures(),mid=measureId||ms[0]?.id||'';const floor={measureId:mid,selections:{}};
-      const m=getMeasure(mid);reqsOf(m).forEach(r=>{const recs=recipesFor(r.kind);floor.selections[r.kind]=recs[0]?.id||''});return floor;
+    function availableMeasures(){return (state.measures||[]).filter(m=>m.productId===productSel.value)}
+    function newTier(mid){
+      const ms=availableMeasures();
+      const measureId=mid||ms[0]?.id||'';
+      const t={measureId,selections:{}};
+      requirements(getMeasure(measureId)).forEach(r=>{t.selections[r.kind]=recipes(r.kind)[0]?.id||''});
+      return t;
     }
-    function yieldText(m){return m&&(m.minPeople||m.maxPeople)?`${m.minPeople||0}–${m.maxPeople||0} personas`:'Rendimiento no definido'}
-    function render(){
-      const cake=isCakeProduct(product());builder.style.display=cake?'block':'none';
-      if(!cake){extraFloors=[];syncTotals();return}
-      list.innerHTML=extraFloors.length?extraFloors.map((f,i)=>{
-        const ms=measures(),m=getMeasure(f.measureId)||ms[0];if(m&&!f.measureId)f.measureId=m.id;
-        const reqs=reqsOf(m);
-        return `<div class="v67-tier-card" data-v67-floor="${i}"><div class="v67-tier-card-head"><strong>Piso ${i+2}</strong><button type="button" class="ghost" data-v67-remove="${i}">Eliminar piso</button></div><div class="v67-tier-grid"><label class="field">Tamaño / presentación<select data-v67-measure="${i}">${ms.map(x=>`<option value="${esc(x.id)}" ${x.id===f.measureId?'selected':''}>${esc(x.name)}</option>`).join('')}</select></label><div class="field"><span>Rendimiento</span><div class="helper" style="margin:0">${esc(yieldText(m))}</div></div></div><div class="v67-tier-options">${reqs.map(r=>{const recs=recipesFor(r.kind);if(!f.selections)f.selections={};if(!f.selections[r.kind])f.selections[r.kind]=recs[0]?.id||'';return `<label class="field">${esc(kindLabels[r.kind]||r.kind)}<select data-v67-kind="${esc(r.kind)}" data-v67-index="${i}">${recs.length?recs.map(rec=>`<option value="${esc(rec.id)}" ${rec.id===f.selections[r.kind]?'selected':''}>${esc(rec.name)}</option>`).join(''):'<option value="">Sin recetas configuradas</option>'}</select></label>`}).join('')}</div><div class="v67-tier-total"><span>Este piso:</span><strong>${money(floorSubtotal(f,product()))}</strong></div></div>`;
-      }).join(''):'<div class="helper">Este pastel tiene 1 piso. Usa “Agregar otro piso” para crear un pastel de 2, 3 o más pisos.</div>';
-      list.querySelectorAll('[data-v67-remove]').forEach(b=>b.onclick=()=>{extraFloors.splice(Number(b.dataset.v67Remove),1);render();syncTotals()});
-      list.querySelectorAll('[data-v67-measure]').forEach(s=>s.onchange=()=>{const i=Number(s.dataset.v67Measure);extraFloors[i]=makeFloor(s.value);render();syncTotals()});
-      list.querySelectorAll('[data-v67-kind]').forEach(s=>s.onchange=()=>{const i=Number(s.dataset.v67Index);extraFloors[i].selections[s.dataset.v67Kind]=s.value;render();syncTotals()});
+    function priceFor(t){
+      const p=product(),cost=tierCost(t),margin=(Number(p?.margin)||50)/100;
+      return margin>=1?cost:cost/(1-margin);
     }
-    function num(id){return Number(String(modal.querySelector(id)?.textContent||'0').replace(/[^0-9.-]/g,''))||0}
-    function captureBase(){baseDisplay={cost:num('#sumCost'),subtotal:num('#sumSubtotal'),discount:num('#sumDiscount'),total:num('#sumTotal'),deposit:num('#sumDeposit'),balance:num('#sumBalance'),profit:num('#sumProfit')}}
-    function syncTotals(){
-      if(!baseDisplay.total)captureBase();
-      const p=product();if(!isCakeProduct(p))return;
-      const extraCost=extraFloors.reduce((s,f)=>s+floorCost(f),0),extraSubtotal=extraFloors.reduce((s,f)=>s+floorSubtotal(f,p),0);
-      const disc=modal.querySelector('#useDiscount')?.checked?(Number(modal.querySelector('#qdiscount')?.value)||0):0;
-      const extraDiscount=extraSubtotal*disc/100,extraTotal=Math.max(0,extraSubtotal-extraDiscount),dep=(Number(modal.querySelector('#qdeposit')?.value)||0)/100;
-      const totals={cost:baseDisplay.cost+extraCost,subtotal:baseDisplay.subtotal+extraSubtotal,discount:baseDisplay.discount+extraDiscount,total:baseDisplay.total+extraTotal,deposit:baseDisplay.deposit+extraTotal*dep,balance:baseDisplay.balance+extraTotal*(1-dep)};totals.profit=totals.total-totals.cost;
-      const map={sumCost:'cost',sumSubtotal:'subtotal',sumDiscount:'discount',sumTotal:'total',sumDeposit:'deposit',sumBalance:'balance',sumProfit:'profit'};
-      Object.entries(map).forEach(([id,k])=>{const el=modal.querySelector('#'+id);if(el)el.textContent=money(totals[k])});
-      modal.dataset.v67Total=String(totals.total);modal.dataset.v67Balance=String(totals.balance);modal.dataset.v67Cost=String(totals.cost);
+    function yieldFor(m){return m&&(m.minPeople||m.maxPeople)?`${m.minPeople||0}–${m.maxPeople||0} personas`:'Sin rendimiento definido'}
+
+    function draw(){
+      const cake=isCake(product());
+      wrap.style.display=cake?'block':'none';
+      if(!cake){tiers=[];return}
+      if(!tiers.length){
+        list.innerHTML='<div class="helper">Actualmente es un pastel de <b>1 piso</b>. Presiona “Agregar otro piso” para convertirlo en pastel de 2, 3 o más pisos.</div>';
+        return;
+      }
+      const ms=availableMeasures();
+      list.innerHTML=tiers.map((t,i)=>{
+        if(!t.measureId)t.measureId=ms[0]?.id||'';
+        const m=getMeasure(t.measureId);
+        const reqs=requirements(m);
+        if(!t.selections)t.selections={};
+        return `<div class="v67-tier-card" data-tier="${i}">
+          <div class="v67-tier-card-head"><strong>Piso ${i+2}</strong><button type="button" class="ghost" data-remove-tier="${i}">Eliminar piso</button></div>
+          <div class="v67-tier-grid">
+            <label class="field">Tamaño / presentación<select data-tier-measure="${i}">${ms.map(x=>`<option value="${esc(x.id)}" ${x.id===t.measureId?'selected':''}>${esc(x.name)}</option>`).join('')}</select></label>
+            <div class="field"><span>Rendimiento</span><div class="helper" style="margin:0">${esc(yieldFor(m))}</div></div>
+          </div>
+          <div class="v67-tier-options">${reqs.map(r=>{
+            const rs=recipes(r.kind);
+            if(!t.selections[r.kind])t.selections[r.kind]=rs[0]?.id||'';
+            return `<label class="field">${esc(labels[r.kind]||r.kind)}<select data-tier-kind="${esc(r.kind)}" data-tier-index="${i}">${rs.length?rs.map(rec=>`<option value="${esc(rec.id)}" ${rec.id===t.selections[r.kind]?'selected':''}>${esc(rec.name)}</option>`).join(''):'<option value="">Sin recetas configuradas</option>'}</select></label>`;
+          }).join('')}</div>
+          <div class="v67-tier-total"><span>Precio estimado del piso:</span><strong>${money(priceFor(t))}</strong></div>
+        </div>`;
+      }).join('');
+
+      list.querySelectorAll('[data-remove-tier]').forEach(btn=>btn.onclick=()=>{tiers.splice(Number(btn.dataset.removeTier),1);draw();recalc()});
+      list.querySelectorAll('[data-tier-measure]').forEach(sel=>sel.onchange=()=>{tiers[Number(sel.dataset.tierMeasure)]=newTier(sel.value);draw();recalc()});
+      list.querySelectorAll('[data-tier-kind]').forEach(sel=>sel.onchange=()=>{tiers[Number(sel.dataset.tierIndex)].selections[sel.dataset.tierKind]=sel.value;draw();recalc()});
     }
 
-    addBtn.onclick=()=>{extraFloors.push(makeFloor());render();syncTotals()};
-    productSel.addEventListener('change',()=>{extraFloors=[];setTimeout(()=>{captureBase();render();syncTotals()},0)});
-    measureSel.addEventListener('change',()=>setTimeout(()=>{captureBase();syncTotals()},0));
-    ['#qdeposit','#qdiscount','#useDiscount'].forEach(sel=>modal.querySelector(sel)?.addEventListener('input',()=>setTimeout(()=>{captureBase();syncTotals()},0)));
-    modal.querySelector('#useDiscount')?.addEventListener('change',()=>setTimeout(()=>{captureBase();syncTotals()},0));
+    function readMoney(id){return Number(String(modal.querySelector(id)?.textContent||'0').replace(/[^0-9.-]/g,''))||0}
+    let base={};
+    function captureBase(){base={cost:readMoney('#sumCost'),subtotal:readMoney('#sumSubtotal'),discount:readMoney('#sumDiscount'),total:readMoney('#sumTotal'),deposit:readMoney('#sumDeposit'),balance:readMoney('#sumBalance'),profit:readMoney('#sumProfit')}}
+    function recalc(){
+      if(!isCake(product()))return;
+      const extraCost=tiers.reduce((s,t)=>s+tierCost(t),0);
+      const extraSubtotal=tiers.reduce((s,t)=>s+priceFor(t),0);
+      const disc=modal.querySelector('#useDiscount')?.checked?(Number(modal.querySelector('#qdiscount')?.value)||0):0;
+      const extraDiscount=extraSubtotal*disc/100;
+      const extraTotal=extraSubtotal-extraDiscount;
+      const dep=(Number(modal.querySelector('#qdeposit')?.value)||0)/100;
+      const values={cost:base.cost+extraCost,subtotal:base.subtotal+extraSubtotal,discount:base.discount+extraDiscount,total:base.total+extraTotal,deposit:base.deposit+extraTotal*dep,balance:base.balance+extraTotal*(1-dep)};
+      values.profit=values.total-values.cost;
+      const ids={sumCost:'cost',sumSubtotal:'subtotal',sumDiscount:'discount',sumTotal:'total',sumDeposit:'deposit',sumBalance:'balance',sumProfit:'profit'};
+      Object.entries(ids).forEach(([id,key])=>{const el=modal.querySelector('#'+id);if(el)el.textContent=money(values[key])});
+      modal.dataset.tierTotal=String(values.total);
+      modal.dataset.tierBalance=String(values.balance);
+      modal.dataset.tierCost=String(values.cost);
+    }
+
+    add.onclick=()=>{if(!isCake(product()))return;tiers.push(newTier());draw();recalc()};
+    productSel.addEventListener('change',()=>setTimeout(()=>{tiers=[];captureBase();draw();recalc()},0));
+    measureSel.addEventListener('change',()=>setTimeout(()=>{captureBase();recalc()},0));
 
     const saveBtn=modal.querySelector('[data-save]');
-    if(saveBtn){const old=saveBtn.onclick;saveBtn.onclick=()=>{
-      captureBase();syncTotals();
-      const folio=modal.querySelector('#qfolio')?.value;
-      const first={measureId:measureSel.value,selections:clone(existing?.selections||{})};
-      const floorData=[first,...clone(extraFloors)];
-      const finalTotal=Number(modal.dataset.v67Total)||num('#sumTotal'),finalBalance=Number(modal.dataset.v67Balance)||num('#sumBalance'),finalCost=Number(modal.dataset.v67Cost)||num('#sumCost');
-      old&&old();
-      const q=(state.quotes||[]).find(x=>x.folio===folio);if(q&&isCakeProduct(getProduct(q.productId))){q.floors=floorData;q.total=finalTotal;q.balance=finalBalance;q.estimatedCost=finalCost;save();}
-    }}
+    if(saveBtn){
+      const oldSave=saveBtn.onclick;
+      saveBtn.onclick=()=>{
+        recalc();
+        const folio=modal.querySelector('#qfolio')?.value;
+        const finalTotal=Number(modal.dataset.tierTotal)||readMoney('#sumTotal');
+        const finalBalance=Number(modal.dataset.tierBalance)||readMoney('#sumBalance');
+        const finalCost=Number(modal.dataset.tierCost)||readMoney('#sumCost');
+        const floorData=[{measureId:measureSel.value,selections:clone(existing?.selections||{})},...clone(tiers)];
+        oldSave&&oldSave();
+        const q=(state.quotes||[]).find(x=>x.folio===folio);
+        if(q&&isCake(getProduct(q.productId))){q.floors=floorData;q.total=finalTotal;q.balance=finalBalance;q.estimatedCost=finalCost;save();}
+      };
+    }
 
-    captureBase();render();syncTotals();
+    captureBase();
+    draw();
+    recalc();
     return result;
   };
 })();
