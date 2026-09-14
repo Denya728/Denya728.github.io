@@ -1,0 +1,51 @@
+/* DENYA v72 · quotation editor layout polish */
+.modal:has(#qproduct){width:min(1120px,98vw);padding:26px}
+.modal:has(#qproduct) .quote-section{padding:18px 20px;margin:14px 0}
+.modal:has(#qproduct) .quote-section>h3{font-size:18px;margin-bottom:14px}
+.modal:has(#qproduct) .form2{gap:14px 16px}
+.modal:has(#qproduct) .field{min-width:0}
+.modal:has(#qproduct) .field select,
+.modal:has(#qproduct) .field input,
+.modal:has(#qproduct) .field textarea{width:100%;min-width:0}
+
+/* Product header: presentation + yield stay aligned */
+.modal:has(#qproduct) #qpeople .helper{min-height:46px;display:flex;align-items:center;margin:0!important;padding:11px 14px}
+
+/* Product recipe choices: clean cards instead of crowded rows */
+.modal:has(#qproduct) #dynamicComponents{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin-top:14px;align-items:stretch}
+.modal:has(#qproduct) #dynamicComponents>.section{margin:0;padding:14px 15px;min-width:0;background:#fff;border:1px solid #eadfd7;border-radius:14px}
+.modal:has(#qproduct) #dynamicComponents>.section h3{font-size:14px;margin:0 0 5px;line-height:1.25}
+.modal:has(#qproduct) #dynamicComponents>.section .hint{font-size:11px;line-height:1.35;margin:0 0 10px;color:#897a70}
+.modal:has(#qproduct) #dynamicComponents>.section .field{margin:0;display:grid;gap:6px}
+.modal:has(#qproduct) #dynamicComponents>.section .field select{width:100%;max-width:100%;padding:10px 11px}
+
+/* If a later patch wraps options in one section, keep every child readable */
+.modal:has(#qproduct) #dynamicComponents .section .field,
+.modal:has(#qproduct) #dynamicComponents label.field{min-width:0}
+.modal:has(#qproduct) #dynamicComponents select{max-width:100%;overflow:hidden;text-overflow:ellipsis}
+
+/* Multi-tier cake cards */
+.modal:has(#qproduct) .v67-tier-builder{margin-top:16px;padding:16px}
+.modal:has(#qproduct) .v67-tier-card{padding:15px}
+.modal:has(#qproduct) .v67-tier-grid{grid-template-columns:minmax(0,1.35fr) minmax(180px,.65fr);gap:12px}
+.modal:has(#qproduct) .v67-tier-options{grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+.modal:has(#qproduct) .v67-tier-options .field{padding:12px;border:1px solid #eee4dc;border-radius:12px;background:#fcfaf8}
+
+/* Extras, order and pricing breathe a little more */
+.modal:has(#qproduct) .extras-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.modal:has(#qproduct) .summary-grid{grid-template-columns:repeat(4,minmax(0,1fr));gap:10px}
+.modal:has(#qproduct) .sum{min-width:0;padding:12px}
+
+@media(max-width:900px){
+  .modal:has(#qproduct){width:min(760px,98vw);padding:20px}
+  .modal:has(#qproduct) #dynamicComponents,
+  .modal:has(#qproduct) .v67-tier-options{grid-template-columns:1fr}
+  .modal:has(#qproduct) .summary-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+}
+@media(max-width:640px){
+  .modal:has(#qproduct){width:100%;max-height:96vh;border-radius:18px;padding:16px}
+  .modal:has(#qproduct) .form2,
+  .modal:has(#qproduct) .v67-tier-grid,
+  .modal:has(#qproduct) .extras-grid{grid-template-columns:1fr}
+  .modal:has(#qproduct) .summary-grid{grid-template-columns:1fr 1fr}
+}
