@@ -107,22 +107,20 @@ Implementado:
 - Emprende: 1 usuario, 1 marca, cotizaciones, clientes básicos, calendario, productos/recetas/presentaciones, pedidos básicos y finanzas básicas.
 - Negocio: todo Emprende + producción, planeación semanal, inventario, compras automáticas, clientes avanzados, finanzas completas, hasta 3 usuarios y 2 marcas.
 - Pro: todo Negocio + reportes avanzados, roles personalizados, finanzas avanzadas, hasta 10 usuarios y 5 marcas.
-- Vista Mi plan rediseñada para comunicar claramente qué problema resuelve cada nivel.
+- Vista Mi plan integrada dentro de Perfil.
 - Negocio se presenta como el plan recomendado para operar un negocio en crecimiento.
 - Pro se presenta como capa de extras y capacidad, no como requisito para tener el flujo completo.
-- Límite real de alta de usuarios según plan.
-- Límite real de marcas activas según plan.
-- Mensajes de bloqueo con el plan mínimo requerido.
-- Registro local de intentos bloqueados.
+- Límite funcional de alta de usuarios y marcas según plan.
+- Mensajes de bloqueo y registro local de intentos bloqueados.
 
 Importante:
 - En esta versión estática/local los permisos son controles funcionales del frontend. La protección de seguridad a nivel servidor y aislamiento real por negocio se implementará con el punto 10.
 
 ## 8. Suscripciones
-Estado: EN CURSO
+Estado: CERRADO EN DEMO ✅
 
 Implementado:
-- Pantalla de Suscripción dentro de Cuenta.
+- Suscripción integrada dentro de Perfil.
 - Registro local de nombre, correo y negocio para simular alta de cuenta.
 - Prueba de 14 días.
 - Selección de Emprende / Negocio / Pro durante la prueba.
@@ -136,22 +134,33 @@ Implementado:
 - Reanudación de suscripción cancelada o programada para cancelar.
 - Historial local de movimientos de suscripción.
 - Estado, plan, ciclo, renovación y método de pago demo visibles.
-- Integración con los permisos actuales: cambiar el plan actualiza inmediatamente las capacidades del sistema.
+- Cambiar plan actualiza inmediatamente las capacidades del sistema.
 
-Pendiente para cerrar el punto:
-- Validar visualmente el flujo completo publicado.
-- Conectar una pasarela de pago real cuando exista backend y se elija proveedor de pagos.
-- Llevar registro, prueba, renovaciones y cancelaciones al backend real del punto 10.
+Pendiente para producción real:
+- Pasarela de pago real.
+- Webhooks de cobro/renovación.
+- Registro, prueba, renovaciones y cancelaciones en backend.
+- Esto se conecta cuando exista el backend del punto 10.
 
 ## 9. Usuarios y roles
-Estado: PENDIENTE
+Estado: CERRADO EN FRONTEND ✅
 
-- Dueño.
+Implementado:
+- Propietario.
 - Administrador.
 - Ventas.
 - Producción.
 - Caja.
-- Roles personalizados en Pro.
+- Permisos funcionales por sección.
+- Selector para simular qué ve cada usuario.
+- Límite de usuarios según plan.
+- Protección para mantener al menos un Propietario activo.
+- Roles personalizados disponibles solo en Pro.
+- Alta y eliminación de roles personalizados.
+- Menú lateral adaptado al rol activo.
+
+Importante:
+- El selector de usuario es una simulación de sesión local. Inicio de sesión real, tokens, sesiones y autorización de servidor pertenecen al punto 10.
 
 ## 10. Base de datos real / multiempresa
 Estado: PENDIENTE
@@ -161,7 +170,33 @@ Estado: PENDIENTE
 - Aislamiento por negocio.
 - Inicio de sesión real.
 - Persistencia en nube.
+- Autorización de servidor.
+- Suscripciones y pagos reales.
+
+## Cierre de calidad para esta semana
+Estado: EN VALIDACIÓN 🔎
+
+Implementado:
+- Centro de Diagnóstico dentro de Perfil.
+- Verificación de vistas críticas.
+- Verificación de planes y suscripción.
+- Detección de IDs duplicados en cotizaciones y pedidos.
+- Revisión de cotizaciones aceptadas vinculadas a pedidos.
+- Revisión de ventas cerradas con saldo 0.
+- Revisión de inventario sin stock negativo.
+- Revisión de límites de usuarios y marcas.
+- Revisión de existencia de Propietario activo.
+- Revisión de sesión simulada válida.
+- Prueba destructiva segura con datos sintéticos, sin tocar información real.
+- Historial local de ejecuciones QA.
+
+Pendiente antes de declarar la versión estable:
+- Ejecutar Diagnóstico con los datos actuales.
+- Ejecutar Prueba destructiva segura.
+- Corregir cualquier check que aparezca en rojo.
+- Recorrer manualmente el flujo completo: cotizar → aceptar → anticipo → pedido → producción → inventario → entrega → venta → finanzas.
+- Validar móvil y escritorio.
 
 ## Ideas nuevas agregadas durante el desarrollo
 
-Aún ninguna. Se agregarán aquí sin perder de vista los 10 puntos principales.
+Aún ninguna. Se agregarán aquí sin perder de vista los puntos principales.
