@@ -1,0 +1,16 @@
+/* DENYA v73 · hard fix for quotation product option cards */
+.modal:has(#qproduct) .v69-floor-one-options{margin-top:14px}
+.modal:has(#qproduct) .v69-floor-one-options>#dynamicComponents{display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:12px!important;align-items:stretch!important;width:100%!important}
+.modal:has(#qproduct) .v69-floor-one-options>#dynamicComponents>.section{display:block!important;min-width:0!important;width:100%!important;margin:0!important;padding:14px!important;border:1px solid #eadfd7!important;border-radius:14px!important;background:#fcfaf8!important;overflow:hidden!important}
+.modal:has(#qproduct) .v69-floor-one-options>#dynamicComponents>.section h3{display:block!important;margin:0 0 6px!important;font-size:14px!important;line-height:1.3!important;white-space:normal!important}
+.modal:has(#qproduct) .v69-floor-one-options>#dynamicComponents>.section .hint{display:block!important;margin:0 0 10px!important;padding:0!important;background:transparent!important;border:0!important;font-size:11px!important;line-height:1.35!important;white-space:normal!important}
+.modal:has(#qproduct) .v69-floor-one-options>#dynamicComponents>.section label.field{display:grid!important;grid-template-columns:1fr!important;gap:6px!important;width:100%!important;min-width:0!important;margin:0!important}
+.modal:has(#qproduct) .v69-floor-one-options>#dynamicComponents>.section label.field select{display:block!important;width:100%!important;max-width:100%!important;min-width:0!important;margin:0!important;padding:11px 12px!important;overflow:hidden!important;text-overflow:ellipsis!important;white-space:nowrap!important}
+.modal:has(#qproduct) .v73-options-title{grid-column:1/-1;margin:0 0 2px;font-size:18px;font-weight:900}
+.modal:has(#qproduct) .v69-floor-one-grid{grid-template-columns:minmax(0,1.35fr) minmax(220px,.75fr)!important;gap:14px!important}
+.modal:has(#qproduct) .v69-floor-one-grid>.field{min-width:0!important}
+.modal:has(#qproduct) .v69-floor-one-grid select{width:100%!important;min-width:0!important}
+@media(max-width:900px){
+  .modal:has(#qproduct) .v69-floor-one-options>#dynamicComponents{grid-template-columns:1fr!important}
+  .modal:has(#qproduct) .v69-floor-one-grid{grid-template-columns:1fr!important}
+}
