@@ -11,6 +11,11 @@
   let sb=null,session=null,currentOrg=null,billing='monthly';
   let geoPromise=null;
   const geo=()=>geoPromise||(geoPromise=import('https://cdn.jsdelivr.net/npm/country-state-city@3.2.1/+esm'));
+  let mxGeoPromise=null;
+  const mxGeo=()=>mxGeoPromise||(mxGeoPromise=Promise.all([
+    import('https://esm.sh/@webrek/mx-geo@0.9.1'),
+    import('https://esm.sh/@webrek/mx-geo@0.9.1/municipios')
+  ]));
 
   const esc=v=>String(v??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
   const slugify=v=>(String(v||'denya').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'').slice(0,42)||'negocio')+'-'+Math.random().toString(36).slice(2,6);
@@ -127,7 +132,7 @@
       <label class="v76-field"><span>Sitio web</span><input id="v76Website" value="${esc(prior.website||'')}" placeholder="https://"></label>
       <label class="v76-field"><span>País *</span><select id="v76Country" required><option value="">Cargando países…</option></select></label>
       <label class="v76-field"><span>Estado / provincia *</span><select id="v76State" required disabled><option value="">Selecciona país primero</option></select></label>
-      <label class="v76-field"><span>Ciudad *</span><select id="v76City" required disabled><option value="">Selecciona estado primero</option></select></label>
+      <label class="v76-field"><span id="v76LocalityLabel">Ciudad / municipio *</span><select id="v76City" required disabled><option value="">Selecciona estado primero</option></select></label>
       <label class="v76-field"><span>Pedidos aproximados al mes</span><select id="v76Orders"><option>1–20</option><option>21–50</option><option>51–150</option><option>151–500</option><option>500+</option></select></label>
       <div class="v76-field full"><span>¿Dónde vendes?</span><div class="v76-channel-grid"><label class="v76-chip"><input type="checkbox" name="channel" value="Instagram">Instagram</label><label class="v76-chip"><input type="checkbox" name="channel" value="WhatsApp">WhatsApp</label><label class="v76-chip"><input type="checkbox" name="channel" value="Tienda">Tienda física</label><label class="v76-chip"><input type="checkbox" name="channel" value="Eventos">Eventos</label><label class="v76-chip"><input type="checkbox" name="channel" value="Web">Página web</label></div></div>
       <label class="v76-field full"><span>¿Qué quieres mejorar primero?</span><textarea id="v76Goals" placeholder="Ej. cotizar más rápido, controlar inventario, saber mi ganancia…">${esc(prior.goals||'')}</textarea></label>
@@ -157,13 +162,37 @@
       const countries=Country.getAllCountries().sort((a,b)=>a.name.localeCompare(b.name,'es'));
       country.innerHTML='<option value="">Selecciona país</option>'+countries.map(c=>`<option value="${esc(c.isoCode)}">${esc(c.name)}</option>`).join('');
 
-      const loadCities=()=>{
+      const loadCities=async()=>{
         const cc=country.value,sc=state.value;
-        if(!cc){city.disabled=true;city.innerHTML='<option value="">Selecciona país primero</option>';return}
+        const label=document.querySelector('#v76LocalityLabel');
+        if(!cc){city.disabled=true;city.innerHTML='<option value="">Selecciona país primero</option>';if(label)label.textContent='Ciudad / municipio *';return}
+
+        // México: use official municipality-level divisions only (no colonias/localities mixed in).
+        if(cc==='MX' && sc && sc!=='__none'){
+          try{
+            if(label)label.textContent='Municipio *';
+            city.disabled=true;
+            city.innerHTML='<option value="">Cargando municipios…</option>';
+            const [mxBase,mxMun]=await mxGeo();
+            const stateName=state.selectedOptions?.[0]?.dataset?.name||state.selectedOptions?.[0]?.textContent||'';
+            const match=mxBase.buscaEstado(stateName);
+            const municipalities=match?mxMun.municipios(match.cve):[];
+            const rows=(municipalities||[]).slice().sort((a,b)=>a.nombre.localeCompare(b.nombre,'es'));
+            city.disabled=false;
+            city.innerHTML='<option value="">Selecciona municipio</option>'+rows.map(m=>`<option value="${esc(m.nombre)}" data-cvegeo="${esc(m.cvegeo||'')}">${esc(m.nombre)}</option>`).join('');
+            const priorMunicipality=prior.municipality||prior.city||prior.location?.municipality||prior.location?.city;
+            if(priorMunicipality&&[...city.options].some(o=>o.value===priorMunicipality))city.value=priorMunicipality;
+            return;
+          }catch(mxErr){
+            console.error('Mexico municipality catalog failed',mxErr);
+          }
+        }
+
+        if(label)label.textContent='Ciudad / municipio *';
         let cities=sc&&sc!=='__none'?City.getCitiesOfState(cc,sc):City.getCitiesOfCountry(cc);
         cities=(cities||[]).sort((a,b)=>a.name.localeCompare(b.name,'es'));
         city.disabled=false;
-        city.innerHTML='<option value="">Selecciona ciudad</option>'+cities.map(c=>`<option value="${esc(c.name)}">${esc(c.name)}</option>`).join('');
+        city.innerHTML='<option value="">Selecciona ciudad / municipio</option>'+cities.map(c=>`<option value="${esc(c.name)}">${esc(c.name)}</option>`).join('');
         const priorCity=prior.city||prior.location?.city;
         if(priorCity&&[...city.options].some(o=>o.value===priorCity))city.value=priorCity;
       };
@@ -231,6 +260,8 @@
         country:countryName,country_code:countryEl?.value||'',
         state:stateName,state_code:stateEl?.disabled?'':(stateEl?.value||''),
         city:cityName,
+        municipality:countryEl?.value==='MX'?cityName:'',
+        locality_code:cityEl?.selectedOptions?.[0]?.dataset?.cvegeo||'',
         location_label:[cityName,stateName,countryName].filter(Boolean).join(', '),
         monthly_orders:document.querySelector('#v76Orders').value,
         channels,goals:document.querySelector('#v76Goals').value.trim(),main_brand:brand
