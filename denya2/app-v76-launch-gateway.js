@@ -8,6 +8,11 @@
     negocio:{name:'Negocio',monthly:449,annual:4490,tag:'Más elegido',features:['Hasta 3 usuarios','Hasta 2 marcas','Producción, inventario y compras','Clientes avanzados']},
     pro:{name:'Pro',monthly:699,annual:6990,tag:'Para crecer',features:['Hasta 10 usuarios','Hasta 5 marcas','Roles personalizados','Reportes y control avanzado']}
   };
+  const STRIPE_LINKS={
+    emprende:{monthly:'https://buy.stripe.com/6oUcMY2j23d3aRqf270x200',annual:'https://buy.stripe.com/14A4gsbTC9Br0cM6vB0x201'},
+    negocio:{monthly:'https://buy.stripe.com/8x26oAaPyeVL9Nmg6b0x202',annual:'https://buy.stripe.com/8x2bIU7Dm5lb9Nm07d0x203'},
+    pro:{monthly:'https://buy.stripe.com/00w6oA9LucND9Nm3jp0x204',annual:'https://buy.stripe.com/3cI28k2j214V6Ba7zF0x205'}
+  };
   let sb=null,session=null,currentOrg=null,billing='monthly',appliedPromo=null;
   let geoPromise=null;
   const geo=()=>geoPromise||(geoPromise=import('https://cdn.jsdelivr.net/npm/country-state-city@3.2.1/+esm'));
@@ -363,12 +368,11 @@
       </div>
 
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:20px">
-        <button type="button" class="v76-btn" onclick="DENYAGateway.paymentPreference('card','${code}')"><b>💳 Tarjeta</b><br><span style="font-size:12px;font-weight:500">Crédito o débito</span></button>
-        <button type="button" class="v76-btn" onclick="DENYAGateway.paymentPreference('paypal','${code}')"><b>PayPal</b><br><span style="font-size:12px;font-weight:500">Cuenta PayPal</span></button>
+        <button type="button" class="v76-btn primary" onclick="DENYAGateway.paymentPreference('card','${code}')"><b>💳 Pagar con Stripe</b><br><span style="font-size:12px;font-weight:500">Tarjeta · Apple Pay · Link si están disponibles</span></button>
+        <button type="button" class="v76-btn" disabled style="opacity:.55;cursor:not-allowed"><b>PayPal</b><br><span style="font-size:12px;font-weight:500">Próximamente</span></button>
       </div>
       <div id="v76PaymentInfo" class="v76-success" style="display:none"></div>
-      <div class="v76-muted" style="margin-top:15px;font-size:12px">La tarjeta y PayPal deben conectarse mediante un procesador certificado. DENYA no almacenará números de tarjeta ni CVV.</div>
-      <button class="v76-btn primary wide" style="margin-top:18px" onclick="DENYAGateway.startTrial('${code}')">Continuar</button>
+      <div class="v76-muted" style="margin-top:15px;font-size:12px">El cobro se procesa en Stripe. DENYA nunca recibe ni almacena tu número de tarjeta o CVV.</div>
       <button class="v76-link" style="width:100%;margin-top:12px" onclick="DENYAGateway.skipPayment('${code}')">Omitir método de pago por ahora</button>
     </div></div>`;
     updatePromoPrice(code);
@@ -407,14 +411,17 @@
   }
 
   function paymentPreference(type,code){
-    window.__denyaPaymentPreference=type;
+    if(type!=='card'){setErr('PayPal todavía no está habilitado. Usa Stripe por ahora.');return}
+    const link=STRIPE_LINKS[code]?.[billing];
+    if(!link||!session?.user?.id||!currentOrg?.id){setErr('No pudimos preparar el checkout. Recarga e inténtalo otra vez.');return}
+    const ref=session.user.id+'_'+currentOrg.id;
+    const u=new URL(link);
+    u.searchParams.set('client_reference_id',ref);
+    if(session.user.email)u.searchParams.set('locked_prefilled_email',session.user.email);
+    if(appliedPromo?.code)u.searchParams.set('prefilled_promo_code',appliedPromo.code);
     const box=document.querySelector('#v76PaymentInfo');
-    if(box){
-      box.style.display='block';
-      box.innerHTML=type==='card'
-        ?'<b>Tarjeta seleccionada.</b><br>La captura real de tarjeta se abrirá en el checkout seguro del procesador cuando quede conectada la cuenta de cobro.'
-        :'<b>PayPal seleccionado.</b><br>La autorización real de PayPal se abrirá en su checkout seguro cuando quede conectada la cuenta merchant.';
-    }
+    if(box){box.style.display='block';box.innerHTML='<b>Abriendo Stripe…</b><br>Regresarás automáticamente a DENYA al terminar.'}
+    location.href=u.toString();
   }
 
   async function choosePlan(code){
@@ -424,49 +431,28 @@
   }
 
   async function startTrial(code){
-    if(!PLANS[code]||!currentOrg?.id)return;
-    setErr('');
-    const method=window.__denyaPaymentPreference||null;
-    if(!method){setErr('Selecciona Tarjeta, PayPal o elige “Omitir método de pago por ahora”.');return}
-    try{
-      const now=new Date(),end=new Date(now.getTime()+14*86400000);
-      const {data:old}=await sb.from('subscriptions').select('*').eq('organization_id',currentOrg.id).order('created_at',{ascending:false}).limit(1);
-      const existing=old&&old[0];
-      let reserved=null;
-      if(appliedPromo && (!existing?.promo_code_id || existing.promo_code_id!==appliedPromo.promo_id)){
-        const {data:pr,error:pe}=await sb.rpc('reserve_promo_code',{p_code:appliedPromo.code,p_plan_code:code,p_organization_id:currentOrg.id});
-        if(pe)throw pe;
-        reserved=pr&&pr[0];
-      }
-      let q;
-      const promo=reserved||appliedPromo;
-      const payload={
-        organization_id:currentOrg.id,
-        plan_code:code,
-        status:'trialing',
-        billing_cycle:billing,
-        trial_started_at:existing?.trial_started_at||now.toISOString(),
-        trial_ends_at:existing?.trial_ends_at||end.toISOString(),
-        cancel_at_period_end:false,
-        payment_method_type:method,
-        payment_method_status:'not_configured',
-        promo_code_id:promo?.promo_id||existing?.promo_code_id||null,
-        promo_code:promo?.code||existing?.promo_code||null,
-        promo_discount_type:promo?.discount_type||existing?.promo_discount_type||null,
-        promo_discount_value:promo?.discount_value??existing?.promo_discount_value??null
-      };
-      if(existing)q=await sb.from('subscriptions').update(payload).eq('id',existing.id).select('*').single();
-      else q=await sb.from('subscriptions').insert(payload).select('*').single();
-      if(q.error)throw q.error;
-      window.__denyaPaymentPreference=null;
-      appliedPromo=null;
-      showApp(q.data||payload);
-    }catch(err){setErr(err.message||String(err))}
+    paymentPreference('card',code);
   }
 
   function skipPayment(code){
     window.__denyaPaymentPreference='later';
     startTrial(code);
+  }
+
+  async function stripeReturn(){
+    showGateway();
+    gateway().innerHTML='<div class="v76-auth-wrap"><div class="v76-card"><span class="v76-kicker">Pago recibido</span><h1>Confirmando tu suscripción…</h1><p class="v76-muted">Stripe está notificando a DENYA. Esto normalmente tarda solo unos segundos.</p><div id="v76Error" class="v76-error"></div></div></div>';
+    for(let i=0;i<12;i++){
+      try{
+        const st=await accountState();
+        if(st.kind==='app'&&st.subscription?.provider==='stripe'){
+          history.replaceState({},'',location.pathname);
+          return showApp(st.subscription);
+        }
+      }catch(_){}
+      await new Promise(r=>setTimeout(r,1200));
+    }
+    setErr('Stripe confirmó el checkout, pero DENYA todavía está sincronizando la suscripción. Recarga en unos segundos.');
   }
 
   async function init(){
@@ -475,7 +461,8 @@
     sb=window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY);
     const {data}=await sb.auth.getSession();session=data.session;
     sb.auth.onAuthStateChange((_event,s)=>{session=s});
-    if(session)await routeSession();else landing();
+    if(session&&new URLSearchParams(location.search).get('stripe')==='success')await stripeReturn();
+    else if(session)await routeSession();else landing();
   }
 
   window.DENYAGateway={home:landing,login:()=>auth('login'),register:()=>auth('register'),choosePlan,startTrial,skipPayment,paymentPreference,applyPromo,plans,setBilling:v=>{billing=v;appliedPromo=null;plans()},logout};
