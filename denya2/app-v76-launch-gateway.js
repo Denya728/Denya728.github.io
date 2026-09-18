@@ -413,8 +413,7 @@
     const value=(input?.value||'').trim().toUpperCase();
     if(!value){appliedPromo=null;if(out)out.textContent='Escribe un código.';updatePromoPrice(code);return}
     if(out)out.textContent='Validando…';
-    const {data,error}=await sb.rpc('validate_promo_code',{p_code:value,p_plan_code:code});
-    const r=data&&data[0];
+    const {data:r,error}=await sb.functions.invoke('denya-workspace',{body:{action:'promo_validate',code:value,plan_code:code}});
     if(error||!r?.valid){
       appliedPromo=null;
       if(out)out.textContent=error?.message||r?.message||'Código no válido.';
@@ -441,6 +440,12 @@
     }catch(_){}
     const link=STRIPE_LINKS[code]?.[billing];
     if(!link||!session?.user?.id||!currentOrg?.id){setErr('No pudimos preparar el checkout. Recarga e inténtalo otra vez.');return}
+    if(appliedPromo?.code){
+      try{
+        const {data:reserved,error:reserveError}=await sb.functions.invoke('denya-workspace',{body:{action:'promo_reserve',code:appliedPromo.code,plan_code:code}});
+        if(reserveError||!reserved?.valid){setErr(reserveError?.message||reserved?.message||'No pudimos reservar el código de descuento.');return}
+      }catch(e){setErr(e.message||String(e));return}
+    }
     const ref=session.user.id+'_'+currentOrg.id;
     const u=new URL(link);
     u.searchParams.set('client_reference_id',ref);
