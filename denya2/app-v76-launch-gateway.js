@@ -20,6 +20,7 @@
   const esc=v=>String(v??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
   const slugify=v=>(String(v||'denya').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'').slice(0,42)||'negocio')+'-'+Math.random().toString(36).slice(2,6);
   const gateway=()=>document.getElementById('v76Gateway');
+  const annualSavings=p=>({regular:p.monthly*12,saved:p.monthly*12-p.annual,percent:Math.round((1-p.annual/(p.monthly*12))*1000)/10});
   const setErr=(msg='')=>{const e=document.querySelector('#v76Error');if(e){e.textContent=msg;e.classList.toggle('show',!!msg)}};
   const busy=(btn,on,text)=>{if(!btn)return; if(on){btn.dataset.old=btn.textContent;btn.textContent=text||'Procesando…'}else btn.textContent=btn.dataset.old||btn.textContent;btn.disabled=!!on};
 
@@ -316,8 +317,14 @@
 
   function plans(){
     showGateway();
-    const cards=Object.entries(PLANS).map(([code,p])=>`<article class="v76-plan ${code==='negocio'?'featured':''}"><span class="v76-kicker">${esc(p.tag)}</span><h3>${esc(p.name)}</h3><div class="v76-price">$<span>${billing==='annual'?p.annual:p.monthly}</span><small> / ${billing==='annual'?'año':'mes'}</small></div><ul>${p.features.map(x=>`<li>${esc(x)}</li>`).join('')}</ul><button class="v76-btn ${code==='negocio'?'primary':''} wide" onclick="DENYAGateway.choosePlan('${code}')">Continuar con ${esc(p.name)}</button></article>`).join('');
-    gateway().innerHTML=`<div class="v76-auth-wrap"><div class="v76-card large"><div class="v76-progress"><span class="on"></span><span class="on"></span><span class="on"></span></div><div style="text-align:center"><span class="v76-kicker">Último paso</span><h1>Elige tu plan</h1><div class="v76-muted">Tu cuenta incluye 14 días de prueba. Elige el nivel con el que quieres comenzar.</div><div class="v76-cycle"><button class="v76-btn ${billing==='monthly'?'active':''}" onclick="DENYAGateway.setBilling('monthly')">Mensual</button><button class="v76-btn ${billing==='annual'?'active':''}" onclick="DENYAGateway.setBilling('annual')">Anual · ahorra</button></div></div><div id="v76Error" class="v76-error"></div><div class="v76-plans">${cards}</div><p class="v76-muted" style="text-align:center;margin-top:15px">Después de elegir el plan verás la configuración de renovación. No guardamos números de tarjeta directamente en DENYA.</p></div></div>`;
+    const cards=Object.entries(PLANS).map(([code,p])=>{
+      const save=annualSavings(p);
+      const priceNote=billing==='annual'
+        ?`<div style="margin-top:8px;font-size:12px"><span style="text-decoration:line-through;color:#8a818c">${save.regular.toLocaleString('es-MX')} MXN</span> <b style="color:#2d6a42">Ahorra ${save.saved.toLocaleString('es-MX')} · ${save.percent}% · 2 meses gratis</b></div>`
+        :`<div style="margin-top:8px;font-size:12px;color:#746d78">También disponible anual con 2 meses gratis</div>`;
+      return `<article class="v76-plan ${code==='negocio'?'featured':''}"><span class="v76-kicker">${esc(p.tag)}</span><h3>${esc(p.name)}</h3><div class="v76-price">$<span>${billing==='annual'?p.annual:p.monthly}</span><small> / ${billing==='annual'?'año':'mes'}</small></div>${priceNote}<ul>${p.features.map(x=>`<li>${esc(x)}</li>`).join('')}</ul><button class="v76-btn ${code==='negocio'?'primary':''} wide" onclick="DENYAGateway.choosePlan('${code}')">Continuar con ${esc(p.name)}</button></article>`;
+    }).join('');
+    gateway().innerHTML=`<div class="v76-auth-wrap"><div class="v76-card large"><div class="v76-progress"><span class="on"></span><span class="on"></span><span class="on"></span></div><div style="text-align:center"><span class="v76-kicker">Último paso</span><h1>Elige tu plan</h1><div class="v76-muted">Tu cuenta incluye 14 días de prueba. Elige el nivel con el que quieres comenzar.</div><div class="v76-cycle"><button class="v76-btn ${billing==='monthly'?'active':''}" onclick="DENYAGateway.setBilling('monthly')">Mensual</button><button class="v76-btn ${billing==='annual'?'active':''}" onclick="DENYAGateway.setBilling('annual')">Anual · 2 meses gratis</button></div></div><div id="v76Error" class="v76-error"></div><div class="v76-plans">${cards}</div><p class="v76-muted" style="text-align:center;margin-top:15px">Después de elegir el plan verás la configuración de renovación. No guardamos números de tarjeta directamente en DENYA.</p></div></div>`;
   }
 
   function billingSetup(code){
@@ -339,7 +346,8 @@
 
       <div style="margin-top:18px;padding:16px;border:1px solid #e8e0ea;border-radius:16px">
         <div style="display:flex;justify-content:space-between;gap:12px;align-items:end;flex-wrap:wrap">
-          <div><div class="v76-muted" style="font-size:12px">Precio después de la prueba</div><b style="font-size:22px" id="v76PriceAfterTrial">$ ${basePrice.toLocaleString('es-MX')} MXN / ${billing==='annual'?'año':'mes'}</b></div>
+          <div><div class="v76-muted" style="font-size:12px">Precio después de la prueba</div><b style="font-size:22px" id="v76PriceAfterTrial">$ ${basePrice.toLocaleString('es-MX')} MXN / ${billing==='annual'?'año':'mes'}</b>
+          ${billing==='annual'?(()=>{const a=annualSavings(p);return `<div style="font-size:12px;margin-top:6px;color:#2d6a42"><b>Plan anual: 2 meses gratis · ahorras ${a.saved.toLocaleString('es-MX')} MXN (${a.percent}%)</b></div>`})():''}</div>
           <div id="v76PromoBadge" class="v76-success" style="display:${appliedPromo?'block':'none'}">${appliedPromo?esc(promoText):''}</div>
         </div>
       </div>
