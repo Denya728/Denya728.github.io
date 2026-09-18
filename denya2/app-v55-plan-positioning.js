@@ -34,10 +34,13 @@
 
   function setPlan(name){
     if(!api.definitions[name])return;
-    state.subscription=state.subscription||{};
-    state.subscription.plan=name;state.plan=name;save();
-    if(typeof toast==='function')toast('Plan cambiado a '+name);
-    if(typeof show==='function')show('plan');
+    const current=api.currentPlan();
+    if(name===current){if(typeof toast==='function')toast('Este ya es tu plan actual');return}
+    if(window.DENYAGateway&&typeof window.DENYAGateway.requestPlanChange==='function'){
+      window.DENYAGateway.requestPlanChange(name);
+      return;
+    }
+    if(typeof toast==='function')toast('El cambio de plan requiere confirmación de pago.');
   }
   window.setPlanV55=setPlan;
 
@@ -47,7 +50,7 @@
     const cur=api.currentPlan(),d=api.planDef();
     const cards=['Emprende','Negocio','Pro'].map(name=>{
       const c=copy[name],active=cur===name;
-      return `<div class="v55-card ${name==='Negocio'?'recommended':''}"><span class="v55-tag">${esc(c.tag)}</span><h2>${esc(c.title)}</h2><div class="v55-why">${esc(c.why)}</div><div style="font-size:30px;font-weight:900;margin-top:10px">${money(price[name])}<span class="muted" style="font-size:13px"> / mes</span></div><div class="v55-list">${c.items.map((x,i)=>`<div class="${name==='Pro'&&i>0?'v55-extra':''}">✓ ${esc(x)}</div>`).join('')}</div><button class="${active?'secondary':'primary'}" onclick="setPlanV55('${name}')">${active?'Plan actual':'Cambiar a '+name}</button></div>`;
+      return `<div class="v55-card ${name==='Negocio'?'recommended':''}"><span class="v55-tag">${esc(c.tag)}</span><h2>${esc(c.title)}</h2><div class="v55-why">${esc(c.why)}</div><div style="font-size:30px;font-weight:900;margin-top:10px">${money(price[name])}<span class="muted" style="font-size:13px"> / mes</span></div><div class="v55-list">${c.items.map((x,i)=>`<div class="${name==='Pro'&&i>0?'v55-extra':''}">✓ ${esc(x)}</div>`).join('')}</div><button class="${active?'secondary':'primary'}" ${active?'disabled':''} onclick="setPlanV55('${name}')">${active?'Plan actual':'Cambiar a '+name}</button></div>`;
     }).join('');
     const rows=[
       ['Cotizaciones, productos y recetas','✓','✓','✓'],
