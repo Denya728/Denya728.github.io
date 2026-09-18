@@ -152,6 +152,7 @@
     const oid=m[0].organization_id;
     const {data:o,error:oe}=await sb.from('organizations').select('*').eq('id',oid).single();if(oe)throw oe;
     currentOrg=o;
+    if(o.active===false)return {kind:'suspended',org:o};
     if(!o.onboarding_completed)return {kind:'onboarding',org:o};
     const {data:s,error:se}=await sb.from('subscriptions').select('*').eq('organization_id',oid).order('created_at',{ascending:false}).limit(1);if(se)throw se;
     const sub=s&&s[0];
@@ -165,6 +166,11 @@
       const st=await accountState();
       if(st.kind==='guest')return landing();
       if(st.kind==='onboarding')return onboarding(st.org);
+      if(st.kind==='suspended'){
+        showGateway();
+        gateway().innerHTML=`<div class="v76-auth-wrap"><div class="v76-card"><span class="v76-kicker">Cuenta suspendida</span><h1>Este espacio de trabajo está suspendido</h1><p class="v76-muted">La organización <b>${esc(st.org?.name||'')}</b> está temporalmente suspendida. Tus datos permanecen guardados, pero la operación está bloqueada hasta que Administración DENYA reactive la cuenta.</p><div class="v76-actions"><button class="v76-btn primary" onclick="DENYAGateway.logout()">Cerrar sesión</button></div></div></div>`;
+        return;
+      }
       if(st.kind==='plans')return plans();
       if(st.kind==='billing')return billingSetup(st.subscription?.plan_code||'emprende');
       showApp(st.subscription);
