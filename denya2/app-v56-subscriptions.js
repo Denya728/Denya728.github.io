@@ -33,10 +33,12 @@
   }
   function setPlan(name){
     if(!PLANS[name])return false;
-    ensureData();
-    state.subscription.plan=name;state.plan=name;event('plan',name);save();
-    if(typeof toast==='function')toast('Plan actualizado a '+name);
-    return true;
+    if(window.DENYAGateway&&typeof window.DENYAGateway.requestPlanChange==='function'){
+      window.DENYAGateway.requestPlanChange(name);
+      return false;
+    }
+    if(typeof toast==='function')toast('El cambio de plan requiere confirmación de pago.');
+    return false;
   }
   function ensureStyle(){
     if(document.getElementById('v56substyle'))return;
