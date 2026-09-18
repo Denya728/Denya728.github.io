@@ -15,14 +15,38 @@
 <script>
 const URL='https://kcinhsldmnvhudivutzv.supabase.co';
 const KEY='sb_publishable_XZ4dtZehhFZkklDkdLuW0g_KE_Gd8Cs';
-const sb=supabase.createClient(URL,KEY);
 const root=document.getElementById('root');
 const esc=v=>String(v??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
-let session=null,editing=null;
+let sb=null,session=null,editing=null;
+
+function fatal(msg){
+  root.innerHTML='<div class="shell"><div class="card login"><div class="brand">✦ DENYA Admin</div><h2>No pudimos cargar Administración</h2><p class="muted">'+esc(msg||'Error inesperado')+'</p><div class="row"><button class="primary" onclick="location.reload()">Reintentar</button><a class="btn secondary" href="./">Volver a DENYA</a></div></div></div>';
+}
+function createSupabase(){
+  if(!window.supabase||typeof window.supabase.createClient!=='function'){
+    fatal('No se pudo cargar la conexión segura con Supabase. Revisa tu conexión e intenta de nuevo.');
+    return false;
+  }
+  sb=window.supabase.createClient(URL,KEY,{auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:true}});
+  return true;
+}
+root.innerHTML='<div class="shell"><div class="card login"><div class="brand">✦ DENYA Admin</div><p class="muted">Cargando administración…</p></div></div>';
+window.addEventListener('error',e=>{console.error(e.error||e.message)});
+window.addEventListener('unhandledrejection',e=>{console.error(e.reason)});
 
 function login(){
   root.innerHTML='<div class="shell"><div class="card login"><div class="brand">✦ DENYA Admin</div><p class="muted">Acceso exclusivo de administración.</p><div id="err" class="err"></div><div class="grid"><label class="full">Correo<input id="email" type="email"></label><label class="full">Contraseña<input id="pass" type="password"></label><button class="primary full" id="go">Entrar</button><a class="btn secondary full" href="./">Volver a DENYA</a></div></div></div>';
-  document.getElementById('go').onclick=async()=>{const {error}=await sb.auth.signInWithPassword({email:email.value.trim(),password:pass.value});if(error)return showErr(error.message);await init()};
+  document.getElementById('go').onclick=async()=>{
+    const emailEl=document.getElementById('email'),passEl=document.getElementById('pass'),btn=document.getElementById('go');
+    if(!emailEl?.value.trim()||!passEl?.value){showErr('Escribe tu correo y contraseña.');return}
+    btn.disabled=true;btn.textContent='Entrando…';
+    try{
+      const {error}=await sb.auth.signInWithPassword({email:emailEl.value.trim(),password:passEl.value});
+      if(error)return showErr(error.message);
+      await init();
+    }catch(err){showErr(err.message||String(err))}
+    finally{if(document.getElementById('go')){document.getElementById('go').disabled=false;document.getElementById('go').textContent='Entrar'}}
+  };
 }
 function showErr(msg){const e=document.getElementById('err');if(e){e.textContent=msg;e.classList.add('show')}}
 async function isAdmin(){const {data,error}=await sb.rpc('is_platform_admin');return !error&&data===true}
@@ -82,12 +106,24 @@ async function render(){
   document.getElementById('logout').onclick=async()=>{await sb.auth.signOut();location.reload()};
 }
 async function init(){
-  const {data}=await sb.auth.getSession();session=data.session;
-  if(!session)return login();
-  if(!(await isAdmin())){root.innerHTML='<div class="shell"><div class="card login"><h2>Acceso no autorizado</h2><p class="muted">Esta cuenta no tiene permisos de administración DENYA.</p><a class="btn secondary" href="./">Volver</a></div></div>';return}
-  await render();
+  try{
+    const {data,error}=await sb.auth.getSession();
+    if(error)throw error;
+    session=data.session;
+    if(!session)return login();
+    const admin=await isAdmin();
+    if(!admin){
+      root.innerHTML='<div class="shell"><div class="card login"><div class="brand">✦ DENYA Admin</div><h2>Acceso no autorizado</h2><p class="muted">Esta cuenta inició sesión correctamente, pero no tiene permisos de administración DENYA.</p><div class="row"><button class="secondary" id="adminLogout">Cerrar sesión</button><a class="btn secondary" href="./">Volver</a></div></div></div>';
+      const b=document.getElementById('adminLogout');if(b)b.onclick=async()=>{await sb.auth.signOut();location.reload()};
+      return;
+    }
+    await render();
+  }catch(err){
+    console.error(err);
+    fatal(err.message||String(err));
+  }
 }
-init();
+if(createSupabase())init();
 </script>
 </body>
 </html>
