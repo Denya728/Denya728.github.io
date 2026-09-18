@@ -64,7 +64,7 @@
           :(subscription.payment_method_type==='later'?'Pendiente':'Sin método');
         state.subscription.paymentMethodStatus=subscription.payment_method_status||null;
         state.subscription.trialEndsAt=subscription.trial_ends_at||state.subscription.trialEndsAt||null;
-        state.subscription.renewsAt=subscription.current_period_end||state.subscription.renewsAt||null;
+        state.subscription.renewsAt=subscription.current_period_ends_at||state.subscription.renewsAt||null;
         state.subscription.cancelAtPeriodEnd=!!subscription.cancel_at_period_end;
         save();
       }
@@ -392,8 +392,7 @@
         <button type="button" class="v76-btn" disabled style="opacity:.55;cursor:not-allowed"><b>PayPal</b><br><span style="font-size:12px;font-weight:500">Próximamente</span></button>
       </div>
       <div id="v76PaymentInfo" class="v76-success" style="display:none"></div>
-      <div class="v76-muted" style="margin-top:15px;font-size:12px">El cobro se procesa en Stripe. DENYA nunca recibe ni almacena tu número de tarjeta o CVV.</div>
-      <button class="v76-link" style="width:100%;margin-top:12px" onclick="DENYAGateway.skipPayment('${code}')">Omitir método de pago por ahora</button>
+      <div class="v76-muted" style="margin-top:15px;font-size:12px">El cobro se procesa en Stripe. DENYA nunca recibe ni almacena tu número de tarjeta o CVV. La prueba de 14 días se activa desde Stripe para mantener el plan y el método de pago sincronizados.</div>
     </div></div>`;
     updatePromoPrice(code);
   }
