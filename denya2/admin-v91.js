@@ -23,13 +23,17 @@ function login(){
   };
 }
 async function isAdmin(){const {data,error}=await sb.rpc('is_platform_admin');if(error)throw error;return data===true}
+async function adminAction(action,payload={}){
+  const {data,error}=await sb.functions.invoke('denya-admin',{body:{action,...payload}});
+  if(error)throw error;if(data?.error)throw new Error(data.error);return data;
+}
 async function load(){
   const [ov,pc]=await Promise.all([
-    sb.rpc('platform_admin_overview'),
+    adminAction('overview'),
     sb.from('promo_codes').select('*').order('created_at',{ascending:false})
   ]);
-  if(ov.error)throw ov.error;if(pc.error)throw pc.error;
-  overview=ov.data||{};promos=pc.data||[];
+  if(pc.error)throw pc.error;
+  overview=ov||{};promos=pc.data||[];
 }
 function shell(content){
   root.innerHTML='<div class="a91-shell"><header class="a91-top"><div class="a91-brand">✦ DENYA <span>Administración de plataforma · '+E(session?.user?.email||'')+'</span></div><div class="a91-actions"><a class="a91-btn a91-secondary" href="./">Abrir aplicación</a><button class="a91-btn a91-secondary" onclick="refreshAdmin()">Actualizar</button><button class="a91-btn a91-danger" onclick="logoutAdmin()">Cerrar sesión</button></div></header><nav class="a91-tabs">'+[
@@ -95,7 +99,7 @@ window.refreshAdmin=async()=>{try{await load();render()}catch(e){fatal(e.message
 window.logoutAdmin=async()=>{await sb.auth.signOut();session=null;login()};
 window.toggleOrg=async(id,active)=>{
   const reason=active?'Reactivación desde Administración':prompt('Motivo de suspensión (opcional):')||'';
-  try{const {error}=await sb.rpc('platform_admin_set_org_active',{p_organization_id:id,p_active:active,p_reason:reason});if(error)throw error;await load();render()}catch(e){alert(e.message||e)}
+  try{await adminAction('set_org_active',{organization_id:id,active,reason});await load();render()}catch(e){alert(e.message||e)}
 };
 window.openOrgDetail=id=>{
   const o=(overview?.organizations||[]).find(x=>x.id===id);if(!o)return;
@@ -105,7 +109,7 @@ window.adminPlan=(id,current,billing)=>{
   const body='<div class="a91-form2"><label class="a91-field">Plan<select id="aplan"><option value="emprende">Emprende</option><option value="negocio">Negocio</option><option value="pro">Pro</option></select></label><label class="a91-field">Ciclo<select id="abilling"><option value="monthly">Mensual</option><option value="annual">Anual</option></select></label></div><p class="a91-muted">Solo se aplica directamente a cuentas que no están vinculadas a una suscripción Stripe.</p>';
   const m=showModal('Cambiar plan administrativo',body,'<button class="a91-btn a91-secondary" data-close>Cancelar</button><button class="a91-btn a91-primary" id="adminPlanSave">Guardar</button>');
   m.querySelector('#aplan').value=current||'emprende';m.querySelector('#abilling').value=billing||'monthly';
-  m.querySelector('#adminPlanSave').onclick=async()=>{try{const {error}=await sb.rpc('platform_admin_set_plan',{p_organization_id:id,p_plan_code:m.querySelector('#aplan').value,p_billing_cycle:m.querySelector('#abilling').value});if(error)throw error;m.remove();await load();render()}catch(e){alert(e.message||e)}};
+  m.querySelector('#adminPlanSave').onclick=async()=>{try{await adminAction('set_plan',{organization_id:id,plan_code:m.querySelector('#aplan').value,billing_cycle:m.querySelector('#abilling').value});m.remove();await load();render()}catch(e){alert(e.message||e)}};
 };
 window.promoModal=id=>{
   const p=id?promos.find(x=>x.id===id):null;
@@ -130,7 +134,7 @@ window.ticketModal=id=>{
   const body='<p><b>'+E(t.subject)+'</b></p><p class="a91-muted">'+E(t.message)+'</p><label class="a91-field">Estado<select id="tstatus"><option value="open">Abierta</option><option value="in_progress">En proceso</option><option value="resolved">Resuelta</option><option value="closed">Cerrada</option></select></label><label class="a91-field" style="margin-top:10px">Nota visible para el cliente<textarea id="tnotes">'+E(t.admin_notes||'')+'</textarea></label>';
   const m=showModal('Gestionar incidencia',body,'<button class="a91-btn a91-secondary" data-close>Cancelar</button><button class="a91-btn a91-primary" id="ticketSave">Guardar</button>');
   m.querySelector('#tstatus').value=t.status;
-  m.querySelector('#ticketSave').onclick=async()=>{const {error}=await sb.rpc('platform_admin_update_ticket',{p_ticket_id:id,p_status:m.querySelector('#tstatus').value,p_admin_notes:m.querySelector('#tnotes').value.trim()||null});if(error)return alert(error.message);m.remove();await load();render()};
+  m.querySelector('#ticketSave').onclick=async()=>{try{await adminAction('update_ticket',{ticket_id:id,status:m.querySelector('#tstatus').value,admin_notes:m.querySelector('#tnotes').value.trim()||null})}catch(e){return alert(e.message||e)};m.remove();await load();render()};
 };
 function showModal(title,body,actions=''){
   const bg=document.createElement('div');bg.className='a91-modal-bg';bg.innerHTML='<div class="a91-modal"><div class="a91-modal-head"><h2>'+E(title)+'</h2><button class="a91-btn a91-secondary" data-close>×</button></div><div style="margin-top:14px">'+body+'</div><div class="a91-modal-actions">'+actions+'</div></div>';
