@@ -1,0 +1,93 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>DENYA Admin · Códigos de descuento</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+:root{font-family:Inter,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;color:#201a24;background:#f7f4f7}
+*{box-sizing:border-box}body{margin:0}.shell{max-width:1180px;margin:auto;padding:28px}.top{display:flex;justify-content:space-between;gap:16px;align-items:center;margin-bottom:24px}.brand{font-weight:900;font-size:22px}.muted{color:#746d78}.card{background:#fff;border:1px solid #e8e0ea;border-radius:22px;padding:22px;box-shadow:0 10px 30px #2b16310d;margin-bottom:18px}.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}.full{grid-column:1/-1}label{display:grid;gap:6px;font-size:13px;font-weight:700}input,select,textarea{width:100%;padding:12px 13px;border:1px solid #dcd2de;border-radius:12px;background:#fff;font:inherit}button,a.btn{border:0;border-radius:12px;padding:11px 15px;font-weight:800;cursor:pointer;text-decoration:none;display:inline-block}.primary{background:#25162a;color:#fff}.secondary{background:#f1ebf2;color:#2a1c2d}.danger{background:#fff0f0;color:#8e2424}.row{display:flex;gap:9px;align-items:center;flex-wrap:wrap}.plans{display:flex;gap:12px;flex-wrap:wrap}.plans label{display:flex;align-items:center;gap:6px;font-weight:600}.plans input{width:auto}.tablewrap{overflow:auto}table{width:100%;border-collapse:collapse;min-width:900px}th,td{text-align:left;padding:11px 9px;border-bottom:1px solid #eee7ef;font-size:13px}.pill{display:inline-block;padding:5px 8px;border-radius:999px;background:#f2edf3;font-size:12px;font-weight:800}.ok{background:#ebf8ef;color:#24693a}.off{background:#f5efef;color:#7e4848}.err{display:none;background:#fff0f0;color:#8c2424;padding:11px 12px;border-radius:12px;margin:12px 0}.err.show{display:block}.login{max-width:440px;margin:80px auto}.kpi{font-size:12px;color:#777}.kpi b{font-size:18px;color:#211923}@media(max-width:760px){.grid{grid-template-columns:1fr}.shell{padding:16px}}
+</style>
+</head>
+<body>
+<div id="root"></div>
+<script>
+const URL='https://kcinhsldmnvhudivutzv.supabase.co';
+const KEY='sb_publishable_XZ4dtZehhFZkklDkdLuW0g_KE_Gd8Cs';
+const sb=supabase.createClient(URL,KEY);
+const root=document.getElementById('root');
+const esc=v=>String(v??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
+let session=null,editing=null;
+
+function login(){
+  root.innerHTML='<div class="shell"><div class="card login"><div class="brand">✦ DENYA Admin</div><p class="muted">Acceso exclusivo de administración.</p><div id="err" class="err"></div><div class="grid"><label class="full">Correo<input id="email" type="email"></label><label class="full">Contraseña<input id="pass" type="password"></label><button class="primary full" id="go">Entrar</button><a class="btn secondary full" href="./">Volver a DENYA</a></div></div></div>';
+  document.getElementById('go').onclick=async()=>{const {error}=await sb.auth.signInWithPassword({email:email.value.trim(),password:pass.value});if(error)return showErr(error.message);await init()};
+}
+function showErr(msg){const e=document.getElementById('err');if(e){e.textContent=msg;e.classList.add('show')}}
+async function isAdmin(){const {data,error}=await sb.rpc('is_platform_admin');return !error&&data===true}
+function form(p={}){
+  const plans=p.applicable_plan_codes||['emprende','negocio','pro'];
+  return '<div class="card"><div class="top"><div><h2 style="margin:0">'+(p.id?'Editar código':'Nuevo código')+'</h2><div class="muted">Configura descuento, vigencia y límites.</div></div>'+(p.id?'<button class="secondary" onclick="cancelEdit()">Cancelar edición</button>':'')+'</div><div id="err" class="err"></div><div class="grid">'+
+  '<label>Código *<input id="code" value="'+esc(p.code||'')+'" placeholder="AGOSTO20"></label>'+
+  '<label>Descripción<input id="description" value="'+esc(p.description||'')+'" placeholder="Promo agosto"></label>'+
+  '<label>Tipo de descuento<select id="dtype"><option value="percent" '+((p.discount_type||'percent')==='percent'?'selected':'')+'>Porcentaje</option><option value="fixed" '+(p.discount_type==='fixed'?'selected':'')+'>Monto fijo MXN</option></select></label>'+
+  '<label>Valor *<input id="dvalue" type="number" min="0" step="0.01" value="'+esc(p.discount_value??10)+'"></label>'+
+  '<label>Válido desde<input id="from" type="datetime-local" value="'+toLocal(p.valid_from)+'"></label>'+
+  '<label>Válido hasta<input id="until" type="datetime-local" value="'+toLocal(p.valid_until)+'"></label>'+
+  '<label>Usos totales máximos<input id="max" type="number" min="1" value="'+esc(p.max_redemptions??'')+'" placeholder="Sin límite"></label>'+
+  '<label>Usos máximos por usuario<input id="peruser" type="number" min="1" value="'+esc(p.max_redemptions_per_user??1)+'"></label>'+
+  '<div class="full"><b style="font-size:13px">Planes donde aplica</b><div class="plans">'+['emprende','negocio','pro'].map(x=>'<label><input type="checkbox" name="plan" value="'+x+'" '+(plans.includes(x)?'checked':'')+'>'+x[0].toUpperCase()+x.slice(1)+'</label>').join('')+'</div></div>'+
+  '<label>Estado<select id="active"><option value="1" '+(p.active!==false?'selected':'')+'>Activo</option><option value="0" '+(p.active===false?'selected':'')+'>Desactivado</option></select></label>'+
+  '<div></div><button class="primary full" id="save">'+(p.id?'Guardar cambios':'Crear código')+'</button></div></div>';
+}
+function toLocal(v){if(!v)return '';const d=new Date(v);return new Date(d.getTime()-d.getTimezoneOffset()*60000).toISOString().slice(0,16)}
+async function savePromo(){
+  const plans=[...document.querySelectorAll('[name=plan]:checked')].map(x=>x.value);
+  const payload={
+    code:document.getElementById('code').value.trim().toUpperCase(),
+    description:document.getElementById('description').value.trim(),
+    discount_type:document.getElementById('dtype').value,
+    discount_value:Number(document.getElementById('dvalue').value),
+    applicable_plan_codes:plans,
+    valid_from:document.getElementById('from').value?new Date(document.getElementById('from').value).toISOString():null,
+    valid_until:document.getElementById('until').value?new Date(document.getElementById('until').value).toISOString():null,
+    max_redemptions:document.getElementById('max').value?Number(document.getElementById('max').value):null,
+    max_redemptions_per_user:Number(document.getElementById('peruser').value)||1,
+    active:document.getElementById('active').value==='1',
+    updated_at:new Date().toISOString()
+  };
+  if(!payload.code||!plans.length||!(payload.discount_value>=0))return showErr('Completa código, valor y al menos un plan.');
+  if(payload.discount_type==='percent'&&payload.discount_value>100)return showErr('El porcentaje no puede superar 100%.');
+  let q;
+  if(editing)q=await sb.from('promo_codes').update(payload).eq('id',editing.id);
+  else q=await sb.from('promo_codes').insert({...payload,created_by:session.user.id});
+  if(q.error)return showErr(q.error.message);
+  editing=null;await render();
+}
+async function toggle(id,active){await sb.from('promo_codes').update({active:!active,updated_at:new Date().toISOString()}).eq('id',id);await render()}
+async function edit(id){const {data}=await sb.from('promo_codes').select('*').eq('id',id).single();editing=data;await render()}
+function cancelEdit(){editing=null;render()}
+async function render(){
+  const {data:promos,error}=await sb.from('promo_codes').select('*').order('created_at',{ascending:false});
+  if(error){root.innerHTML='<div class="shell"><div class="card">Error: '+esc(error.message)+'</div></div>';return}
+  const {data:red}=await sb.from('promo_redemptions').select('promo_code_id,status');
+  const counts={};(red||[]).filter(x=>x.status!=='cancelled').forEach(x=>counts[x.promo_code_id]=(counts[x.promo_code_id]||0)+1);
+  root.innerHTML='<div class="shell"><div class="top"><div><div class="brand">✦ DENYA Admin</div><div class="muted">Códigos de descuento</div></div><div class="row"><a class="btn secondary" href="./">Abrir DENYA</a><button class="secondary" id="logout">Cerrar sesión</button></div></div>'+
+    form(editing||{})+
+    '<div class="card"><div class="top"><div><h2 style="margin:0">Códigos programados</h2><div class="muted">Controla promociones por fecha, plan y número de usos.</div></div><div class="kpi"><b>'+(promos||[]).length+'</b><br>códigos</div></div><div class="tablewrap"><table><thead><tr><th>Código</th><th>Descuento</th><th>Vigencia</th><th>Planes</th><th>Usos</th><th>Por usuario</th><th>Estado</th><th></th></tr></thead><tbody>'+
+    ((promos||[]).map(p=>'<tr><td><b>'+esc(p.code)+'</b><br><span class="muted">'+esc(p.description||'')+'</span></td><td>'+(p.discount_type==='percent'?esc(p.discount_value)+'%':'$'+Number(p.discount_value).toFixed(2))+'</td><td>'+esc(p.valid_from?new Date(p.valid_from).toLocaleDateString('es-MX'):'Desde ahora')+' → '+esc(p.valid_until?new Date(p.valid_until).toLocaleDateString('es-MX'):'Sin vencimiento')+'</td><td>'+esc((p.applicable_plan_codes||[]).join(', '))+'</td><td>'+(counts[p.id]||0)+' / '+(p.max_redemptions??'∞')+'</td><td>'+esc(p.max_redemptions_per_user)+'</td><td><span class="pill '+(p.active?'ok':'off')+'">'+(p.active?'Activo':'Desactivado')+'</span></td><td><div class="row"><button class="secondary" onclick="edit(\''+p.id+'\')">Editar</button><button class="'+(p.active?'danger':'secondary')+'" onclick="toggle(\''+p.id+'\','+p.active+')">'+(p.active?'Desactivar':'Activar')+'</button></div></td></tr>').join('')||'<tr><td colspan="8">No hay códigos todavía.</td></tr>')+
+    '</tbody></table></div></div></div>';
+  document.getElementById('save').onclick=savePromo;
+  document.getElementById('logout').onclick=async()=>{await sb.auth.signOut();location.reload()};
+}
+async function init(){
+  const {data}=await sb.auth.getSession();session=data.session;
+  if(!session)return login();
+  if(!(await isAdmin())){root.innerHTML='<div class="shell"><div class="card login"><h2>Acceso no autorizado</h2><p class="muted">Esta cuenta no tiene permisos de administración DENYA.</p><a class="btn secondary" href="./">Volver</a></div></div>';return}
+  await render();
+}
+init();
+</script>
+</body>
+</html>
