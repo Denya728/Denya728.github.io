@@ -55,40 +55,35 @@
   };
 
   window.startTrialV56=function(name){
-    ensureData();
-    if(!state.subscriptionAccount?.registered){registerSubscriptionV56();toast('Primero crea tu cuenta');return}
     if(!PLANS[name])name='Negocio';
-    const s=state.subscription;s.plan=name;state.plan=name;s.status='Prueba';s.billing='Mensual';s.trialStartedAt=nowIso();s.trialEndsAt=addDays(null,14);s.renewsAt=null;s.cancelAtPeriodEnd=false;s.cancelledAt=null;event('trial','Prueba de 14 días · '+name);save();show('subscription');toast('Prueba de 14 días iniciada');
+    if(window.DENYAGateway?.requestPlanChange)return window.DENYAGateway.requestPlanChange(name);
+    toast('La prueba y el plan se administran desde el flujo seguro de suscripción.');
   };
 
   window.activateSubscriptionV56=function(name,billing){
-    ensureData();if(!PLANS[name])return;
-    if(!state.subscriptionAccount?.registered){registerSubscriptionV56();toast('Primero crea tu cuenta');return}
-    const cycle=billing==='Anual'?'Anual':'Mensual',s=state.subscription;
-    s.plan=name;state.plan=name;s.billing=cycle;s.status='Activa';s.startedAt=s.startedAt||nowIso();s.renewsAt=addDays(null,cycle==='Anual'?365:30);s.trialEndsAt=null;s.cancelAtPeriodEnd=false;s.cancelledAt=null;s.paymentMethod='Demo •••• 4242';event('activate',`${name} · ${cycle}`);save();show('subscription');toast('Suscripción activada');
+    if(!PLANS[name])return;
+    if(window.DENYAGateway?.setBilling)window.DENYAGateway.setBilling(billing==='Anual'?'annual':'monthly');
+    if(window.DENYAGateway?.requestPlanChange)return window.DENYAGateway.requestPlanChange(name);
+    toast('La activación requiere confirmación en Stripe.');
   };
 
   window.changeSubscriptionPlanV56=function(name){
     ensureData();if(!PLANS[name]||name===state.subscription.plan)return;
-    const from=state.subscription.plan;setPlan(name);event('change',from+' → '+name);save();show('subscription');
+    if(window.DENYAGateway?.requestPlanChange)return window.DENYAGateway.requestPlanChange(name);
+    toast('El cambio de plan requiere confirmación de pago.');
   };
 
   window.changeBillingV56=function(){
-    ensureData();const s=state.subscription,next=s.billing==='Anual'?'Mensual':'Anual';s.billing=next;if(s.status==='Activa')s.renewsAt=addDays(null,next==='Anual'?365:30);event('billing','Ciclo '+next);save();show('subscription');toast('Ciclo cambiado a '+next);
+    if(window.DENYAGateway?.plans)return window.DENYAGateway.plans();
+    toast('El cambio de ciclo requiere confirmación en Stripe.');
   };
 
   window.cancelSubscriptionV56=function(){
-    ensureData();const s=state.subscription;
-    if(s.status==='Prueba'){
-      if(!confirm('¿Cancelar la prueba ahora?'))return;s.status='Cancelada';s.cancelledAt=nowIso();s.trialEndsAt=null;s.cancelAtPeriodEnd=false;event('cancel','Prueba cancelada');
-    }else{
-      if(!confirm('¿Cancelar al final del periodo actual? Mantendrás acceso hasta la fecha de renovación.'))return;s.cancelAtPeriodEnd=true;s.cancelledAt=nowIso();event('cancel','Cancelación programada');
-    }
-    save();show('subscription');toast('Cancelación registrada');
+    toast('La cancelación debe confirmarse en Stripe; no se modifica localmente.');
   };
 
   window.resumeSubscriptionV56=function(){
-    ensureData();const s=state.subscription;s.cancelAtPeriodEnd=false;if(s.status==='Cancelada'){s.status='Activa';s.renewsAt=addDays(null,s.billing==='Anual'?365:30)}s.cancelledAt=null;event('resume','Suscripción reanudada');save();show('subscription');toast('Suscripción reanudada');
+    toast('La reactivación debe confirmarse en Stripe; no se modifica localmente.');
   };
 
   function stateClass(s){return s.status==='Prueba'?'trial':s.cancelAtPeriodEnd?'cancel':s.status==='Activa'?'':'inactive'}
@@ -122,7 +117,7 @@
   };
 
   const oldSetPlan=window.setPlanV55;
-  if(typeof oldSetPlan==='function')window.setPlanV55=function(name){ensureData();const ok=setPlan(name);if(ok&&typeof show==='function')show('plan')};
+  if(typeof oldSetPlan==='function')window.setPlanV55=function(name){return oldSetPlan(name)};
 
   if(!document.querySelector('.nav button[data-view="subscription"]')){
     const planBtn=document.querySelector('.nav button[data-view="plan"]');
