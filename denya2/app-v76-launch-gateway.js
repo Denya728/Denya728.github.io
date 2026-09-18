@@ -434,9 +434,32 @@
     paymentPreference('card',code);
   }
 
-  function skipPayment(code){
-    window.__denyaPaymentPreference='later';
-    startTrial(code);
+  async function skipPayment(code){
+    if(!PLANS[code]||!currentOrg?.id)return;
+    setErr('');
+    try{
+      const now=new Date(),end=new Date(now.getTime()+14*86400000);
+      const {data:old}=await sb.from('subscriptions').select('*').eq('organization_id',currentOrg.id).order('created_at',{ascending:false}).limit(1);
+      const existing=old&&old[0];
+      const payload={
+        organization_id:currentOrg.id,
+        plan_code:code,
+        status:'trialing',
+        billing_cycle:billing,
+        trial_started_at:existing?.trial_started_at||now.toISOString(),
+        trial_ends_at:existing?.trial_ends_at||end.toISOString(),
+        cancel_at_period_end:false,
+        payment_method_type:'later',
+        payment_method_status:'not_configured',
+        provider:existing?.provider||null,
+        provider_subscription_id:existing?.provider_subscription_id||null
+      };
+      let q;
+      if(existing)q=await sb.from('subscriptions').update(payload).eq('id',existing.id).select('*').single();
+      else q=await sb.from('subscriptions').insert(payload).select('*').single();
+      if(q.error)throw q.error;
+      showApp(q.data||payload);
+    }catch(err){setErr(err.message||String(err))}
   }
 
   async function stripeReturn(){
