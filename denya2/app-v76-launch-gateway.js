@@ -296,7 +296,9 @@
       const orgName=document.querySelector('#v76OrgName').value.trim(),brand=document.querySelector('#v76Brand').value.trim();
       let oid=currentOrg?.id;
       if(!oid){
-        const {data,error}=await sb.rpc('bootstrap_denya_organization',{org_name:orgName,org_slug:slugify(orgName),first_brand_name:brand});if(error)throw error;oid=data;
+        const {data,error}=await sb.functions.invoke('denya-workspace',{body:{action:'bootstrap',org_name:orgName,org_slug:slugify(orgName),first_brand_name:brand}});
+        if(error||!data?.organization_id)throw new Error(error?.message||data?.error||'No pudimos crear tu empresa.');
+        oid=data.organization_id;
       }
 
       const countryEl=document.querySelector('#v76Country'),stateEl=document.querySelector('#v76State'),cityEl=document.querySelector('#v76City');
@@ -366,7 +368,7 @@
       </div>
       <span class="v76-kicker" style="margin-top:18px">Plan ${esc(p.name)}</span>
       <h1 style="margin-top:10px">Configura tu renovación</h1>
-      <div class="v76-muted">Tienes 14 días gratis y hoy no se hace ningún cargo. Puedes dejar el pago para después o preparar tu método de renovación.</div>
+      <div class="v76-muted">Tienes 14 días gratis y hoy no se hace ningún cargo. Configura tu método de renovación en Stripe para activar la prueba y mantener tu suscripción protegida.</div>
       <div id="v76Error" class="v76-error"></div>
 
       <div style="margin-top:18px;padding:16px;border:1px solid #e8e0ea;border-radius:16px">
