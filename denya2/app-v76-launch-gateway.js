@@ -449,6 +449,32 @@
     billingSetup(code);
   }
 
+  function requestPlanChange(name){
+    const code=String(name||'').toLowerCase();
+    if(!PLANS[code]||!currentOrg?.id)return;
+    const liveStripe=typeof state!=='undefined'&&state.subscription?.provider==='stripe'&&state.subscription?.providerSubscriptionId;
+    if(liveStripe){
+      showGateway();
+      gateway().innerHTML=`<div class="v76-auth-wrap"><div class="v76-card">
+        <button class="v76-link" onclick="DENYAGateway.closeGateway()">← Volver</button>
+        <span class="v76-kicker" style="margin-top:18px">Cambio de plan</span>
+        <h1>Tu plan no se cambiará sin confirmar en Stripe</h1>
+        <p class="v76-muted">Tienes una suscripción real vinculada a Stripe. Por seguridad, DENYA ya no modifica el plan localmente ni desbloquea funciones gratis.</p>
+        <div class="v76-success" style="display:block;margin-top:14px"><b>Plan solicitado: ${esc(PLANS[code].name)}</b><br>El cambio debe completarse en el portal de facturación de Stripe para aplicar cobro, prorrateo o ajuste correspondiente.</div>
+        <p class="v76-muted" style="margin-top:14px">Estamos dejando bloqueado el cambio local hasta que el portal de cliente de Stripe esté habilitado en la cuenta.</p>
+      </div></div>`;
+      return;
+    }
+    appliedPromo=null;
+    billingSetup(code);
+  }
+
+  function closeGateway(){
+    document.body.classList.remove('v76-gateway-open');
+    const g=gateway();if(g)g.style.display='none';
+    try{if(typeof show==='function')show('plan')}catch(_){}
+  }
+
   async function startTrial(code){
     paymentPreference('card',code);
   }
@@ -507,6 +533,6 @@
     else if(session)await routeSession();else landing();
   }
 
-  window.DENYAGateway={home:landing,login:()=>auth('login'),register:()=>auth('register'),choosePlan,startTrial,skipPayment,paymentPreference,applyPromo,plans,openBilling:billingSetup,setBilling:v=>{billing=v;appliedPromo=null;plans()},logout};
+  window.DENYAGateway={home:landing,login:()=>auth('login'),register:()=>auth('register'),choosePlan,requestPlanChange,closeGateway,startTrial,skipPayment,paymentPreference,applyPromo,plans,openBilling:billingSetup,setBilling:v=>{billing=v;appliedPromo=null;plans()},logout};
   window.addEventListener('DOMContentLoaded',init);
 })();
