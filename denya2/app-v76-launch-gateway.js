@@ -125,6 +125,7 @@
     const sub=s&&s[0];
     if(!sub||!['active','trialing'].includes(sub.status))return {kind:'plans',org:o};
     if(sub.status==='trialing'&&sub.trial_ends_at&&new Date(sub.trial_ends_at)<new Date())return {kind:'plans',org:o};
+    if(sub.status==='trialing'&&!sub.payment_method_type)return {kind:'billing',org:o,subscription:sub};
     return {kind:'app',org:o,subscription:sub};
   }
   async function routeSession(){
@@ -133,6 +134,7 @@
       if(st.kind==='guest')return landing();
       if(st.kind==='onboarding')return onboarding(st.org);
       if(st.kind==='plans')return plans();
+      if(st.kind==='billing')return billingSetup(st.subscription?.plan_code||'emprende');
       showApp(st.subscription);
     }catch(err){console.error(err);showGateway();gateway().innerHTML=`<div class="v76-auth-wrap"><div class="v76-card"><h2>No pudimos cargar tu cuenta</h2><p class="v76-muted">${esc(err.message||err)}</p><button class="v76-btn" onclick="location.reload()">Reintentar</button></div></div>`}
   }
@@ -322,7 +324,8 @@
       </div>
       <div id="v76PaymentInfo" class="v76-success" style="display:none"></div>
       <div class="v76-muted" style="margin-top:15px;font-size:12px">Los datos completos de tarjeta deben capturarse en una pasarela certificada (Stripe, PayPal, Mercado Pago, etc.), no directamente en nuestro formulario. La conexión del procesador real sigue pendiente.</div>
-      <button class="v76-btn primary wide" style="margin-top:18px" onclick="DENYAGateway.startTrial('${code}')">Iniciar prueba de 14 días</button>
+      <button class="v76-btn primary wide" style="margin-top:18px" onclick="DENYAGateway.startTrial('${code}')">Continuar</button>
+      <button class="v76-link" style="width:100%;margin-top:12px" onclick="DENYAGateway.skipPayment('${code}')">Omitir método de pago por ahora</button>
     </div></div>`;
   }
 
@@ -345,27 +348,35 @@
   async function startTrial(code){
     if(!PLANS[code]||!currentOrg?.id)return;
     setErr('');
+    const method=window.__denyaPaymentPreference||null;
+    if(!method){setErr('Selecciona Tarjeta, PayPal o elige “Omitir método de pago por ahora”.');return}
     try{
       const now=new Date(),end=new Date(now.getTime()+14*86400000);
-      const method=window.__denyaPaymentPreference||null;
-      const {data:old}=await sb.from('subscriptions').select('id').eq('organization_id',currentOrg.id).limit(1);
+      const {data:old}=await sb.from('subscriptions').select('*').eq('organization_id',currentOrg.id).order('created_at',{ascending:false}).limit(1);
+      const existing=old&&old[0];
       let q;
       const payload={
         organization_id:currentOrg.id,
         plan_code:code,
         status:'trialing',
         billing_cycle:billing,
-        trial_started_at:now.toISOString(),
-        trial_ends_at:end.toISOString(),
+        trial_started_at:existing?.trial_started_at||now.toISOString(),
+        trial_ends_at:existing?.trial_ends_at||end.toISOString(),
         cancel_at_period_end:false,
         payment_method_type:method,
         payment_method_status:'not_configured'
       };
-      if(old&&old[0])q=await sb.from('subscriptions').update(payload).eq('id',old[0].id).select('*').single();
+      if(existing)q=await sb.from('subscriptions').update(payload).eq('id',existing.id).select('*').single();
       else q=await sb.from('subscriptions').insert(payload).select('*').single();
       if(q.error)throw q.error;
+      window.__denyaPaymentPreference=null;
       showApp(q.data||payload);
     }catch(err){setErr(err.message||String(err))}
+  }
+
+  function skipPayment(code){
+    window.__denyaPaymentPreference='later';
+    startTrial(code);
   }
 
   async function init(){
@@ -377,6 +388,6 @@
     if(session)await routeSession();else landing();
   }
 
-  window.DENYAGateway={home:landing,login:()=>auth('login'),register:()=>auth('register'),choosePlan,startTrial,paymentPreference,plans,setBilling:v=>{billing=v;plans()},logout};
+  window.DENYAGateway={home:landing,login:()=>auth('login'),register:()=>auth('register'),choosePlan,startTrial,skipPayment,paymentPreference,plans,setBilling:v=>{billing=v;plans()},logout};
   window.addEventListener('DOMContentLoaded',init);
 })();
