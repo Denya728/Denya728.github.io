@@ -156,6 +156,7 @@
     if(!o.onboarding_completed)return {kind:'onboarding',org:o};
     const {data:s,error:se}=await sb.from('subscriptions').select('*').eq('organization_id',oid).order('created_at',{ascending:false}).limit(1);if(se)throw se;
     const sub=s&&s[0];
+    if(sub?.provider==='stripe'&&sub?.provider_subscription_id&&sub.status==='past_due')return {kind:'billing_issue',org:o,subscription:sub};
     if(!sub||!['active','trialing'].includes(sub.status))return {kind:'plans',org:o};
     if(sub.status==='trialing'&&sub.trial_ends_at&&new Date(sub.trial_ends_at)<new Date())return {kind:'plans',org:o};
     if(sub.status==='trialing'&&!sub.payment_method_type)return {kind:'billing',org:o,subscription:sub};
@@ -172,6 +173,11 @@
         return;
       }
       if(st.kind==='plans')return plans();
+      if(st.kind==='billing_issue'){
+        showGateway();
+        gateway().innerHTML=`<div class="v76-auth-wrap"><div class="v76-card"><span class="v76-kicker">Pago pendiente</span><h1>Necesitamos actualizar tu método de pago</h1><p class="v76-muted">Tu suscripción de Stripe sigue vinculada a DENYA. Para evitar una segunda suscripción, el checkout nuevo está bloqueado.</p><div class="v76-success" style="display:block;margin:14px 0"><b>Tu información sigue guardada.</b><br>Actualiza tu tarjeta o revisa la factura pendiente desde el portal seguro de Stripe.</div><div class="v76-actions"><button class="v76-btn primary wide" onclick="DENYAGateway.openCustomerPortal()">Abrir portal de facturación</button><button class="v76-btn" onclick="DENYAGateway.logout()">Cerrar sesión</button></div></div></div>`;
+        return;
+      }
       if(st.kind==='billing')return billingSetup(st.subscription?.plan_code||'emprende');
       showApp(st.subscription);
     }catch(err){console.error(err);showGateway();gateway().innerHTML=`<div class="v76-auth-wrap"><div class="v76-card"><h2>No pudimos cargar tu cuenta</h2><p class="v76-muted">${esc(err.message||err)}</p><button class="v76-btn" onclick="location.reload()">Reintentar</button></div></div>`}
