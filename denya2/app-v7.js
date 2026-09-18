@@ -35,10 +35,70 @@ const seed={
   {id:'q4',folio:'COT-581721',client:'Erick Ortiz Martínez',event:'2026-07-31',status:'Entregada y pagada',total:1895.56,balance:0,productId:'p1',measureId:'m1',deposit:50,versions:4}
  ]
 };
-function load(){try{return JSON.parse(localStorage.getItem('denya_v7'))||clone(seed)}catch(e){return clone(seed)}}
+function denyaStorageKey(){
+  const uid=localStorage.getItem('denya_active_user');
+  return uid?'denya_v7_user_'+uid:'denya_v7_guest';
+}
+function freshState(meta={}){
+  const brandName=meta.brandName||meta.businessName||'Mi marca';
+  const planName=meta.planName||'Emprende';
+  const email=meta.email||'';
+  return {
+    plan:planName,
+    inventory:[],recipes:[],products:[],measures:[],clients:[],quotes:[],
+    orders:[],purchaseOrders:[],clientRecords:[],calendarEvents:[],
+    extras:[],autoPurchaseReceipts:[],customRoles:[],qaRuns:[],permissionEvents:[],
+    productionPlanning:{capacityPerDay:6},
+    users:[{id:'owner-main',name:'Propietario',email,role:'Propietario',active:true}],
+    currentUserId:'owner-main',
+    businessBrands:[{id:'brand-main',name:brandName,active:true}],
+    profile:{businessName:meta.businessName||brandName,facebook:'',instagram:'',whatsapp:'',whatsappType:'business',email,address:'',description:'',logo:meta.logo||''},
+    quoteTemplate:'minimal',
+    subscription:{plan:planName,status:meta.subscriptionStatus||'Prueba',billing:meta.billing||'Mensual'},
+    subscriptionAccount:{registered:true,name:'',email,business:meta.businessName||brandName},
+    subscriptionEvents:[]
+  };
+}
+function load(){
+  try{
+    const legacy=localStorage.getItem('denya_v7');
+    if(legacy&&!localStorage.getItem('denya_v7_legacy_backup'))localStorage.setItem('denya_v7_legacy_backup',legacy);
+    const raw=localStorage.getItem(denyaStorageKey());
+    return raw?JSON.parse(raw):freshState();
+  }catch(e){return freshState()}
+}
 let state=load();
-function save(){localStorage.setItem('denya_v7',JSON.stringify(state))}
-function resetDemo(){if(confirm('¿Restablecer datos demo?')){state=clone(seed);save();show('home')}}
+function save(){localStorage.setItem(denyaStorageKey(),JSON.stringify(state))}
+window.switchDenyaUser=function(uid,meta={}){
+  if(uid)localStorage.setItem('denya_active_user',uid);else localStorage.removeItem('denya_active_user');
+  const key=denyaStorageKey();
+  const raw=localStorage.getItem(key);
+  state=raw?JSON.parse(raw):freshState(meta);
+  if(meta.planName){state.plan=meta.planName;state.subscription=state.subscription||{};state.subscription.plan=meta.planName}
+  if(meta.billing){state.subscription=state.subscription||{};state.subscription.billing=meta.billing}
+  if(meta.subscriptionStatus){state.subscription=state.subscription||{};state.subscription.status=meta.subscriptionStatus}
+  if(meta.businessName){
+    state.profile=state.profile||{};
+    state.profile.businessName=meta.businessName;
+    state.subscriptionAccount=state.subscriptionAccount||{};
+    state.subscriptionAccount.business=meta.businessName;
+  }
+  if(meta.brandName){
+    state.businessBrands=Array.isArray(state.businessBrands)?state.businessBrands:[];
+    if(!state.businessBrands.length)state.businessBrands.push({id:'brand-main',name:meta.brandName,active:true});
+    else state.businessBrands[0].name=meta.brandName;
+  }
+  if(meta.email){
+    state.profile=state.profile||{};state.profile.email=meta.email;
+    state.subscriptionAccount=state.subscriptionAccount||{};state.subscriptionAccount.email=meta.email;state.subscriptionAccount.registered=true;
+    state.users=Array.isArray(state.users)&&state.users.length?state.users:[{id:'owner-main',name:'Propietario',email:meta.email,role:'Propietario',active:true}];
+    state.users[0].email=meta.email;
+  }
+  if(meta.logo){state.profile=state.profile||{};state.profile.logo=meta.logo}
+  save();
+  return state;
+};
+function resetDemo(){if(confirm('¿Restablecer este espacio de trabajo?')){state=freshState();save();show('home')}}
 const content=$('#content'),titleEl=$('#title');
 function toast(msg){let t=$('#toast');if(!t){t=document.createElement('div');t.id='toast';t.className='toast';document.body.appendChild(t)}t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),1900)}
 function esc(v=''){return String(v).replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]))}
