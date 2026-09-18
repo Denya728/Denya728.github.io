@@ -3,7 +3,7 @@
   if(typeof oldRenderProfile!=='function') return;
 
   function tabs(active){
-    const items=[['company','Empresa'],['plan','Mi plan'],['subscription','Suscripción'],['templates','Plantillas'],['users','Usuarios']];
+    const items=[['company','Empresa'],['plan','Mi plan'],['subscription','Suscripción'],['templates','Plantillas'],['users','Usuarios'],['support','Soporte']];
     return `<div class="profile-tabs v58-account-tabs">${items.map(([id,label])=>`<button class="${active===id?'active':''}" onclick="renderProfile('${id}')">${label}</button>`).join('')}</div>`;
   }
 
@@ -36,6 +36,11 @@
     if(tab==='subscription'){
       if(typeof views.subscription==='function')views.subscription();
       normalizeProfilePage('subscription');
+      return;
+    }
+    if(tab==='support'){
+      if(typeof views.support==='function')views.support();
+      normalizeProfilePage('support');
       return;
     }
     oldRenderProfile(tab);
