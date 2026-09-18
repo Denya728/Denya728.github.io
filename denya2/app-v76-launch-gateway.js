@@ -42,13 +42,32 @@
       window.switchDenyaUser(session.user.id,{
         planName,
         billing:subscription?.billing_cycle==='annual'?'Anual':'Mensual',
-        subscriptionStatus:subscription?.status==='active'?'Activa':'Prueba',
+        subscriptionStatus:subscription?.status==='active'?'Activa':subscription?.status==='trialing'?'Prueba':subscription?.status||'Prueba',
         businessName:currentOrg?.name||brandName,
         brandName,
         email:session.user.email||'',
         logo:currentOrg?.logo_url||''
       });
     }
+    try{
+      if(typeof state!=='undefined'&&subscription){
+        state.subscription=state.subscription||{};
+        state.subscription.plan=planName;
+        state.subscription.billing=subscription.billing_cycle==='annual'?'Anual':'Mensual';
+        state.subscription.status=subscription.status==='active'?'Activa':subscription.status==='trialing'?'Prueba':subscription.status||state.subscription.status;
+        state.subscription.provider=subscription.provider||null;
+        state.subscription.providerSubscriptionId=subscription.provider_subscription_id||null;
+        state.subscription.providerCustomerId=subscription.provider_customer_id||null;
+        state.subscription.paymentMethod=subscription.provider==='stripe'
+          ?'Stripe'
+          :(subscription.payment_method_type==='later'?'Pendiente':'Sin método');
+        state.subscription.paymentMethodStatus=subscription.payment_method_status||null;
+        state.subscription.trialEndsAt=subscription.trial_ends_at||state.subscription.trialEndsAt||null;
+        state.subscription.renewsAt=subscription.current_period_end||state.subscription.renewsAt||null;
+        state.subscription.cancelAtPeriodEnd=!!subscription.cancel_at_period_end;
+        save();
+      }
+    }catch(syncErr){console.error('Subscription sync failed',syncErr)}
     document.body.classList.remove('v76-gateway-open');
     const g=gateway();if(g)g.style.display='none';
     addSessionBar();
@@ -488,6 +507,6 @@
     else if(session)await routeSession();else landing();
   }
 
-  window.DENYAGateway={home:landing,login:()=>auth('login'),register:()=>auth('register'),choosePlan,startTrial,skipPayment,paymentPreference,applyPromo,plans,setBilling:v=>{billing=v;appliedPromo=null;plans()},logout};
+  window.DENYAGateway={home:landing,login:()=>auth('login'),register:()=>auth('register'),choosePlan,startTrial,skipPayment,paymentPreference,applyPromo,plans,openBilling:billingSetup,setBilling:v=>{billing=v;appliedPromo=null;plans()},logout};
   window.addEventListener('DOMContentLoaded',init);
 })();
