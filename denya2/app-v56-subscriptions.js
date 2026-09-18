@@ -76,16 +76,19 @@
   };
 
   window.changeBillingV56=function(){
+    if(window.DENYAGateway?.openCustomerPortal)return window.DENYAGateway.openCustomerPortal();
     if(window.DENYAGateway?.plans)return window.DENYAGateway.plans();
     toast('El cambio de ciclo requiere confirmación en Stripe.');
   };
 
   window.cancelSubscriptionV56=function(){
+    if(window.DENYAGateway?.openCustomerPortal)return window.DENYAGateway.openCustomerPortal();
     toast('La cancelación debe confirmarse en Stripe; no se modifica localmente.');
   };
 
   window.resumeSubscriptionV56=function(){
-    toast('La reactivación debe confirmarse en Stripe; no se modifica localmente.');
+    if(window.DENYAGateway?.openCustomerPortal)return window.DENYAGateway.openCustomerPortal();
+    toast('La reactivación se administra desde Stripe.');
   };
 
   function stateClass(s){return s.status==='Prueba'?'trial':s.cancelAtPeriodEnd?'cancel':s.status==='Activa'?'':'inactive'}
@@ -100,13 +103,13 @@
     const planCode=String(s.plan||'Emprende').toLowerCase();
     const paymentLabel=stripeLive?'Stripe · método configurado':(s.paymentMethod==='Pendiente'?'Pendiente de configurar':(s.paymentMethod||'Sin método de pago'));
     const providerNote=stripeLive
-      ?'<div class="helper"><b>Pago conectado:</b> tu suscripción está vinculada con Stripe. Los datos de tarjeta, renovaciones y cobros se procesan de forma segura en Stripe; DENYA no almacena tu número de tarjeta ni CVV.</div>'
+      ?'<div class="helper"><b>Pago conectado:</b> tu suscripción está vinculada con Stripe. Desde el portal seguro puedes cambiar plan o ciclo, actualizar tarjeta, cancelar y consultar facturas. DENYA no almacena tu número de tarjeta ni CVV.</div>'
       :'<div class="helper"><b>Pago pendiente:</b> tu prueba puede continuar sin tarjeta por ahora. Configura un método de pago antes de que termine para evitar perder acceso.</div>';
-    const cards=Object.entries(PLANS).map(([name,x])=>`<div class="v56-card ${s.plan===name?'active':''}"><span class="v55-tag">${escSafe(x.label)}</span><h3>${escSafe(name)}</h3><div class="v56-price">${moneySafe(s.billing==='Anual'?x.annual:x.monthly)}<span class="muted" style="font-size:12px"> / ${s.billing==='Anual'?'año':'mes'}</span></div><div class="muted" style="margin-top:7px">${name==='Emprende'?'Lo básico para empezar.':name==='Negocio'?'La operación completa.':'Extras, capacidad y control avanzado.'}</div><div class="v56-actions">${s.plan===name?'<span class="muted">Plan actual</span>':'<span class="muted">Cambio de plan disponible desde el flujo seguro de suscripción.</span>'}</div></div>`).join('');
+    const cards=Object.entries(PLANS).map(([name,x])=>`<div class="v56-card ${s.plan===name?'active':''}"><span class="v55-tag">${escSafe(x.label)}</span><h3>${escSafe(name)}</h3><div class="v56-price">${moneySafe(s.billing==='Anual'?x.annual:x.monthly)}<span class="muted" style="font-size:12px"> / ${s.billing==='Anual'?'año':'mes'}</span></div><div class="muted" style="margin-top:7px">${name==='Emprende'?'Lo básico para empezar.':name==='Negocio'?'La operación completa.':'Extras, capacidad y control avanzado.'}</div><div class="v56-actions">${s.plan===name?'<span class="muted">Plan actual</span>':(stripeLive?`<button class="secondary" onclick="window.DENYAGateway?.openCustomerPortal?.()">Cambiar a ${escSafe(name)}</button>`:`<button class="secondary" onclick="window.DENYAGateway?.requestPlanChange?.('${escSafe(name)}')">Cambiar a ${escSafe(name)}</button>`)}</div></div>`).join('');
     const history=(state.subscriptionEvents||[]).slice(0,8).map(e=>`<div class="v56-event"><span><b>${escSafe(e.detail||e.type)}</b><div class="hint">${escSafe(e.type)}</div></span><span class="muted">${new Date(e.at).toLocaleString('es-MX')}</span></div>`).join('')||'<div class="empty">Aún no hay movimientos de suscripción.</div>';
     const accountActions=stripeLive
-      ?'<div class="v56-actions"><span class="muted">Suscripción administrada por Stripe.</span></div>'
-      :`<div class="v56-actions"><button class="primary" onclick="DENYAGateway&&DENYAGateway.openBilling&&DENYAGateway.openBilling('${planCode}')">Configurar método de pago</button><button class="secondary" onclick="DENYAGateway&&DENYAGateway.plans&&DENYAGateway.plans()">Cambiar plan</button></div>`;
+      ?'<div class="v56-actions"><button class="primary" onclick="window.DENYAGateway?.openCustomerPortal?.()">Administrar suscripción en Stripe</button><button class="secondary" onclick="window.DENYAGateway?.openCustomerPortal?.()">Cambiar plan o ciclo</button><button class="secondary" onclick="window.DENYAGateway?.openCustomerPortal?.()">Actualizar tarjeta</button><button class="secondary" onclick="window.DENYAGateway?.openCustomerPortal?.()">Facturas y recibos</button></div>'
+      :`<div class="v56-actions"><button class="primary" onclick="window.DENYAGateway?.openBilling?.('${planCode}')">Configurar método de pago</button><button class="secondary" onclick="window.DENYAGateway?.plans?.()">Cambiar plan</button></div>`;
 
     content.innerHTML=pageHead('Suscripción','Plan, prueba, método de pago y renovación en un solo lugar.')+`
       <div class="v56-hero"><div><span class="v56-state ${stateClass(s)}">${escSafe(statusText(s))}</span><h2 style="margin:8px 0 3px">${escSafe(s.plan)} · ${escSafe(s.billing)}</h2><div class="muted">${a.registered?escSafe(a.email)+(a.business?' · '+escSafe(a.business):''):'Cuenta conectada a tu sesión DENYA.'}</div></div><div><b style="font-size:25px">${moneySafe(amount)}</b><div class="muted">${s.billing==='Anual'?'por año':'por mes'}</div></div></div>
