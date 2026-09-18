@@ -36,3 +36,6 @@ radial-gradient(circle at 100% 20%,#f2e7df 0,transparent 32%),var(--g-bg)}
 .v76-cycle{display:flex;justify-content:center;gap:7px;margin-top:12px}.v76-cycle button.active{background:#2f2723;color:#fff}
 .v76-session-bar{position:fixed;right:15px;bottom:15px;z-index:9999;background:#fff;border:1px solid var(--g-line);border-radius:13px;padding:8px 10px;box-shadow:0 10px 35px rgba(0,0,0,.1);display:flex;align-items:center;gap:9px;font-size:12px}
 @media(max-width:800px){.v76-hero{grid-template-columns:1fr;padding-top:35px}.v76-features,.v76-plans{grid-template-columns:1fr}.v76-form{grid-template-columns:1fr}.v76-field.full{grid-column:auto}.v76-kpis{grid-template-columns:1fr 1fr}.v76-plan.featured{transform:none}}
+
+/* Prevent the private workspace from flashing before auth routing finishes. */
+body:not(.v76-auth-ready)>.app{display:none!important}
