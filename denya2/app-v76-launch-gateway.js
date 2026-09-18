@@ -9,6 +9,8 @@
     pro:{name:'Pro',monthly:699,annual:6990,tag:'Para crecer',features:['Hasta 10 usuarios','Hasta 5 marcas','Roles personalizados','Reportes y control avanzado']}
   };
   let sb=null,session=null,currentOrg=null,billing='monthly';
+  let geoPromise=null;
+  const geo=()=>geoPromise||(geoPromise=import('https://cdn.jsdelivr.net/npm/country-state-city@3.2.1/+esm'));
 
   const esc=v=>String(v??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
   const slugify=v=>(String(v||'denya').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'').slice(0,42)||'negocio')+'-'+Math.random().toString(36).slice(2,6);
@@ -88,7 +90,7 @@
   async function accountState(){
     if(!session)return {kind:'guest'};
     const uid=session.user.id;
-    const {data:m,error:me}=await sb.from('memberships').select('organization_id,status').eq('user_id',uid).eq('status','active').limit(1);
+    const {data:m,error:me}=await sb.from('memberships').select('organization_id,status,created_at').eq('user_id',uid).eq('status','active').order('created_at',{ascending:false}).limit(1);
     if(me)throw me;
     if(!m||!m.length)return {kind:'onboarding'};
     const oid=m[0].organization_id;
@@ -113,24 +115,89 @@
 
   function onboarding(existingOrg=null){
     showGateway();
+    const prior=existingOrg?.onboarding_data||{};
     gateway().innerHTML=`<div class="v76-auth-wrap"><div class="v76-card large"><div class="v76-progress"><span class="on"></span><span class="on"></span><span></span></div><span class="v76-kicker">Configuración inicial</span><h1>Cuéntanos sobre tu negocio</h1><div class="v76-muted">Usaremos esta información para preparar DENYA alrededor de tu operación.</div><div id="v76Error" class="v76-error"></div>
     <form id="v76Onboarding" class="v76-form">
       <label class="v76-field"><span>Nombre de la empresa *</span><input id="v76OrgName" value="${esc(existingOrg?.name||'')}" required></label>
-      <label class="v76-field"><span>Marca principal *</span><input id="v76Brand" placeholder="Ej. DENICAKE" required></label>
+      <label class="v76-field"><span>Marca principal *</span><input id="v76Brand" value="${esc(prior.main_brand||'')}" placeholder="Ej. DENICAKE" required></label>
       <label class="v76-field"><span>Tipo de negocio *</span><select id="v76Type" required><option value="">Selecciona</option><option>Repostería / pastelería</option><option>Alimentos y snacks</option><option>Cafetería</option><option>Panadería</option><option>Otro</option></select></label>
       <label class="v76-field"><span>Tamaño del equipo</span><select id="v76Team"><option>Solo yo</option><option>2–3 personas</option><option>4–10 personas</option><option>11+ personas</option></select></label>
-      <label class="v76-field full"><span>¿Qué vendes y cómo funciona tu negocio?</span><textarea id="v76Description" placeholder="Cuéntanos brevemente qué productos manejas y cómo tomas pedidos."></textarea></label>
-      <label class="v76-field"><span>Instagram</span><input id="v76Instagram" placeholder="@tuempresa"></label>
-      <label class="v76-field"><span>Sitio web</span><input id="v76Website" placeholder="https://"></label>
-      <label class="v76-field"><span>Ciudad / estado</span><input id="v76Location" placeholder="Monterrey, Nuevo León"></label>
+      <label class="v76-field full"><span>¿Qué vendes y cómo funciona tu negocio?</span><textarea id="v76Description" placeholder="Cuéntanos brevemente qué productos manejas y cómo tomas pedidos.">${esc(prior.description||'')}</textarea></label>
+      <label class="v76-field"><span>Instagram</span><input id="v76Instagram" value="${esc(prior.instagram||'')}" placeholder="@tuempresa"></label>
+      <label class="v76-field"><span>Sitio web</span><input id="v76Website" value="${esc(prior.website||'')}" placeholder="https://"></label>
+      <label class="v76-field"><span>País *</span><select id="v76Country" required><option value="">Cargando países…</option></select></label>
+      <label class="v76-field"><span>Estado / provincia *</span><select id="v76State" required disabled><option value="">Selecciona país primero</option></select></label>
+      <label class="v76-field"><span>Ciudad *</span><select id="v76City" required disabled><option value="">Selecciona estado primero</option></select></label>
       <label class="v76-field"><span>Pedidos aproximados al mes</span><select id="v76Orders"><option>1–20</option><option>21–50</option><option>51–150</option><option>151–500</option><option>500+</option></select></label>
       <div class="v76-field full"><span>¿Dónde vendes?</span><div class="v76-channel-grid"><label class="v76-chip"><input type="checkbox" name="channel" value="Instagram">Instagram</label><label class="v76-chip"><input type="checkbox" name="channel" value="WhatsApp">WhatsApp</label><label class="v76-chip"><input type="checkbox" name="channel" value="Tienda">Tienda física</label><label class="v76-chip"><input type="checkbox" name="channel" value="Eventos">Eventos</label><label class="v76-chip"><input type="checkbox" name="channel" value="Web">Página web</label></div></div>
-      <label class="v76-field full"><span>¿Qué quieres mejorar primero?</span><textarea id="v76Goals" placeholder="Ej. cotizar más rápido, controlar inventario, saber mi ganancia…"></textarea></label>
-      <div class="v76-field full"><span>Logo de tu negocio</span><div style="display:flex;gap:13px;align-items:center"><div class="v76-logo-preview" id="v76LogoPreview">LOGO</div><input id="v76Logo" type="file" accept="image/png,image/jpeg,image/webp,image/svg+xml"></div></div>
+      <label class="v76-field full"><span>¿Qué quieres mejorar primero?</span><textarea id="v76Goals" placeholder="Ej. cotizar más rápido, controlar inventario, saber mi ganancia…">${esc(prior.goals||'')}</textarea></label>
+      <div class="v76-field full"><span>Logo de tu negocio</span><div style="display:flex;gap:13px;align-items:center"><div class="v76-logo-preview" id="v76LogoPreview">${existingOrg?.logo_url?'<img src="'+esc(existingOrg.logo_url)+'" alt="Logo">':'LOGO'}</div><input id="v76Logo" type="file" accept="image/png,image/jpeg,image/webp,image/svg+xml"></div><div class="v76-muted" style="font-size:12px;margin-top:5px">PNG, JPG, WEBP o SVG · máximo 5 MB</div></div>
       <div class="v76-field full"><button class="v76-btn primary wide" id="v76OnboardingSubmit">Guardar y elegir plan</button></div>
     </form></div></div>`;
-    document.querySelector('#v76Logo').onchange=e=>{const f=e.target.files?.[0];if(!f)return;const u=URL.createObjectURL(f);document.querySelector('#v76LogoPreview').innerHTML=`<img src="${u}" alt="Logo">`};
+
+    if(prior.business_type) document.querySelector('#v76Type').value=prior.business_type;
+    if(prior.team_size) document.querySelector('#v76Team').value=prior.team_size;
+    if(prior.monthly_orders) document.querySelector('#v76Orders').value=prior.monthly_orders;
+    (prior.channels||[]).forEach(v=>{const x=document.querySelector('[name="channel"][value="'+CSS.escape(v)+'"]');if(x)x.checked=true});
+
+    document.querySelector('#v76Logo').onchange=e=>{
+      const file=e.target.files?.[0];if(!file)return;
+      if(file.size>5*1024*1024){setErr('El logo no puede pesar más de 5 MB.');e.target.value='';return}
+      setErr('');const u=URL.createObjectURL(file);document.querySelector('#v76LogoPreview').innerHTML=`<img src="${u}" alt="Logo">`;
+    };
     document.querySelector('#v76Onboarding').onsubmit=saveOnboarding;
+    initGeography(prior);
+  }
+
+  async function initGeography(prior={}){
+    const country=document.querySelector('#v76Country'),state=document.querySelector('#v76State'),city=document.querySelector('#v76City');
+    if(!country||!state||!city)return;
+    try{
+      const {Country,State,City}=await geo();
+      const countries=Country.getAllCountries().sort((a,b)=>a.name.localeCompare(b.name,'es'));
+      country.innerHTML='<option value="">Selecciona país</option>'+countries.map(c=>`<option value="${esc(c.isoCode)}">${esc(c.name)}</option>`).join('');
+
+      const loadCities=()=>{
+        const cc=country.value,sc=state.value;
+        if(!cc){city.disabled=true;city.innerHTML='<option value="">Selecciona país primero</option>';return}
+        let cities=sc&&sc!=='__none'?City.getCitiesOfState(cc,sc):City.getCitiesOfCountry(cc);
+        cities=(cities||[]).sort((a,b)=>a.name.localeCompare(b.name,'es'));
+        city.disabled=false;
+        city.innerHTML='<option value="">Selecciona ciudad</option>'+cities.map(c=>`<option value="${esc(c.name)}">${esc(c.name)}</option>`).join('');
+        const priorCity=prior.city||prior.location?.city;
+        if(priorCity&&[...city.options].some(o=>o.value===priorCity))city.value=priorCity;
+      };
+      const loadStates=()=>{
+        const cc=country.value;
+        const states=cc?State.getStatesOfCountry(cc):[];
+        if(!cc){state.disabled=true;state.required=true;state.innerHTML='<option value="">Selecciona país primero</option>';city.disabled=true;city.innerHTML='<option value="">Selecciona estado primero</option>';return}
+        if(states.length){
+          state.disabled=false;state.required=true;
+          state.innerHTML='<option value="">Selecciona estado / provincia</option>'+states.sort((a,b)=>a.name.localeCompare(b.name,'es')).map(x=>`<option value="${esc(x.isoCode)}" data-name="${esc(x.name)}">${esc(x.name)}</option>`).join('');
+          const priorStateCode=prior.state_code||prior.location?.state_code;
+          const priorState=prior.state||prior.location?.state;
+          if(priorStateCode&&[...state.options].some(o=>o.value===priorStateCode))state.value=priorStateCode;
+          else if(priorState){const op=[...state.options].find(o=>o.dataset.name===priorState);if(op)state.value=op.value}
+        }else{
+          state.disabled=true;state.required=false;state.innerHTML='<option value="__none">No aplica</option>';
+        }
+        loadCities();
+      };
+      country.onchange=()=>{loadStates()};
+      state.onchange=()=>{loadCities()};
+      const priorCountryCode=prior.country_code||prior.location?.country_code;
+      const priorCountry=prior.country||prior.location?.country;
+      if(priorCountryCode&&[...country.options].some(o=>o.value===priorCountryCode))country.value=priorCountryCode;
+      else if(priorCountry){const op=countries.find(c=>c.name===priorCountry);if(op)country.value=op.isoCode}
+      else if([...country.options].some(o=>o.value==='MX'))country.value='MX';
+      loadStates();
+    }catch(err){
+      console.error('Geography load failed',err);
+      country.innerHTML='<option value="MX">México</option>';country.value='MX';
+      state.disabled=false;state.required=false;state.innerHTML='<option value="__manual">Escribe ubicación en ciudad</option>';
+      city.disabled=false;city.outerHTML='<input id="v76City" required placeholder="Ciudad, estado / provincia">';
+      setErr('No pudimos cargar el catálogo geográfico completo. Puedes escribir tu ubicación manualmente.');
+    }
   }
 
   async function uploadLogo(file){
@@ -149,12 +216,43 @@
       if(!oid){
         const {data,error}=await sb.rpc('bootstrap_denya_organization',{org_name:orgName,org_slug:slugify(orgName),first_brand_name:brand});if(error)throw error;oid=data;
       }
-      const logo=await uploadLogo(document.querySelector('#v76Logo').files?.[0]);
+
+      const countryEl=document.querySelector('#v76Country'),stateEl=document.querySelector('#v76State'),cityEl=document.querySelector('#v76City');
+      const countryName=countryEl?.selectedOptions?.[0]?.textContent||countryEl?.value||'';
+      const stateName=stateEl?.disabled?'':(stateEl?.selectedOptions?.[0]?.dataset?.name||stateEl?.selectedOptions?.[0]?.textContent||'');
+      const cityName=cityEl?.value||'';
       const channels=[...document.querySelectorAll('[name="channel"]:checked')].map(x=>x.value);
-      const onboarding_data={business_type:document.querySelector('#v76Type').value,team_size:document.querySelector('#v76Team').value,description:document.querySelector('#v76Description').value.trim(),instagram:document.querySelector('#v76Instagram').value.trim(),website:document.querySelector('#v76Website').value.trim(),location:document.querySelector('#v76Location').value.trim(),monthly_orders:document.querySelector('#v76Orders').value,channels,goals:document.querySelector('#v76Goals').value.trim(),main_brand:brand};
-      const patch={name:orgName,onboarding_completed:true,onboarding_data};if(logo)patch.logo_url=logo;
-      const {error:ue}=await sb.from('organizations').update(patch).eq('id',oid);if(ue)throw ue;
-      currentOrg={id:oid,...patch};busy(btn,false);plans();
+      const onboarding_data={
+        business_type:document.querySelector('#v76Type').value,
+        team_size:document.querySelector('#v76Team').value,
+        description:document.querySelector('#v76Description').value.trim(),
+        instagram:document.querySelector('#v76Instagram').value.trim(),
+        website:document.querySelector('#v76Website').value.trim(),
+        country:countryName,country_code:countryEl?.value||'',
+        state:stateName,state_code:stateEl?.disabled?'':(stateEl?.value||''),
+        city:cityName,
+        location_label:[cityName,stateName,countryName].filter(Boolean).join(', '),
+        monthly_orders:document.querySelector('#v76Orders').value,
+        channels,goals:document.querySelector('#v76Goals').value.trim(),main_brand:brand
+      };
+
+      // Save the business first so a logo/network issue never blocks onboarding.
+      const basePatch={name:orgName,onboarding_completed:true,onboarding_data};
+      const {data:updated,error:ue}=await sb.from('organizations').update(basePatch).eq('id',oid).select('*').single();
+      if(ue)throw ue;
+      currentOrg=updated||{id:oid,...basePatch};
+
+      const file=document.querySelector('#v76Logo').files?.[0];
+      if(file){
+        try{
+          const logo=await uploadLogo(file);
+          if(logo){
+            const {error:le}=await sb.from('organizations').update({logo_url:logo}).eq('id',oid);
+            if(!le)currentOrg.logo_url=logo;
+          }
+        }catch(logoErr){console.error('Logo upload failed',logoErr)}
+      }
+      busy(btn,false);plans();
     }catch(err){busy(btn,false);setErr(err.message||String(err))}
   }
 
