@@ -8,6 +8,7 @@
     negocio:{name:'Negocio',monthly:449,annual:4490,tag:'Más elegido',features:['Hasta 3 usuarios','Hasta 2 marcas','Producción, inventario y compras','Clientes avanzados']},
     pro:{name:'Pro',monthly:699,annual:6990,tag:'Para crecer',features:['Hasta 10 usuarios','Hasta 5 marcas','Roles personalizados','Reportes y control avanzado']}
   };
+  const STRIPE_PORTAL_LOGIN_URL='https://billing.stripe.com/p/login/6oUcMY2j23d3aRqf270x200';
   const STRIPE_LINKS={
     emprende:{monthly:'https://buy.stripe.com/6oUcMY2j23d3aRqf270x200',annual:'https://buy.stripe.com/14A4gsbTC9Br0cM6vB0x201'},
     negocio:{monthly:'https://buy.stripe.com/8x26oAaPyeVL9Nmg6b0x202',annual:'https://buy.stripe.com/8x2bIU7Dm5lb9Nm07d0x203'},
@@ -429,8 +430,16 @@
     updatePromoPrice(code);
   }
 
-  function paymentPreference(type,code){
+  async function paymentPreference(type,code){
     if(type!=='card'){setErr('PayPal todavía no está habilitado. Usa Stripe por ahora.');return}
+    try{
+      const st=await accountState();
+      const existing=st?.subscription;
+      if(existing?.provider==='stripe'&&existing?.provider_subscription_id&&['active','trialing','past_due'].includes(existing.status)){
+        openCustomerPortal();
+        return;
+      }
+    }catch(_){}
     const link=STRIPE_LINKS[code]?.[billing];
     if(!link||!session?.user?.id||!currentOrg?.id){setErr('No pudimos preparar el checkout. Recarga e inténtalo otra vez.');return}
     const ref=session.user.id+'_'+currentOrg.id;
@@ -449,20 +458,19 @@
     billingSetup(code);
   }
 
+  function openCustomerPortal(){
+    if(!session?.user?.email){setErr('No encontramos el correo de tu sesión. Vuelve a iniciar sesión.');return}
+    const u=new URL(STRIPE_PORTAL_LOGIN_URL);
+    u.searchParams.set('prefilled_email',session.user.email);
+    location.href=u.toString();
+  }
+
   function requestPlanChange(name){
     const code=String(name||'').toLowerCase();
     if(!PLANS[code]||!currentOrg?.id)return;
     const liveStripe=typeof state!=='undefined'&&state.subscription?.provider==='stripe'&&state.subscription?.providerSubscriptionId;
     if(liveStripe){
-      showGateway();
-      gateway().innerHTML=`<div class="v76-auth-wrap"><div class="v76-card">
-        <button class="v76-link" onclick="DENYAGateway.closeGateway()">← Volver</button>
-        <span class="v76-kicker" style="margin-top:18px">Cambio de plan</span>
-        <h1>Tu plan no se cambiará sin confirmar en Stripe</h1>
-        <p class="v76-muted">Tienes una suscripción real vinculada a Stripe. Por seguridad, DENYA ya no modifica el plan localmente ni desbloquea funciones gratis.</p>
-        <div class="v76-success" style="display:block;margin-top:14px"><b>Plan solicitado: ${esc(PLANS[code].name)}</b><br>El cambio debe completarse en el portal de facturación de Stripe para aplicar cobro, prorrateo o ajuste correspondiente.</div>
-        <p class="v76-muted" style="margin-top:14px">Estamos dejando bloqueado el cambio local hasta que el portal de cliente de Stripe esté habilitado en la cuenta.</p>
-      </div></div>`;
+      openCustomerPortal();
       return;
     }
     appliedPromo=null;
@@ -481,30 +489,8 @@
 
   async function skipPayment(code){
     if(!PLANS[code]||!currentOrg?.id)return;
-    setErr('');
-    try{
-      const now=new Date(),end=new Date(now.getTime()+14*86400000);
-      const {data:old}=await sb.from('subscriptions').select('*').eq('organization_id',currentOrg.id).order('created_at',{ascending:false}).limit(1);
-      const existing=old&&old[0];
-      const payload={
-        organization_id:currentOrg.id,
-        plan_code:code,
-        status:'trialing',
-        billing_cycle:billing,
-        trial_started_at:existing?.trial_started_at||now.toISOString(),
-        trial_ends_at:existing?.trial_ends_at||end.toISOString(),
-        cancel_at_period_end:false,
-        payment_method_type:'later',
-        payment_method_status:'not_configured',
-        provider:existing?.provider||null,
-        provider_subscription_id:existing?.provider_subscription_id||null
-      };
-      let q;
-      if(existing)q=await sb.from('subscriptions').update(payload).eq('id',existing.id).select('*').single();
-      else q=await sb.from('subscriptions').insert(payload).select('*').single();
-      if(q.error)throw q.error;
-      showApp(q.data||payload);
-    }catch(err){setErr(err.message||String(err))}
+    setErr('Para proteger tu suscripción, la prueba y el plan se activan únicamente mediante Stripe.');
+    billingSetup(code);
   }
 
   async function stripeReturn(){
@@ -533,6 +519,6 @@
     else if(session)await routeSession();else landing();
   }
 
-  window.DENYAGateway={home:landing,login:()=>auth('login'),register:()=>auth('register'),choosePlan,requestPlanChange,closeGateway,startTrial,skipPayment,paymentPreference,applyPromo,plans,openBilling:billingSetup,setBilling:v=>{billing=v;appliedPromo=null;plans()},logout};
+  window.DENYAGateway={home:landing,login:()=>auth('login'),register:()=>auth('register'),choosePlan,requestPlanChange,openCustomerPortal,closeGateway,startTrial,skipPayment,paymentPreference,applyPromo,plans,openBilling:billingSetup,setBilling:v=>{billing=v;appliedPromo=null;plans()},logout};
   window.addEventListener('DOMContentLoaded',init);
 })();
