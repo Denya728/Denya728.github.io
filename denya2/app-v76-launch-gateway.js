@@ -19,7 +19,7 @@
   function mount(){
     if(document.getElementById('v76Gateway'))return;
     document.body.insertAdjacentHTML('afterbegin','<div id="v76Gateway"></div>');
-    document.body.classList.add('v76-gateway-open');
+    document.body.classList.add('v76-auth-ready','v76-gateway-open');
   }
   function showGateway(){document.body.classList.add('v76-gateway-open');const g=gateway();if(g)g.style.display='block'}
   function showApp(){
@@ -68,7 +68,7 @@
     const btn=document.querySelector('#v76AuthSubmit'),name=document.querySelector('#v76Name').value.trim(),phone=document.querySelector('#v76Phone').value.trim(),email=document.querySelector('#v76Email').value.trim(),password=document.querySelector('#v76Password').value,p2=document.querySelector('#v76Password2').value;
     if(password!==p2){setErr('Las contraseñas no coinciden.');return}
     busy(btn,true,'Creando cuenta…');
-    const {data,error}=await sb.auth.signUp({email,password,options:{data:{full_name:name,phone}}});
+    const {data,error}=await sb.auth.signUp({email,password,options:{emailRedirectTo:location.origin+location.pathname,data:{full_name:name,phone}}});
     busy(btn,false);
     if(error){setErr(error.message);return}
     if(!data.session){
