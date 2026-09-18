@@ -29,7 +29,20 @@
     document.body.classList.add('v76-auth-ready','v76-gateway-open');
   }
   function showGateway(){document.body.classList.add('v76-gateway-open');const g=gateway();if(g)g.style.display='block'}
-  function showApp(){
+  function showApp(subscription=null){
+    const planName=subscription?.plan_code&&PLANS[subscription.plan_code]?PLANS[subscription.plan_code].name:'Emprende';
+    const brandName=currentOrg?.onboarding_data?.main_brand||currentOrg?.name||'Mi marca';
+    if(session?.user?.id&&typeof window.switchDenyaUser==='function'){
+      window.switchDenyaUser(session.user.id,{
+        planName,
+        billing:subscription?.billing_cycle==='annual'?'Anual':'Mensual',
+        subscriptionStatus:subscription?.status==='active'?'Activa':'Prueba',
+        businessName:currentOrg?.name||brandName,
+        brandName,
+        email:session.user.email||'',
+        logo:currentOrg?.logo_url||''
+      });
+    }
     document.body.classList.remove('v76-gateway-open');
     const g=gateway();if(g)g.style.display='none';
     addSessionBar();
@@ -90,7 +103,13 @@
     busy(btn,true,'Entrando…');const {data,error}=await sb.auth.signInWithPassword({email,password});busy(btn,false);
     if(error){setErr(error.message);return}session=data.session;await routeSession();
   }
-  async function logout(){await sb.auth.signOut();session=null;currentOrg=null;document.querySelector('.v76-session-bar')?.remove();landing()}
+  async function logout(){
+    await sb.auth.signOut();
+    session=null;currentOrg=null;
+    if(typeof window.switchDenyaUser==='function')window.switchDenyaUser(null);
+    document.querySelector('.v76-session-bar')?.remove();
+    landing();
+  }
 
   async function accountState(){
     if(!session)return {kind:'guest'};
@@ -114,7 +133,7 @@
       if(st.kind==='guest')return landing();
       if(st.kind==='onboarding')return onboarding(st.org);
       if(st.kind==='plans')return plans();
-      showApp();
+      showApp(st.subscription);
     }catch(err){console.error(err);showGateway();gateway().innerHTML=`<div class="v76-auth-wrap"><div class="v76-card"><h2>No pudimos cargar tu cuenta</h2><p class="v76-muted">${esc(err.message||err)}</p><button class="v76-btn" onclick="location.reload()">Reintentar</button></div></div>`}
   }
 
@@ -289,21 +308,63 @@
 
   function plans(){
     showGateway();
-    const cards=Object.entries(PLANS).map(([code,p])=>`<article class="v76-plan ${code==='negocio'?'featured':''}"><span class="v76-kicker">${esc(p.tag)}</span><h3>${esc(p.name)}</h3><div class="v76-price">$<span>${billing==='annual'?p.annual:p.monthly}</span><small> / ${billing==='annual'?'año':'mes'}</small></div><ul>${p.features.map(x=>`<li>${esc(x)}</li>`).join('')}</ul><button class="v76-btn ${code==='negocio'?'primary':''} wide" onclick="DENYAGateway.choosePlan('${code}')">Elegir ${esc(p.name)}</button></article>`).join('');
-    gateway().innerHTML=`<div class="v76-auth-wrap"><div class="v76-card large"><div class="v76-progress"><span class="on"></span><span class="on"></span><span class="on"></span></div><div style="text-align:center"><span class="v76-kicker">Último paso</span><h1>Elige tu plan</h1><div class="v76-muted">Tu cuenta incluye 14 días de prueba. Elige el nivel con el que quieres comenzar.</div><div class="v76-cycle"><button class="v76-btn ${billing==='monthly'?'active':''}" onclick="DENYAGateway.setBilling('monthly')">Mensual</button><button class="v76-btn ${billing==='annual'?'active':''}" onclick="DENYAGateway.setBilling('annual')">Anual · ahorra</button></div></div><div id="v76Error" class="v76-error"></div><div class="v76-plans">${cards}</div><p class="v76-muted" style="text-align:center;margin-top:15px">Durante la prueba no realizamos ningún cargo. Antes de terminarla podrás agregar tu método de pago.</p></div></div>`;
+    const cards=Object.entries(PLANS).map(([code,p])=>`<article class="v76-plan ${code==='negocio'?'featured':''}"><span class="v76-kicker">${esc(p.tag)}</span><h3>${esc(p.name)}</h3><div class="v76-price">$<span>${billing==='annual'?p.annual:p.monthly}</span><small> / ${billing==='annual'?'año':'mes'}</small></div><ul>${p.features.map(x=>`<li>${esc(x)}</li>`).join('')}</ul><button class="v76-btn ${code==='negocio'?'primary':''} wide" onclick="DENYAGateway.choosePlan('${code}')">Continuar con ${esc(p.name)}</button></article>`).join('');
+    gateway().innerHTML=`<div class="v76-auth-wrap"><div class="v76-card large"><div class="v76-progress"><span class="on"></span><span class="on"></span><span class="on"></span></div><div style="text-align:center"><span class="v76-kicker">Último paso</span><h1>Elige tu plan</h1><div class="v76-muted">Tu cuenta incluye 14 días de prueba. Elige el nivel con el que quieres comenzar.</div><div class="v76-cycle"><button class="v76-btn ${billing==='monthly'?'active':''}" onclick="DENYAGateway.setBilling('monthly')">Mensual</button><button class="v76-btn ${billing==='annual'?'active':''}" onclick="DENYAGateway.setBilling('annual')">Anual · ahorra</button></div></div><div id="v76Error" class="v76-error"></div><div class="v76-plans">${cards}</div><p class="v76-muted" style="text-align:center;margin-top:15px">Después de elegir el plan verás la configuración de renovación. No guardamos números de tarjeta directamente en DENYA.</p></div></div>`;
+  }
+
+  function billingSetup(code){
+    const p=PLANS[code];if(!p)return;
+    showGateway();
+    gateway().innerHTML=`<div class="v76-auth-wrap"><div class="v76-card"><button class="v76-link" onclick="DENYAGateway.plans()">← Cambiar plan</button><span class="v76-kicker" style="margin-top:18px">Plan ${esc(p.name)}</span><h1 style="margin-top:10px">Configura tu renovación</h1><div class="v76-muted">Tienes 14 días gratis y hoy no se hace ningún cargo. Antes de terminar la prueba podrás dejar un método de pago seguro.</div><div id="v76Error" class="v76-error"></div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:20px">
+        <button type="button" class="v76-btn" onclick="DENYAGateway.paymentPreference('card','${code}')"><b>💳 Tarjeta</b><br><span style="font-size:12px;font-weight:500">Crédito o débito</span></button>
+        <button type="button" class="v76-btn" onclick="DENYAGateway.paymentPreference('paypal','${code}')"><b>PayPal</b><br><span style="font-size:12px;font-weight:500">Cuenta PayPal</span></button>
+      </div>
+      <div id="v76PaymentInfo" class="v76-success" style="display:none"></div>
+      <div class="v76-muted" style="margin-top:15px;font-size:12px">Los datos completos de tarjeta deben capturarse en una pasarela certificada (Stripe, PayPal, Mercado Pago, etc.), no directamente en nuestro formulario. La conexión del procesador real sigue pendiente.</div>
+      <button class="v76-btn primary wide" style="margin-top:18px" onclick="DENYAGateway.startTrial('${code}')">Iniciar prueba de 14 días</button>
+    </div></div>`;
+  }
+
+  function paymentPreference(type,code){
+    window.__denyaPaymentPreference=type;
+    const box=document.querySelector('#v76PaymentInfo');
+    if(box){
+      box.style.display='block';
+      box.innerHTML=type==='card'
+        ?'<b>Tarjeta seleccionada.</b><br>La renovación se configurará mediante checkout seguro cuando conectemos el procesador.'
+        :'<b>PayPal seleccionado.</b><br>La renovación se configurará mediante PayPal cuando conectemos el procesador.';
+    }
   }
 
   async function choosePlan(code){
     if(!PLANS[code]||!currentOrg?.id)return;
+    billingSetup(code);
+  }
+
+  async function startTrial(code){
+    if(!PLANS[code]||!currentOrg?.id)return;
     setErr('');
     try{
       const now=new Date(),end=new Date(now.getTime()+14*86400000);
+      const method=window.__denyaPaymentPreference||null;
       const {data:old}=await sb.from('subscriptions').select('id').eq('organization_id',currentOrg.id).limit(1);
       let q;
-      const payload={organization_id:currentOrg.id,plan_code:code,status:'trialing',billing_cycle:billing,trial_started_at:now.toISOString(),trial_ends_at:end.toISOString(),cancel_at_period_end:false};
-      if(old&&old[0])q=await sb.from('subscriptions').update(payload).eq('id',old[0].id);else q=await sb.from('subscriptions').insert(payload);
+      const payload={
+        organization_id:currentOrg.id,
+        plan_code:code,
+        status:'trialing',
+        billing_cycle:billing,
+        trial_started_at:now.toISOString(),
+        trial_ends_at:end.toISOString(),
+        cancel_at_period_end:false,
+        payment_method_type:method,
+        payment_method_status:'not_configured'
+      };
+      if(old&&old[0])q=await sb.from('subscriptions').update(payload).eq('id',old[0].id).select('*').single();
+      else q=await sb.from('subscriptions').insert(payload).select('*').single();
       if(q.error)throw q.error;
-      showApp();
+      showApp(q.data||payload);
     }catch(err){setErr(err.message||String(err))}
   }
 
@@ -316,6 +377,6 @@
     if(session)await routeSession();else landing();
   }
 
-  window.DENYAGateway={home:landing,login:()=>auth('login'),register:()=>auth('register'),choosePlan,setBilling:v=>{billing=v;plans()},logout};
+  window.DENYAGateway={home:landing,login:()=>auth('login'),register:()=>auth('register'),choosePlan,startTrial,paymentPreference,plans,setBilling:v=>{billing=v;plans()},logout};
   window.addEventListener('DOMContentLoaded',init);
 })();
