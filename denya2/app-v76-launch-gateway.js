@@ -8,7 +8,7 @@
     negocio:{name:'Negocio',monthly:449,annual:4490,tag:'Más elegido',features:['Hasta 3 usuarios','Hasta 2 marcas','Producción, inventario y compras','Clientes avanzados']},
     pro:{name:'Pro',monthly:699,annual:6990,tag:'Para crecer',features:['Hasta 10 usuarios','Hasta 5 marcas','Roles personalizados','Reportes y control avanzado']}
   };
-  let sb=null,session=null,currentOrg=null,billing='monthly';
+  let sb=null,session=null,currentOrg=null,billing='monthly',appliedPromo=null;
   let geoPromise=null;
   const geo=()=>geoPromise||(geoPromise=import('https://cdn.jsdelivr.net/npm/country-state-city@3.2.1/+esm'));
   let mxGeoPromise=null;
@@ -51,8 +51,14 @@
   function addSessionBar(){
     document.querySelector('.v76-session-bar')?.remove();
     if(!session)return;
-    document.body.insertAdjacentHTML('beforeend',`<div class="v76-session-bar"><span>${esc(session.user.email||'Sesión activa')}</span><button class="v76-link" id="v76Logout">Cerrar sesión</button></div>`);
+    document.body.insertAdjacentHTML('beforeend',`<div class="v76-session-bar"><span>${esc(session.user.email||'Sesión activa')}</span><span id="v76AdminSlot"></span><button class="v76-link" id="v76Logout">Cerrar sesión</button></div>`);
     document.querySelector('#v76Logout').onclick=logout;
+    sb.rpc('is_platform_admin').then(({data})=>{
+      if(data===true){
+        const slot=document.querySelector('#v76AdminSlot');
+        if(slot)slot.innerHTML='<a class="v76-link" href="admin.html" style="text-decoration:none">Administración DENYA</a>';
+      }
+    }).catch(()=>{});
   }
 
   function landing(){
@@ -317,16 +323,79 @@
   function billingSetup(code){
     const p=PLANS[code];if(!p)return;
     showGateway();
-    gateway().innerHTML=`<div class="v76-auth-wrap"><div class="v76-card"><button class="v76-link" onclick="DENYAGateway.plans()">← Cambiar plan</button><span class="v76-kicker" style="margin-top:18px">Plan ${esc(p.name)}</span><h1 style="margin-top:10px">Configura tu renovación</h1><div class="v76-muted">Tienes 14 días gratis y hoy no se hace ningún cargo. Antes de terminar la prueba podrás dejar un método de pago seguro.</div><div id="v76Error" class="v76-error"></div>
+    const basePrice=billing==='annual'?p.annual:p.monthly;
+    const promoText=appliedPromo
+      ?(appliedPromo.discount_type==='percent'?appliedPromo.discount_value+'% de descuento':'$'+Number(appliedPromo.discount_value).toFixed(2)+' MXN de descuento')
+      :'';
+    gateway().innerHTML=`<div class="v76-auth-wrap"><div class="v76-card">
+      <div style="display:flex;justify-content:space-between;gap:10px;align-items:center;flex-wrap:wrap">
+        <button class="v76-link" onclick="DENYAGateway.plans()">← Cambiar plan</button>
+        <button class="v76-link" onclick="DENYAGateway.logout()">Cerrar sesión</button>
+      </div>
+      <span class="v76-kicker" style="margin-top:18px">Plan ${esc(p.name)}</span>
+      <h1 style="margin-top:10px">Configura tu renovación</h1>
+      <div class="v76-muted">Tienes 14 días gratis y hoy no se hace ningún cargo. Puedes dejar el pago para después o preparar tu método de renovación.</div>
+      <div id="v76Error" class="v76-error"></div>
+
+      <div style="margin-top:18px;padding:16px;border:1px solid #e8e0ea;border-radius:16px">
+        <div style="display:flex;justify-content:space-between;gap:12px;align-items:end;flex-wrap:wrap">
+          <div><div class="v76-muted" style="font-size:12px">Precio después de la prueba</div><b style="font-size:22px" id="v76PriceAfterTrial">$ ${basePrice.toLocaleString('es-MX')} MXN / ${billing==='annual'?'año':'mes'}</b></div>
+          <div id="v76PromoBadge" class="v76-success" style="display:${appliedPromo?'block':'none'}">${appliedPromo?esc(promoText):''}</div>
+        </div>
+      </div>
+
+      <div style="margin-top:18px;padding:16px;border:1px solid #e8e0ea;border-radius:16px">
+        <b>Código de descuento</b>
+        <div class="v76-muted" style="font-size:12px;margin:4px 0 10px">Si tienes una promoción, agrégala antes de continuar.</div>
+        <div style="display:grid;grid-template-columns:1fr auto;gap:8px">
+          <input id="v76PromoCode" placeholder="Ej. AGOSTO20" value="${appliedPromo?esc(appliedPromo.code):''}" style="padding:12px;border:1px solid #dcd2de;border-radius:12px;text-transform:uppercase">
+          <button class="v76-btn" type="button" onclick="DENYAGateway.applyPromo('${code}')">Aplicar</button>
+        </div>
+        <div id="v76PromoResult" class="v76-muted" style="font-size:12px;margin-top:8px">${appliedPromo?'Código aplicado: '+esc(appliedPromo.code):''}</div>
+      </div>
+
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:20px">
         <button type="button" class="v76-btn" onclick="DENYAGateway.paymentPreference('card','${code}')"><b>💳 Tarjeta</b><br><span style="font-size:12px;font-weight:500">Crédito o débito</span></button>
         <button type="button" class="v76-btn" onclick="DENYAGateway.paymentPreference('paypal','${code}')"><b>PayPal</b><br><span style="font-size:12px;font-weight:500">Cuenta PayPal</span></button>
       </div>
       <div id="v76PaymentInfo" class="v76-success" style="display:none"></div>
-      <div class="v76-muted" style="margin-top:15px;font-size:12px">Los datos completos de tarjeta deben capturarse en una pasarela certificada (Stripe, PayPal, Mercado Pago, etc.), no directamente en nuestro formulario. La conexión del procesador real sigue pendiente.</div>
+      <div class="v76-muted" style="margin-top:15px;font-size:12px">La tarjeta y PayPal deben conectarse mediante un procesador certificado. DENYA no almacenará números de tarjeta ni CVV.</div>
       <button class="v76-btn primary wide" style="margin-top:18px" onclick="DENYAGateway.startTrial('${code}')">Continuar</button>
       <button class="v76-link" style="width:100%;margin-top:12px" onclick="DENYAGateway.skipPayment('${code}')">Omitir método de pago por ahora</button>
     </div></div>`;
+    updatePromoPrice(code);
+  }
+
+  function updatePromoPrice(code){
+    const p=PLANS[code],el=document.querySelector('#v76PriceAfterTrial');if(!p||!el)return;
+    const base=billing==='annual'?p.annual:p.monthly;
+    let final=base;
+    if(appliedPromo){
+      if(appliedPromo.discount_type==='percent')final=Math.max(0,base*(1-Number(appliedPromo.discount_value)/100));
+      else final=Math.max(0,base-Number(appliedPromo.discount_value));
+    }
+    el.textContent='$ '+final.toLocaleString('es-MX',{minimumFractionDigits:final%1?2:0,maximumFractionDigits:2})+' MXN / '+(billing==='annual'?'año':'mes');
+  }
+
+  async function applyPromo(code){
+    const input=document.querySelector('#v76PromoCode'),out=document.querySelector('#v76PromoResult');
+    const value=(input?.value||'').trim().toUpperCase();
+    if(!value){appliedPromo=null;if(out)out.textContent='Escribe un código.';updatePromoPrice(code);return}
+    if(out)out.textContent='Validando…';
+    const {data,error}=await sb.rpc('validate_promo_code',{p_code:value,p_plan_code:code});
+    const r=data&&data[0];
+    if(error||!r?.valid){
+      appliedPromo=null;
+      if(out)out.textContent=error?.message||r?.message||'Código no válido.';
+      const badge=document.querySelector('#v76PromoBadge');if(badge)badge.style.display='none';
+      updatePromoPrice(code);return;
+    }
+    appliedPromo={promo_id:r.promo_id,code:r.code,description:r.description,discount_type:r.discount_type,discount_value:Number(r.discount_value),remaining_uses:r.remaining_uses};
+    if(input)input.value=r.code;
+    if(out)out.textContent=(r.description? r.description+' · ':'')+(r.remaining_uses==null?'Sin límite global':r.remaining_uses+' usos disponibles');
+    const badge=document.querySelector('#v76PromoBadge');
+    if(badge){badge.style.display='block';badge.textContent=r.discount_type==='percent'?r.discount_value+'% de descuento':'$'+Number(r.discount_value).toFixed(2)+' MXN de descuento'}
+    updatePromoPrice(code);
   }
 
   function paymentPreference(type,code){
@@ -335,13 +404,14 @@
     if(box){
       box.style.display='block';
       box.innerHTML=type==='card'
-        ?'<b>Tarjeta seleccionada.</b><br>La renovación se configurará mediante checkout seguro cuando conectemos el procesador.'
-        :'<b>PayPal seleccionado.</b><br>La renovación se configurará mediante PayPal cuando conectemos el procesador.';
+        ?'<b>Tarjeta seleccionada.</b><br>La captura real de tarjeta se abrirá en el checkout seguro del procesador cuando quede conectada la cuenta de cobro.'
+        :'<b>PayPal seleccionado.</b><br>La autorización real de PayPal se abrirá en su checkout seguro cuando quede conectada la cuenta merchant.';
     }
   }
 
   async function choosePlan(code){
     if(!PLANS[code]||!currentOrg?.id)return;
+    appliedPromo=null;
     billingSetup(code);
   }
 
@@ -354,7 +424,14 @@
       const now=new Date(),end=new Date(now.getTime()+14*86400000);
       const {data:old}=await sb.from('subscriptions').select('*').eq('organization_id',currentOrg.id).order('created_at',{ascending:false}).limit(1);
       const existing=old&&old[0];
+      let reserved=null;
+      if(appliedPromo && (!existing?.promo_code_id || existing.promo_code_id!==appliedPromo.promo_id)){
+        const {data:pr,error:pe}=await sb.rpc('reserve_promo_code',{p_code:appliedPromo.code,p_plan_code:code,p_organization_id:currentOrg.id});
+        if(pe)throw pe;
+        reserved=pr&&pr[0];
+      }
       let q;
+      const promo=reserved||appliedPromo;
       const payload={
         organization_id:currentOrg.id,
         plan_code:code,
@@ -364,12 +441,17 @@
         trial_ends_at:existing?.trial_ends_at||end.toISOString(),
         cancel_at_period_end:false,
         payment_method_type:method,
-        payment_method_status:'not_configured'
+        payment_method_status:'not_configured',
+        promo_code_id:promo?.promo_id||existing?.promo_code_id||null,
+        promo_code:promo?.code||existing?.promo_code||null,
+        promo_discount_type:promo?.discount_type||existing?.promo_discount_type||null,
+        promo_discount_value:promo?.discount_value??existing?.promo_discount_value??null
       };
       if(existing)q=await sb.from('subscriptions').update(payload).eq('id',existing.id).select('*').single();
       else q=await sb.from('subscriptions').insert(payload).select('*').single();
       if(q.error)throw q.error;
       window.__denyaPaymentPreference=null;
+      appliedPromo=null;
       showApp(q.data||payload);
     }catch(err){setErr(err.message||String(err))}
   }
@@ -388,6 +470,6 @@
     if(session)await routeSession();else landing();
   }
 
-  window.DENYAGateway={home:landing,login:()=>auth('login'),register:()=>auth('register'),choosePlan,startTrial,skipPayment,paymentPreference,plans,setBilling:v=>{billing=v;plans()},logout};
+  window.DENYAGateway={home:landing,login:()=>auth('login'),register:()=>auth('register'),choosePlan,startTrial,skipPayment,paymentPreference,applyPromo,plans,setBilling:v=>{billing=v;appliedPromo=null;plans()},logout};
   window.addEventListener('DOMContentLoaded',init);
 })();
