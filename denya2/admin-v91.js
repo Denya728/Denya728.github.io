@@ -23,6 +23,20 @@ function login(){
   };
 }
 async function isAdmin(){const {data,error}=await sb.rpc('is_platform_admin');if(error)throw error;return data===true}
+async function syncPromoStripe(promoId,{silent=false}={}){
+  try{
+    const {data,error}=await sb.functions.invoke('denya-promo-sync',{body:{promo_id:promoId}});
+    if(error||data?.error||data?.needs_secret){
+      const msg=error?.message||data?.message||data?.error||'No pudimos sincronizar con Stripe.';
+      if(!silent)alert(msg);
+      return {ok:false,message:msg,needs_secret:!!data?.needs_secret};
+    }
+    return {ok:true,data};
+  }catch(e){
+    if(!silent)alert(e.message||String(e));
+    return {ok:false,message:e.message||String(e)};
+  }
+}
 async function adminAction(action,payload={}){
   const {data,error}=await sb.functions.invoke('denya-admin',{body:{action,...payload}});
   if(error)throw error;if(data?.error)throw new Error(data.error);return data;
@@ -73,7 +87,9 @@ function renderSubscriptions(){
   '</tbody></table></div><div class="a91-card a91-section"><b>Suscripciones Stripe</b><p class="a91-muted">Los planes vinculados a Stripe se cambian desde Stripe/Customer Portal para conservar cobros, prorrateos y facturación sincronizados. El cambio manual de administración queda disponible para cuentas no vinculadas a Stripe.</p></div>');
 }
 function promoCard(p){
-  return '<tr><td><b>'+E(p.code)+'</b><div class="a91-small a91-muted">'+E(p.description||'')+'</div></td><td>'+E(p.discount_type==='percent'?p.discount_value+'%':money(p.discount_value))+'</td><td>'+E((p.applicable_plan_codes||[]).join(', '))+'</td><td>'+date(p.valid_from)+' → '+date(p.valid_until)+'</td><td>'+E(p.max_redemptions??'∞')+' / '+E(p.max_redemptions_per_user||1)+'</td><td>'+badge(p.active?'Activo':'Inactivo')+'</td><td><div class="a91-row-actions"><button class="a91-btn a91-secondary" onclick="promoModal(\''+p.id+'\')">Editar</button><button class="a91-btn '+(p.active?'a91-danger':'a91-primary')+'" onclick="togglePromo(\''+p.id+'\','+(!p.active)+')">'+(p.active?'Desactivar':'Activar')+'</button></div></td></tr>';
+  const sync=p.stripe_sync_status||'pending';
+  const syncBadge=sync==='synced'?'<span class="a91-badge ok">Stripe sincronizado</span>':sync==='error'?'<span class="a91-badge bad">Error Stripe</span>':'<span class="a91-badge warn">Stripe pendiente</span>';
+  return '<tr><td><b>'+E(p.code)+'</b><div class="a91-small a91-muted">'+E(p.description||'')+'</div></td><td>'+E(p.discount_type==='percent'?p.discount_value+'%':money(p.discount_value))+'</td><td>'+E((p.applicable_plan_codes||[]).join(', '))+'</td><td>'+date(p.valid_from)+' → '+date(p.valid_until)+'</td><td>'+E(p.max_redemptions??'∞')+' / '+E(p.max_redemptions_per_user||1)+'</td><td>'+badge(p.active?'Activo':'Inactivo')+'<div style="margin-top:6px">'+syncBadge+'</div>'+(p.stripe_sync_error?'<div class="a91-small a91-muted" style="max-width:240px">'+E(p.stripe_sync_error)+'</div>':'')+'</td><td><div class="a91-row-actions"><button class="a91-btn a91-secondary" onclick="promoModal(\''+p.id+'\')">Editar</button><button class="a91-btn a91-secondary" onclick="syncPromoManual(\''+p.id+'\')">Sincronizar Stripe</button><button class="a91-btn '+(p.active?'a91-danger':'a91-primary')+'" onclick="togglePromo(\''+p.id+'\','+(!p.active)+')">'+(p.active?'Desactivar':'Activar')+'</button></div></td></tr>';
 }
 function renderPromos(){
   shell('<div class="a91-actions" style="margin-bottom:12px"><button class="a91-btn a91-primary" onclick="promoModal()">+ Crear código</button></div><div class="a91-table-wrap"><table class="a91-table"><thead><tr><th>Código</th><th>Descuento</th><th>Planes</th><th>Vigencia</th><th>Límite total / usuario</th><th>Estado</th><th>Acciones</th></tr></thead><tbody>'+promos.map(promoCard).join('')+(promos.length?'':'<tr><td colspan="7"><div class="a91-empty">No hay promociones.</div></td></tr>')+'</tbody></table></div>');
@@ -124,11 +140,23 @@ window.promoModal=id=>{
     if(!code||!plans.length)return alert('Completa código y al menos un plan.');
     const payload={code,description,discount_type:m.querySelector('#ptype').value,discount_value:Number(m.querySelector('#pvalue').value)||0,applicable_plan_codes:plans,valid_from:m.querySelector('#pfrom').value?new Date(m.querySelector('#pfrom').value).toISOString():null,valid_until:m.querySelector('#puntil').value?new Date(m.querySelector('#puntil').value).toISOString():null,max_redemptions:m.querySelector('#pmax').value?Number(m.querySelector('#pmax').value):null,max_redemptions_per_user:Number(m.querySelector('#puser').value)||1,active:p?.active??true};
     if(!id)payload.created_by=session.user.id;
-    const q=id?sb.from('promo_codes').update(payload).eq('id',id):sb.from('promo_codes').insert(payload);
-    const {error}=await q;if(error)return alert(error.message);m.remove();await load();render();
+    let savedId=id;
+    if(id){
+      payload.stripe_sync_status='pending';payload.stripe_sync_error=null;
+      const {error}=await sb.from('promo_codes').update(payload).eq('id',id);if(error)return alert(error.message);
+    }else{
+      payload.stripe_sync_status='pending';
+      const {data:created,error}=await sb.from('promo_codes').insert(payload).select('id').single();
+      if(error)return alert(error.message);savedId=created.id;
+    }
+    m.remove();
+    const sync=await syncPromoStripe(savedId,{silent:true});
+    await load();render();
+    if(!sync.ok&&sync.needs_secret)alert('La promoción quedó guardada en DENYA. Falta una configuración tuya para sincronizar códigos automáticamente con Stripe.');
   };
 };
-window.togglePromo=async(id,active)=>{const {error}=await sb.from('promo_codes').update({active}).eq('id',id);if(error)return alert(error.message);await load();render()};
+window.syncPromoManual=async id=>{const r=await syncPromoStripe(id);await load();render();if(r.ok)alert('Promoción sincronizada con Stripe.')};
+window.togglePromo=async(id,active)=>{const {error}=await sb.from('promo_codes').update({active,stripe_sync_status:'pending',stripe_sync_error:null}).eq('id',id);if(error)return alert(error.message);await syncPromoStripe(id,{silent:true});await load();render()};
 window.ticketModal=id=>{
   const t=(overview?.tickets||[]).find(x=>x.id===id);if(!t)return;
   const body='<p><b>'+E(t.subject)+'</b></p><p class="a91-muted">'+E(t.message)+'</p><label class="a91-field">Estado<select id="tstatus"><option value="open">Abierta</option><option value="in_progress">En proceso</option><option value="resolved">Resuelta</option><option value="closed">Cerrada</option></select></label><label class="a91-field" style="margin-top:10px">Nota visible para el cliente<textarea id="tnotes">'+E(t.admin_notes||'')+'</textarea></label>';
