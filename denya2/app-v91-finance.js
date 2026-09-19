@@ -121,7 +121,7 @@
     const delta=prev.operatingProfit?((m.operatingProfit-prev.operatingProfit)/Math.abs(prev.operatingProfit))*100:null;
     titleEl.textContent='Finanzas';
     const history=[];
-    for(let i=5;i>=0;i--){const p=addMonth(period,-i);history.push(metrics(p))}
+    for(let i=11;i>=0;i--){const p=addMonth(period,-i);history.push(metrics(p))}
     content.innerHTML=pageHead('Finanzas','Rentabilidad real: ventas, costos directos, gastos indirectos e inversión.',`
       <div class="row-actions">
         <button class="secondary" onclick="openFinanceMovementV91()">+ Movimiento</button>
@@ -142,7 +142,7 @@
         <div class="v91-fin-kpi"><small>Pedidos cerrados</small><strong>${m.sales.length}</strong><span>Ticket promedio ${moneyV(m.ticket)}</span></div>
         <div class="v91-fin-kpi"><small>Otros movimientos</small><strong>${m.tx.length}</strong><span>Ingresos, gastos, inversión y devoluciones</span></div>
       </div>
-      ${hasPro()?`<div class="v91-history card"><div class="v33-eyebrow">Histórico</div><h3>Últimos 6 meses</h3>
+      ${hasPro()?`<div class="v91-history card"><div class="v33-eyebrow">Histórico</div><h3>Últimos 12 meses</h3>
         <div class="table-wrap"><table class="table"><thead><tr><th>Mes</th><th>Ingresos netos</th><th>Directos</th><th>Indirectos</th><th>Utilidad</th><th>Margen</th><th>Inversión</th><th>Resultado final</th></tr></thead><tbody>
         ${history.map(x=>`<tr><td><b>${E(monthLabel(x.period))}</b></td><td>${moneyV(x.netRevenue)}</td><td>${moneyV(x.direct)}</td><td>${moneyV(x.indirect)}</td><td class="${x.operatingProfit>=0?'profit-pos':'profit-neg'}">${moneyV(x.operatingProfit)}</td><td>${x.margin.toFixed(1)}%</td><td>${moneyV(x.investment)}</td><td class="${x.cashAfterInvestment>=0?'profit-pos':'profit-neg'}">${moneyV(x.cashAfterInvestment)}</td></tr>`).join('')}
         </tbody></table></div></div>`:`<div class="helper"><b>Reportes históricos y Excel:</b> disponibles en Pro. El cálculo del mes actual sigue incluyendo tus costos indirectos e inversión.</div>`}
