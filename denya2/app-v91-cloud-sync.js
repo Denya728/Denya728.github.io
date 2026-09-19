@@ -6,7 +6,7 @@
   const sb=window.supabase.createClient(URL,KEY,{auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:true}});
   const localSave=typeof save==='function'?save:()=>{};
   let remoteReady=false,revision=0,dirty=false,saving=false,saveTimer=null,mirrorTimer=null,pollTimer=null,lastSessionId=null;
-  let context=null;
+  let context=null,baseSnapshot=null;
 
   const wait=ms=>new Promise(r=>setTimeout(r,ms));
   function status(text,mode='ok'){
@@ -25,6 +25,15 @@
   }
   function currentView(){
     return document.querySelector('.nav button.active')?.dataset?.view||'home';
+  }
+  function snap(v){try{return JSON.parse(JSON.stringify(v))}catch(_){return {}}}
+  function changedTopLevelKeys(){
+    const a=state&&typeof state==='object'?state:{},b=baseSnapshot&&typeof baseSnapshot==='object'?baseSnapshot:{};
+    const keys=new Set([...Object.keys(a),...Object.keys(b)]),out=[];
+    for(const k of keys){
+      try{if(JSON.stringify(a[k])!==JSON.stringify(b[k]))out.push(k)}catch(_){out.push(k)}
+    }
+    return out;
   }
   function applyContext(ctx){
     if(!ctx||typeof state==='undefined')return;
@@ -71,6 +80,7 @@
         state=data.state;
         applyContext(data.context);
         revision=Number(data.revision)||0;
+        baseSnapshot=snap(state);
         localSave();
         dirty=false;
         if(rerender){
@@ -81,9 +91,11 @@
     }else{
       applyContext(data.context);
       localSave();
-      const first=await invoke({action:'save',state});
+      const first=await invoke({action:'save',state,base_revision:0,changed_keys:Object.keys(state||{})});
+      if(first.state)state=first.state;
       revision=Number(first.revision)||1;
       applyContext(first.context);
+      baseSnapshot=snap(state);
       localSave();
       await invoke({action:'mirror'}).catch(()=>{});
     }
@@ -98,12 +110,16 @@
     if(!session?.user?.id)return;
     saving=true;status('☁ Guardando…','busy');
     try{
-      const data=await invoke({action:'save',state});
+      const changed=changedTopLevelKeys();
+      if(!changed.length){dirty=false;status('☁ Sincronizado','ok');return}
+      const data=await invoke({action:'save',state,base_revision:revision,changed_keys:changed});
+      if(data.state)state=data.state;
       revision=Number(data.revision)||revision;
       applyContext(data.context);
+      baseSnapshot=snap(state);
       localSave();
       dirty=false;
-      status('☁ Sincronizado','ok');
+      status(data.conflict_merged?'☁ Cambios combinados con otro dispositivo':'☁ Sincronizado','ok');
       clearTimeout(mirrorTimer);
       mirrorTimer=setTimeout(()=>invoke({action:'mirror'}).catch(e=>console.warn('DENYA mirror',e)),3500);
     }catch(e){
@@ -133,6 +149,7 @@
         state=data.state||state;
         applyContext(data.context);
         revision=Number(data.revision)||revision;
+        baseSnapshot=snap(state);
         localSave();
         try{show(currentView())}catch(_){}
         status('☁ Actualizado desde otro dispositivo','ok');
@@ -151,7 +168,7 @@
   }
   sb.auth.onAuthStateChange((event,session)=>{
     if(event==='SIGNED_OUT'){
-      remoteReady=false;revision=0;dirty=false;context=null;lastSessionId=null;
+      remoteReady=false;revision=0;dirty=false;context=null;baseSnapshot=null;lastSessionId=null;
       return;
     }
     if(session?.user?.id&&session.user.id!==lastSessionId)setTimeout(()=>loadRemote({rerender:true,force:true}).catch(console.error),600);
