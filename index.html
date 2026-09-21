@@ -41,22 +41,57 @@ footer{display:none}
 .panel.cake .panelcontent h2,.panel.crunch .panelcontent h2{font-family:Cormorant Garamond,serif;font-size:clamp(40px,3.8vw,58px);font-weight:500;letter-spacing:.01em;line-height:.88;color:#fff;text-shadow:0 2px 16px rgba(0,0,0,.28);margin:7px 0 9px}
 .panel.cake .panelcontent .slogan,.panel.crunch .panelcontent .slogan{color:rgba(255,255,255,.96)}
 
-/* SWEETLAB — split field with independent title blocks */
+/* SWEETLAB — high-contrast title over split field */
 .panel.sweet{background:#f8f4ed}
 .panel.sweet:before{content:"";position:absolute;inset:0;background:linear-gradient(90deg,#1f1a16 0 50%,#f8f4ed 50% 100%);z-index:0}
 .sweetvisual{z-index:2}
 .sweetcontent{z-index:10;left:0;right:0;bottom:5%;padding:0}
-.sweetcontent h2{position:relative;display:grid;grid-template-columns:50% 50%;width:100%;margin:0;font-family:Cormorant Garamond,serif;font-size:clamp(31px,3vw,47px);font-weight:500;line-height:.86;letter-spacing:0;overflow:visible}
-.sweetcontent h2 .lightword{grid-column:1;display:block!important;color:#fff!important;-webkit-text-fill-color:#fff!important;white-space:nowrap;text-align:right;padding-right:10px;text-shadow:0 2px 16px rgba(0,0,0,.4)}
-.sweetcontent h2 .darkword{grid-column:2;display:block!important;color:#1f1a16!important;-webkit-text-fill-color:#1f1a16!important;white-space:nowrap;text-align:left;padding-left:10px;text-shadow:none}
-.sweetcontent .eyebrow{position:relative;z-index:11;text-align:center;color:#b99459;font-size:8px;letter-spacing:.2em;margin-bottom:5px}
-.sweetcontent .sweetlabel{text-align:center;margin-top:9px;font-family:Cormorant Garamond,serif;font-size:15px;font-style:italic;color:#6e6258}
-.sweetcontent .slogan{text-align:center;width:100%;margin-top:3px;color:#8c8075;font-size:7px;letter-spacing:.12em}
+.sweetcontent h2{
+  position:relative;
+  display:flex;
+  justify-content:center;
+  align-items:baseline;
+  width:100%;
+  margin:0;
+  font-family:Cormorant Garamond,serif;
+  font-size:clamp(36px,3.5vw,54px);
+  font-weight:600;
+  line-height:.9;
+  letter-spacing:.015em;
+  white-space:nowrap;
+  overflow:visible;
+}
+.sweetcontent h2 .lightword{
+  display:block!important;
+  color:#fff!important;
+  -webkit-text-fill-color:#fff!important;
+  text-shadow:0 2px 18px rgba(0,0,0,.55),0 0 1px #fff;
+  padding-right:5px;
+}
+.sweetcontent h2 .darkword{
+  display:block!important;
+  color:#1f1a16!important;
+  -webkit-text-fill-color:#1f1a16!important;
+  text-shadow:0 1px 0 rgba(255,255,255,.7),0 0 1px #1f1a16;
+  padding-left:5px;
+}
+.sweetcontent h2:after{
+  content:"";
+  position:absolute;
+  left:50%;
+  top:-5px;
+  bottom:-5px;
+  width:2px;
+  background:rgba(185,148,89,.8);
+  transform:translateX(-50%);
+  pointer-events:none;
+}
+.sweetcontent .eyebrow{position:relative;z-index:11;text-align:center;color:#b99459;font-size:8px;letter-spacing:.2em;margin-bottom:6px}
+.sweetcontent .sweetlabel{text-align:center;margin-top:10px;font-family:Cormorant Garamond,serif;font-size:15px;font-style:italic;color:#5f554d;text-shadow:0 1px 0 rgba(255,255,255,.7)}
+.sweetcontent .slogan{text-align:center;width:100%;margin-top:3px;color:#756b63;font-size:7px;letter-spacing:.12em}
 .sweetcontent .cta{display:block;width:max-content;margin:10px auto 0;background:#1f1a16;color:#fff;border-radius:999px;padding:9px 15px;font-size:7px;font-weight:700;letter-spacing:.15em;text-transform:uppercase}
 @media(max-width:800px){
-  .sweetcontent h2{font-size:clamp(30px,8vw,42px)}
-  .sweetcontent h2 .lightword{padding-right:6px}
-  .sweetcontent h2 .darkword{padding-left:6px}
+  .sweetcontent h2{font-size:clamp(29px,7.5vw,40px)}
 }
 </style>
 <body>
