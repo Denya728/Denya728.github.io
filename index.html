@@ -12,10 +12,10 @@
 :root{--cream:#f7f2eb;--paper:#fffdfa;--ink:#29221e;--muted:#746a62;--gold:#b99459;--gold2:#d8c096;--pink:#d98ca0;--cocoa:#4a2e25;--line:#e7ddd1;--shadow:0 24px 70px rgba(62,43,28,.12)}
 *{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;background:var(--cream);color:var(--ink);font-family:Montserrat,Arial,sans-serif}a{color:inherit}
 .top{position:fixed;top:0;left:0;right:0;z-index:20;padding:18px 5vw;display:flex;align-items:center;justify-content:space-between;background:rgba(247,242,235,.78);backdrop-filter:blur(16px);border-bottom:1px solid rgba(231,221,209,.7)}
-.brand{font-family:Cinzel,serif;letter-spacing:.22em;font-size:19px}.brand i{font-style:normal;color:var(--gold);font-size:15px;margin-right:8px}.navlinks{display:flex;gap:28px;font-size:11px;font-weight:700;letter-spacing:.12em;text-transform:uppercase}.navlinks a{text-decoration:none}
+.brand{font-family:Montserrat,Arial,sans-serif;letter-spacing:.18em;font-size:18px;font-weight:600}.brand i{font-style:normal;color:var(--ink);font-size:18px;margin-right:7px;letter-spacing:0}.navlinks{display:flex;gap:28px;font-size:11px;font-weight:700;letter-spacing:.12em;text-transform:uppercase}.navlinks a{text-decoration:none}
 .hero{min-height:100vh;display:grid;place-items:center;text-align:center;padding:130px 6vw 80px;position:relative;overflow:hidden;background:radial-gradient(circle at 50% 40%,#fffdf9 0,#f7f2eb 58%,#efe5d8 100%)}
 .hero:before,.hero:after{content:"";position:absolute;border:1px solid rgba(185,148,89,.28);border-radius:50%;width:430px;height:430px}.hero:before{left:-220px;top:18%}.hero:after{right:-250px;bottom:8%}
-.star{color:var(--gold);font-size:30px;display:inline-block;margin-bottom:20px;filter:drop-shadow(0 0 9px rgba(185,148,89,.35))}
+.star{color:var(--ink);font-size:34px;display:inline-block;margin-bottom:20px;filter:drop-shadow(0 0 9px rgba(185,148,89,.35))}
 .hero h1{font-family:Cinzel,serif;font-weight:500;font-size:clamp(42px,7vw,82px);letter-spacing:.12em;margin:0}.hero .tag{font-family:Cormorant Garamond,serif;font-size:clamp(24px,3vw,36px);font-style:italic;margin:18px 0 10px}.hero p{max-width:570px;margin:0 auto 34px;color:var(--muted);line-height:1.8;font-size:14px}.scroll{font-size:10px;letter-spacing:.2em;text-transform:uppercase;color:var(--gold)}
 .intro{max-width:1080px;margin:auto;padding:105px 6vw}.kicker{font-size:10px;letter-spacing:.2em;text-transform:uppercase;color:var(--gold);font-weight:700}.intro h2,.story h2{font-family:Cormorant Garamond,serif;font-weight:500;font-size:clamp(38px,5vw,62px);line-height:.95;margin:12px 0 18px}.intro p,.story p{max-width:620px;color:var(--muted);line-height:1.8}
 .brands{display:grid;grid-template-columns:1fr 1fr;gap:24px;max-width:1200px;margin:auto;padding:0 5vw 110px}.brandcard{min-height:650px;border-radius:34px;overflow:hidden;position:relative;display:flex;align-items:flex-end;text-decoration:none;box-shadow:var(--shadow);isolation:isolate}.brandcard:before{content:"";position:absolute;inset:0;background:linear-gradient(180deg,transparent 35%,rgba(27,19,14,.74) 100%);z-index:-1}.brandcard.cake{background:url("cake_floral.jpg") center/cover}.brandcard.crunch{background:url("bag_green.jpg") center/cover}.brandcard .copy{padding:42px;color:white}.brandcard .mini{font-size:10px;letter-spacing:.2em;text-transform:uppercase;opacity:.86}.brandcard h3{font-family:Cinzel,serif;font-weight:500;font-size:clamp(30px,4vw,48px);letter-spacing:.08em;margin:10px 0}.brandcard p{max-width:420px;line-height:1.65;margin:0 0 24px;font-size:14px}.cta{display:inline-flex;align-items:center;gap:12px;border:1px solid rgba(255,255,255,.65);border-radius:999px;padding:12px 18px;font-size:10px;font-weight:700;letter-spacing:.12em;text-transform:uppercase}
@@ -29,13 +29,12 @@ footer{background:var(--cocoa);color:#fff;padding:65px 6vw 30px;text-align:cente
 </style>
 </head>
 <body>
-<header class="top"><a class="brand" href="#inicio"><i>★</i>DENYA</a><nav class="navlinks"><a href="#denicake">DeniCake</a><a href="#denicrunch">DeniCrunch</a><a href="#historia">Historia</a></nav></header>
+<header class="top"><a class="brand" href="#inicio"><i>✦</i>DENYA</a><nav class="navlinks"><a href="#denicake">DeniCake</a><a href="#denicrunch">DeniCrunch</a><a href="#historia">Historia</a></nav></header>
 
 <main>
 <section class="hero" id="inicio">
 <div>
-<div class="star">★</div>
-<h1>DENYA</h1>
+<div class="star">✦</div><h1>DENYA</h1>
 <div class="tag">Los mejores recuerdos comienzan alrededor de una mesa.</div>
 <p>Un universo creado para celebrar, compartir y convertir pequeños momentos en recuerdos que permanecen.</p>
 <div class="scroll">↓ descubrir</div>
@@ -62,6 +61,6 @@ footer{background:var(--cocoa);color:#fff;padding:65px 6vw 30px;text-align:cente
 <section class="gallery" aria-label="Galería DENYA"><img src="cake_floral.jpg" alt="Pastel floral DENICAKE"><img src="cake_it.jpg" alt="Pastel temático DENICAKE"><img src="bag_green.jpg" alt="Cacao DENICRUNCH"></section>
 </main>
 
-<footer><div class="footerstar">★</div><div class="footerlogo">DENYA</div><div class="footnote">Los mejores recuerdos comienzan alrededor de una mesa.</div><div class="footlinks"><a href="#denicake">DENICAKE</a><a href="#denicrunch">DENICRUNCH</a><a href="https://www.instagram.com/denicake7" target="_blank" rel="noopener">Instagram</a><a href="https://wa.me/525513513193" target="_blank" rel="noopener">Contacto</a></div><a class="admin" href="./denya2/admin.html">Administración</a></footer>
+<footer><div class="footerstar">✦</div><div class="footerlogo">DENYA</div><div class="footnote">Los mejores recuerdos comienzan alrededor de una mesa.</div><div class="footlinks"><a href="#denicake">DENICAKE</a><a href="#denicrunch">DENICRUNCH</a><a href="https://www.instagram.com/denicake7" target="_blank" rel="noopener">Instagram</a><a href="https://wa.me/525513513193" target="_blank" rel="noopener">Contacto</a></div><a class="admin" href="./denya2/admin.html">Administración</a></footer>
 </body>
 </html>
