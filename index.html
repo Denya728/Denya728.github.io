@@ -41,88 +41,23 @@ footer{display:none}
 .panel.cake .panelcontent h2,.panel.crunch .panelcontent h2{font-family:Cormorant Garamond,serif;font-size:clamp(40px,3.8vw,58px);font-weight:500;letter-spacing:.01em;line-height:.88;color:#fff;text-shadow:0 2px 16px rgba(0,0,0,.28);margin:7px 0 9px}
 .panel.cake .panelcontent .slogan,.panel.crunch .panelcontent .slogan{color:rgba(255,255,255,.96)}
 
-/* SWEETLAB — unmistakable 50/50 identity */
-.panel.sweet{
-  background:linear-gradient(90deg,#1f1a16 0%,#1f1a16 50%,#f8f4ed 50%,#f8f4ed 100%);
+/* SWEETLAB title — force split contrast */
+.panel.sweet{background:#f8f4ed}
+.panel.sweet:before{
+  content:"";
+  position:absolute;inset:0;
+  background:linear-gradient(90deg,#1f1a16 0 50%,#f8f4ed 50% 100%);
+  z-index:0;
 }
-.panel.sweet:after{display:none}
-.sweetvisual{
-  position:absolute;
-  left:7%;right:7%;top:7%;bottom:39%;
-  background:#f7f4ef;
-  border:1px solid #e5ddd4;
-  border-radius:18px;
-  box-shadow:0 18px 40px rgba(35,27,22,.18);
-  overflow:hidden;
-  transform:none;
-}
-.sweetcontent{
-  position:absolute;
-  left:0;right:0;bottom:5%;
-  padding:0;
-  z-index:8;
-  color:#fff;
-}
-.sweetcontent .eyebrow{
-  text-align:center;
-  color:#b99459;
-  font-size:8px;
-  letter-spacing:.2em;
-  margin-bottom:5px;
-}
-.sweetcontent h2{
-  display:grid;
-  grid-template-columns:1fr 1fr;
-  width:100%;
-  margin:0;
-  padding:0;
-  font-family:Cormorant Garamond,serif;
-  font-size:clamp(38px,3.7vw,58px);
-  font-weight:500;
-  line-height:.86;
-  letter-spacing:.01em;
-}
-.sweetcontent h2 .lightword{
-  color:#fff!important;
-  text-align:right;
-  padding-right:8px;
-  text-shadow:0 2px 16px rgba(0,0,0,.35);
-}
-.sweetcontent h2 .darkword{
-  color:#1f1a16!important;
-  text-align:left;
-  padding-left:8px;
-  text-shadow:none;
-}
-.sweetcontent .sweetlabel{
-  text-align:center;
-  margin-top:9px;
-  font-family:Cormorant Garamond,serif;
-  font-size:15px;
-  font-style:italic;
-  color:#6e6258;
-}
-.sweetcontent .slogan{
-  text-align:center;
-  width:100%;
-  margin-top:3px;
-  color:#8c8075;
-  font-size:7px;
-  letter-spacing:.12em;
-}
-.sweetcontent .cta{
-  display:block;
-  width:max-content;
-  margin:10px auto 0;
-  background:#1f1a16;
-  color:#fff;
-  border-radius:999px;
-  padding:9px 15px;
-  font-size:7px;
-  font-weight:700;
-  letter-spacing:.15em;
-  text-transform:uppercase;
-}
+.sweetvisual{z-index:2}
+.sweetcontent{z-index:10}
+.sweetcontent h2{position:relative;display:flex;justify-content:center;align-items:baseline;width:100%;font-family:Cormorant Garamond,serif;font-size:clamp(38px,3.7vw,58px);font-weight:500;line-height:.86;letter-spacing:.01em;margin:0}
+.sweetcontent h2 .lightword{display:block!important;color:#fff!important;-webkit-text-fill-color:#fff!important;text-align:right;text-shadow:0 2px 16px rgba(0,0,0,.4);padding-right:7px}
+.sweetcontent h2 .darkword{display:block!important;color:#1f1a16!important;-webkit-text-fill-color:#1f1a16!important;text-align:left;text-shadow:none;padding-left:7px}
+.sweetcontent .eyebrow{position:relative;z-index:11;text-align:center;color:#b99459;font-size:8px;letter-spacing:.2em;margin-bottom:5px}
+.sweetcontent .sweetlabel{text-align:center;margin-top:9px;font-family:Cormorant Garamond,serif;font-size:15px;font-style:italic;color:#6e6258}
+.sweetcontent .slogan{text-align:center;width:100%;margin-top:3px;color:#8c8075;font-size:7px;letter-spacing:.12em}
+.sweetcontent .cta{display:block;width:max-content;margin:10px auto 0;background:#1f1a16;color:#fff;border-radius:999px;padding:9px 15px;font-size:7px;font-weight:700;letter-spacing:.15em;text-transform:uppercase}
 </style>
 <body>
 <nav><a class="logo" href="#inicio"><span>✦</span>DENYA</a><div class="links"><a href="#denicake">DENICAKE</a><a href="#denicrunch">DENICRUNCH</a><a href="#sweetlab">SWEETLAB</a></div></nav>
