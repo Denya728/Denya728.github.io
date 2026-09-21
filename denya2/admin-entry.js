@@ -18,8 +18,9 @@
       if(!(await isAdmin()))return;
       const nav=document.querySelector('.nav');if(!nav||document.getElementById('denyaAdminLink'))return;
       const divider=document.createElement('div');divider.className='nav-divider';
+      const section=document.createElement('div');section.className='nav-section';section.textContent='Administración';
       const link=document.createElement('a');link.id='denyaAdminLink';link.href='./admin.html';link.textContent='Administración';link.style.cssText='display:block;text-decoration:none;color:inherit;padding:11px 14px;border-radius:10px;font-weight:800;margin-top:4px';
-      nav.appendChild(divider);nav.appendChild(link);
+      nav.appendChild(divider);nav.appendChild(section);nav.appendChild(link);
     }catch(e){}
   }
   setTimeout(mount,700);
