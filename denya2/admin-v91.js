@@ -51,7 +51,7 @@ async function load(){
 }
 function shell(content){
   root.innerHTML='<div class="a91-shell"><header class="a91-top"><div class="a91-brand">✦ DENYA <span>Administración de plataforma · '+E(session?.user?.email||'')+'</span></div><div class="a91-actions"><a class="a91-btn a91-secondary" href="./">Abrir aplicación</a><button class="a91-btn a91-secondary" onclick="refreshAdmin()">Actualizar</button><button class="a91-btn a91-danger" onclick="logoutAdmin()">Cerrar sesión</button></div></header><nav class="a91-tabs">'+[
-    ['dashboard','Resumen'],['organizations','Empresas'],['users','Usuarios'],['subscriptions','Suscripciones'],['promos','Promociones'],['redemptions','Redenciones'],['support','Soporte'],['audit','Auditoría'],['health','Salud']
+    ['dashboard','Resumen'],['organizations','Empresas'],['users','Usuarios'],['subscriptions','Suscripciones'],['promos','Promociones'],['redemptions','Redenciones'],['support','Soporte'],['audit','Auditoría'],['health','Salud'],['tests','Pruebas']
   ].map(([id,l])=>'<button class="'+(tab===id?'active':'')+'" onclick="setAdminTab(\''+id+'\')">'+l+'</button>').join('')+'</nav><main>'+content+'</main></div>';
 }
 function renderDashboard(){
@@ -120,6 +120,13 @@ function renderSupport(){
   const rows=overview?.tickets||[];
   shell('<div class="a91-two"><section><h2>Incidencias</h2>'+rows.map(t=>'<article class="a91-ticket"><div class="a91-ticket-head"><div><b>'+E(t.subject)+'</b><div class="a91-small a91-muted">'+E(t.organization_name)+' · '+E(t.user_email||'')+' · '+dt(t.created_at)+'</div></div>'+badge(t.status)+'</div><p>'+E(t.message)+'</p><div class="a91-row-actions"><button class="a91-btn a91-secondary" onclick="ticketModal(\''+t.id+'\')">Gestionar</button></div>'+(t.admin_notes?'<div class="a91-card" style="margin-top:8px;padding:10px"><b>Nota:</b> '+E(t.admin_notes)+'</div>':'')+'</article>').join('')+(rows.length?'':'<div class="a91-empty">Sin incidencias.</div>')+'</section><aside class="a91-card"><h3>Soporte DENYA</h3><p class="a91-muted">Las incidencias creadas desde Perfil → Soporte aparecen aquí. Puedes marcarlas en proceso, resueltas o cerradas y dejar una nota visible para el cliente.</p></aside></div>');
 }
+
+async function renderTests(){
+  const rows=overview?.organizations||[];
+  shell('<div class="a91-card"><h2>🧪 Centro de pruebas</h2><p class="a91-muted">Revisa funciones de DENYA sin realizar cobros reales. Las simulaciones solo se permiten en organizaciones sin suscripción Stripe activa.</p></div><div class="a91-table-wrap a91-section"><table class="a91-table"><thead><tr><th>Organización</th><th>Plan</th><th>Estado</th><th>Modo</th><th>Pruebas</th></tr></thead><tbody>'+
+  rows.map(o=>'<tr><td><b>'+E(o.name)+'</b><div class="a91-small a91-muted">'+E(o.owner_email||'')+'</div></td><td>'+E(o.plan_code||'—')+'</td><td>'+badge(o.subscription_status||'sin suscripción')+'</td><td>'+badge(o.provider==='stripe'?'Stripe':o.provider==='test'?'Pruebas':'Manual')+'</td><td><div class="a91-row-actions"><button class="a91-btn a91-primary" onclick="testSubscription(\''+o.id+'\')">Configurar prueba</button><button class="a91-btn a91-secondary" onclick="openOrgDetail(\''+o.id+'\')">Revisar</button></div></td></tr>').join('')+
+  (rows.length?'':'<tr><td colspan="5"><div class="a91-empty">No hay organizaciones.</div></td></tr>')+'</tbody></table></div><div class="a91-two a91-section"><section class="a91-card"><h3>Checklist rápido</h3><div class="a91-member"><span>Login / sesión</span><span>✓</span></div><div class="a91-member"><span>Plan y límites</span><span>✓</span></div><div class="a91-member"><span>Datos / sincronización</span><span>✓</span></div><div class="a91-member"><span>Promociones</span><span>✓</span></div><div class="a91-member"><span>Soporte</span><span>✓</span></div><div class="a91-member"><span>Stripe real</span><span>Se prueba aparte</span></div></section><section class="a91-card"><h3>Importante</h3><p class="a91-muted">El modo de pruebas no crea cargos en Stripe. Para pagos usa Stripe en modo prueba/test.</p></section></div>');
+}
 function render(){
   if(tab==='dashboard')return renderDashboard();
   if(tab==='organizations')return renderOrganizations();
@@ -130,6 +137,7 @@ function render(){
   if(tab==='support')return renderSupport();
   if(tab==='audit')return renderAudit();
   if(tab==='health')return renderHealth();
+  if(tab==='tests')return renderTests();
 }
 window.setAdminTab=id=>{tab=id;render()};
 window.refreshAdmin=async()=>{try{await load();render()}catch(e){fatal(e.message||String(e))}};
@@ -178,6 +186,15 @@ window.promoModal=id=>{
 };
 window.syncPromoManual=async id=>{const r=await syncPromoStripe(id);await load();render();if(r.ok)alert('Promoción sincronizada con Stripe.')};
 window.togglePromo=async(id,active)=>{const {error}=await sb.from('promo_codes').update({active,stripe_sync_status:'pending',stripe_sync_error:null}).eq('id',id);if(error)return alert(error.message);await syncPromoStripe(id,{silent:true});await load();render()};
+
+window.testSubscription=async id=>{
+  const o=(overview?.organizations||[]).find(x=>x.id===id);if(!o)return;
+  if(o.provider==='stripe'&&o.provider_subscription_id)return alert('Esta organización tiene Stripe activo. Usa una organización de pruebas para no tocar una suscripción real.');
+  const body='<div class="a91-form2"><label class="a91-field">Plan<select id="tplan"><option value="emprende">Emprende</option><option value="negocio">Negocio</option><option value="pro">Pro</option></select></label><label class="a91-field">Estado<select id="tstatus"><option value="active">Activa</option><option value="trialing">Trial</option><option value="past_due">Pago pendiente</option><option value="canceled">Cancelada</option></select></label><label class="a91-field">Ciclo<select id="tcycle"><option value="monthly">Mensual</option><option value="annual">Anual</option></select></label><label class="a91-field">Duración (días)<input id="tdays" type="number" min="1" max="365" value="30"></label></div><p class="a91-muted">Crea/actualiza una suscripción de prueba para revisar límites y pantallas sin cobrar.</p>';
+  const m=showModal('Configurar prueba · '+o.name,body,'<button class="a91-btn a91-secondary" data-close>Cancelar</button><button class="a91-btn a91-primary" id="testSave">Aplicar prueba</button>');
+  m.querySelector('#tplan').value=o.plan_code||'pro';m.querySelector('#tstatus').value=o.subscription_status==='trialing'?'trialing':'active';m.querySelector('#tcycle').value=o.billing_cycle||'monthly';
+  m.querySelector('#testSave').onclick=async()=>{try{await adminAction('test_subscription',{organization_id:id,plan_code:m.querySelector('#tplan').value,status:m.querySelector('#tstatus').value,billing_cycle:m.querySelector('#tcycle').value,days:Number(m.querySelector('#tdays').value)||30});m.remove();await load();render();alert('Modo de pruebas aplicado.')}catch(e){alert(e.message||String(e))}};
+};
 window.ticketModal=id=>{
   const t=(overview?.tickets||[]).find(x=>x.id===id);if(!t)return;
   const body='<p><b>'+E(t.subject)+'</b></p><p class="a91-muted">'+E(t.message)+'</p><label class="a91-field">Estado<select id="tstatus"><option value="open">Abierta</option><option value="in_progress">En proceso</option><option value="resolved">Resuelta</option><option value="closed">Cerrada</option></select></label><label class="a91-field" style="margin-top:10px">Nota visible para el cliente<textarea id="tnotes">'+E(t.admin_notes||'')+'</textarea></label>';
