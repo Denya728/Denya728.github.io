@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>DENYA · Administración</title>
-<link rel="stylesheet" href="admin-v91.css?v=96">
+<link rel="stylesheet" href="admin-v91.css?v=97">
 </head>
 <body>
 <div id="root"><div class="a91-login"><div class="a91-brand">✦ DENYA <span>Administración</span></div><p class="a91-muted">Cargando administración…</p></div></div>
@@ -14,9 +14,6 @@
   function fail(msg){
     root.innerHTML='<div class="a91-login"><div class="a91-brand">✦ DENYA <span>Administración</span></div><h1>No pudimos cargar Administración</h1><p class="a91-muted">'+msg+'</p><button class="a91-btn a91-primary" onclick="location.reload()">Reintentar</button></div>';
   }
-  window.addEventListener('error',function(e){
-    if(e.message) fail('Error al iniciar Administración: '+e.message);
-  });
   window.addEventListener('unhandledrejection',function(e){
     const m=e.reason&&e.reason.message?e.reason.message:String(e.reason||'Error inesperado');
     fail('Error al iniciar Administración: '+m);
@@ -26,7 +23,7 @@
   s.onload=function(){
     if(!window.supabase)return fail('El cliente de Supabase no está disponible.');
     const a=document.createElement('script');
-    a.src='admin-v91.js?v=96';
+    a.src='admin-v91.js?v=97';
     a.onerror=function(){fail('No se pudo cargar el módulo de Administración.');};
     document.body.appendChild(a);
   };
