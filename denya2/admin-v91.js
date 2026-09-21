@@ -96,10 +96,13 @@ async function renderHealth(){
   try{const h=await adminAction('health');shell('<div class="a91-grid">'+Object.entries(h||{}).map(([k,v])=>'<div class="a91-kpi"><small>'+E(k.replaceAll('_',' '))+'</small><strong>'+badge(v===true?'Operativo':v)+'</strong></div>').join('')+'</div><div class="a91-card a91-section"><h3>Estado</h3><p class="a91-muted">La verificación comprueba conectividad y disponibilidad de los componentes administrativos. Stripe se valida mediante su configuración/sincronización disponible.</p></div>')}catch(e){fatal(e.message||String(e))}
 }
 function renderSubscriptions(){
-  const rows=overview?.organizations||[];
-  shell('<div class="a91-search"><input id="subSearch" placeholder="Buscar empresa o plan"></div><div class="a91-table-wrap"><table class="a91-table"><thead><tr><th>Empresa</th><th>Plan</th><th>Estado</th><th>Ciclo</th><th>Proveedor</th><th>Periodo / trial</th><th>Acciones</th></tr></thead><tbody>'+
+  const allRows=overview?.organizations||[];
+  const q=(window.subSearch||'').trim().toLowerCase();
+  const rows=!q?allRows:allRows.filter(o=>[o.name,o.owner_email,o.plan_code,o.subscription_status,o.provider].some(v=>String(v||'').toLowerCase().includes(q)));
+  shell('<div class="a91-search"><input id="subSearch" placeholder="Buscar empresa, plan o proveedor" value="'+E(window.subSearch||'')+'"></div><div class="a91-table-wrap"><table class="a91-table"><thead><tr><th>Empresa</th><th>Plan</th><th>Estado</th><th>Ciclo</th><th>Proveedor</th><th>Periodo / trial</th><th>Acciones</th></tr></thead><tbody>'+
     rows.map(o=>'<tr><td><b>'+E(o.name)+'</b><div class="a91-small a91-muted">'+E(o.owner_email||'')+'</div></td><td>'+E(o.plan_code||'—')+'</td><td>'+badge(o.subscription_status||'sin suscripción')+'</td><td>'+E(o.billing_cycle||'—')+'</td><td>'+E(o.provider||'—')+'</td><td><div class="a91-small">Trial: '+date(o.trial_ends_at)+'</div><div class="a91-small">Periodo: '+date(o.period_ends_at)+'</div></td><td><div class="a91-row-actions">'+(o.provider==='stripe'&&o.provider_customer_id?'<a class="a91-btn a91-secondary" target="_blank" rel="noopener" href="https://dashboard.stripe.com/customers/'+encodeURIComponent(o.provider_customer_id)+'">Abrir Stripe</a>':'<button class="a91-btn a91-secondary" onclick="adminPlan(\''+o.id+'\',\''+E(o.plan_code||'emprende')+'\',\''+E(o.billing_cycle||'monthly')+'\')">Cambiar plan</button>')+'</div></td></tr>').join('')+
   '</tbody></table></div><div class="a91-card a91-section"><b>Suscripciones Stripe</b><p class="a91-muted">Los planes vinculados a Stripe se cambian desde Stripe/Customer Portal para conservar cobros, prorrateos y facturación sincronizados. El cambio manual de administración queda disponible para cuentas no vinculadas a Stripe.</p></div>');
+  const input=document.getElementById('subSearch');if(input)input.oninput=()=>{window.subSearch=input.value;renderSubscriptions()};
 }
 function promoCard(p){
   const sync=p.stripe_sync_status||'pending';
