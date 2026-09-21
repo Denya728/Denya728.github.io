@@ -2,7 +2,7 @@ const URL='https://kcinhsldmnvhudivutzv.supabase.co';
 const KEY='sb_publishable_XZ4dtZehhFZkklDkdLuW0g_KE_Gd8Cs';
 const sb=window.supabase.createClient(URL,KEY,{auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:true}});
 const root=document.getElementById('root');
-let session=null,overview=null,promos=[],tab='dashboard',orgSearch='';
+let session=null,overview=null,promos=[],tab='dashboard',orgSearch='',userSearch='';
 const E=v=>String(v??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
 const money=n=>new Intl.NumberFormat('es-MX',{style:'currency',currency:'MXN',maximumFractionDigits:2}).format(Number(n)||0);
 const date=v=>v?new Date(v).toLocaleDateString('es-MX',{day:'2-digit',month:'short',year:'numeric'}):'—';
@@ -51,7 +51,7 @@ async function load(){
 }
 function shell(content){
   root.innerHTML='<div class="a91-shell"><header class="a91-top"><div class="a91-brand">✦ DENYA <span>Administración de plataforma · '+E(session?.user?.email||'')+'</span></div><div class="a91-actions"><a class="a91-btn a91-secondary" href="./">Abrir aplicación</a><button class="a91-btn a91-secondary" onclick="refreshAdmin()">Actualizar</button><button class="a91-btn a91-danger" onclick="logoutAdmin()">Cerrar sesión</button></div></header><nav class="a91-tabs">'+[
-    ['dashboard','Resumen'],['organizations','Empresas'],['subscriptions','Suscripciones'],['promos','Promociones'],['redemptions','Redenciones'],['support','Soporte']
+    ['dashboard','Resumen'],['organizations','Empresas'],['users','Usuarios'],['subscriptions','Suscripciones'],['promos','Promociones'],['redemptions','Redenciones'],['support','Soporte'],['audit','Auditoría'],['health','Salud']
   ].map(([id,l])=>'<button class="'+(tab===id?'active':'')+'" onclick="setAdminTab(\''+id+'\')">'+l+'</button>').join('')+'</nav><main>'+content+'</main></div>';
 }
 function renderDashboard(){
@@ -80,9 +80,24 @@ function renderOrganizations(){
   const input=document.getElementById('orgSearch');if(input)input.oninput=()=>{orgSearch=input.value;renderOrganizations()};
   const st=document.getElementById('orgState');if(st)st.onchange=()=>document.querySelectorAll('tr[data-active]').forEach(r=>r.style.display=!st.value||r.dataset.active===st.value?'':'none');
 }
+function renderUsers(){
+  const map=new Map();
+  (overview?.organizations||[]).forEach(o=>(o.members||[]).forEach(m=>{const id=m.user_id||m.email;if(!map.has(id))map.set(id,{...m,organization_name:o.name,organization_id:o.id})}));
+  const q=userSearch.trim().toLowerCase();const rows=[...map.values()].filter(u=>!q||[u.email,u.role,u.organization_name].some(v=>String(v||'').toLowerCase().includes(q)));
+  shell('<div class="a91-search"><input id="userSearch" placeholder="Buscar usuario, correo u organización" value="'+E(userSearch)+'"></div><div class="a91-table-wrap"><table class="a91-table"><thead><tr><th>Usuario</th><th>Organización</th><th>Rol</th><th>Estado</th></tr></thead><tbody>'+rows.map(u=>'<tr><td><b>'+E(u.email||u.user_id)+'</b></td><td>'+E(u.organization_name||'—')+'</td><td>'+E(u.role||'—')+'</td><td>'+badge(u.status||'active')+'</td></tr>').join('')+(rows.length?'':'<tr><td colspan="4"><div class="a91-empty">No hay usuarios.</div></td></tr>')+'</tbody></table></div>');
+  const input=document.getElementById('userSearch');if(input)input.oninput=()=>{userSearch=input.value;renderUsers()};
+}
+async function renderAudit(){
+  shell('<div class="a91-card"><h3>Auditoría</h3><p class="a91-muted">Cargando actividad administrativa…</p></div>');
+  try{const rows=await adminAction('audit');shell('<div class="a91-table-wrap"><table class="a91-table"><thead><tr><th>Fecha</th><th>Acción</th><th>Entidad</th><th>Administrador</th><th>Detalles</th></tr></thead><tbody>'+(rows||[]).map(r=>'<tr><td>'+dt(r.created_at)+'</td><td><b>'+E(r.action)+'</b></td><td>'+E(r.entity_type||'—')+'</td><td>'+E(r.user_email||r.user_id||'—')+'</td><td>'+E(JSON.stringify(r.data||{}))+'</td></tr>').join('')+((rows||[]).length?'':'<tr><td colspan="5"><div class="a91-empty">Sin actividad registrada.</div></td></tr>')+'</tbody></table></div>')}catch(e){fatal(e.message||String(e))}
+}
+async function renderHealth(){
+  shell('<div class="a91-card"><h3>Salud de plataforma</h3><p class="a91-muted">Verificando servicios de DENYA…</p></div>');
+  try{const h=await adminAction('health');shell('<div class="a91-grid">'+Object.entries(h||{}).map(([k,v])=>'<div class="a91-kpi"><small>'+E(k.replaceAll('_',' '))+'</small><strong>'+badge(v===true?'Operativo':v)+'</strong></div>').join('')+'</div><div class="a91-card a91-section"><h3>Estado</h3><p class="a91-muted">La verificación comprueba conectividad y disponibilidad de los componentes administrativos. Stripe se valida mediante su configuración/sincronización disponible.</p></div>')}catch(e){fatal(e.message||String(e))}
+}
 function renderSubscriptions(){
   const rows=overview?.organizations||[];
-  shell('<div class="a91-table-wrap"><table class="a91-table"><thead><tr><th>Empresa</th><th>Plan</th><th>Estado</th><th>Ciclo</th><th>Proveedor</th><th>Periodo / trial</th><th>Acciones</th></tr></thead><tbody>'+
+  shell('<div class="a91-search"><input id="subSearch" placeholder="Buscar empresa o plan"></div><div class="a91-table-wrap"><table class="a91-table"><thead><tr><th>Empresa</th><th>Plan</th><th>Estado</th><th>Ciclo</th><th>Proveedor</th><th>Periodo / trial</th><th>Acciones</th></tr></thead><tbody>'+
     rows.map(o=>'<tr><td><b>'+E(o.name)+'</b><div class="a91-small a91-muted">'+E(o.owner_email||'')+'</div></td><td>'+E(o.plan_code||'—')+'</td><td>'+badge(o.subscription_status||'sin suscripción')+'</td><td>'+E(o.billing_cycle||'—')+'</td><td>'+E(o.provider||'—')+'</td><td><div class="a91-small">Trial: '+date(o.trial_ends_at)+'</div><div class="a91-small">Periodo: '+date(o.period_ends_at)+'</div></td><td><div class="a91-row-actions">'+(o.provider==='stripe'&&o.provider_customer_id?'<a class="a91-btn a91-secondary" target="_blank" rel="noopener" href="https://dashboard.stripe.com/customers/'+encodeURIComponent(o.provider_customer_id)+'">Abrir Stripe</a>':'<button class="a91-btn a91-secondary" onclick="adminPlan(\''+o.id+'\',\''+E(o.plan_code||'emprende')+'\',\''+E(o.billing_cycle||'monthly')+'\')">Cambiar plan</button>')+'</div></td></tr>').join('')+
   '</tbody></table></div><div class="a91-card a91-section"><b>Suscripciones Stripe</b><p class="a91-muted">Los planes vinculados a Stripe se cambian desde Stripe/Customer Portal para conservar cobros, prorrateos y facturación sincronizados. El cambio manual de administración queda disponible para cuentas no vinculadas a Stripe.</p></div>');
 }
@@ -105,10 +120,13 @@ function renderSupport(){
 function render(){
   if(tab==='dashboard')return renderDashboard();
   if(tab==='organizations')return renderOrganizations();
+  if(tab==='users')return renderUsers();
   if(tab==='subscriptions')return renderSubscriptions();
   if(tab==='promos')return renderPromos();
   if(tab==='redemptions')return renderRedemptions();
   if(tab==='support')return renderSupport();
+  if(tab==='audit')return renderAudit();
+  if(tab==='health')return renderHealth();
 }
 window.setAdminTab=id=>{tab=id;render()};
 window.refreshAdmin=async()=>{try{await load();render()}catch(e){fatal(e.message||String(e))}};
