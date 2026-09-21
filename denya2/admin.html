@@ -4,21 +4,46 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>DENYA · Administración</title>
-<link rel="stylesheet" href="admin-v91.css?v=100">
+<link rel="stylesheet" href="admin-v91.css?v=101">
 </head>
 <body>
 <div id="root"><div class="a91-login"><div class="a91-brand">✦ DENYA <span>Administración</span></div><p class="a91-muted">Cargando administración…</p></div></div>
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2" defer></script>
-<script src="admin-v91.js?v=100" defer></script>
 <script>
-window.addEventListener('load',function(){
-  setTimeout(function(){
-    const root=document.getElementById('root');
-    if(root&&root.textContent.includes('Cargando administración')){
-      root.innerHTML='<div class="a91-login"><div class="a91-brand">✦ DENYA <span>Administración</span></div><h1>No pudimos cargar Administración</h1><p class="a91-muted">La página terminó de cargar, pero el módulo no se inició. Verifica que el navegador no esté bloqueando scripts externos.</p><button class="a91-btn a91-primary" onclick="location.reload()">Reintentar</button></div>';
+(function(){
+  var root=document.getElementById('root');
+  var sources=[
+    'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2',
+    'https://unpkg.com/@supabase/supabase-js@2'
+  ];
+  function fail(msg){
+    root.innerHTML='<div class="a91-login"><div class="a91-brand">✦ DENYA <span>Administración</span></div><h1>No pudimos cargar Administración</h1><p class="a91-muted">'+msg+'</p><button class="a91-btn a91-primary" onclick="location.reload()">Reintentar</button></div>';
+  }
+  function loadAdmin(){
+    if(!window.supabase || typeof window.supabase.createClient!=='function'){
+      return fail('No se pudo inicializar el cliente de Supabase. El navegador está bloqueando o no puede cargar la librería de Supabase.');
     }
-  },5000);
-});
+    var s=document.createElement('script');
+    s.src='admin-v91.js?v=101';
+    s.onload=function(){};
+    s.onerror=function(){fail('No se pudo cargar el módulo de Administración.');};
+    document.head.appendChild(s);
+  }
+  function loadSupabase(i){
+    if(i>=sources.length) return fail('No se pudo cargar Supabase desde los proveedores disponibles.');
+    var s=document.createElement('script');
+    s.src=sources[i];
+    s.onload=function(){
+      if(window.supabase && typeof window.supabase.createClient==='function') loadAdmin();
+      else loadSupabase(i+1);
+    };
+    s.onerror=function(){loadSupabase(i+1);};
+    document.head.appendChild(s);
+  }
+  setTimeout(function(){
+    if(root.textContent.indexOf('Cargando administración')!==-1) fail('La página terminó de cargar, pero Supabase no respondió. Se probaron dos fuentes externas.');
+  },10000);
+  loadSupabase(0);
+})();
 </script>
 </body>
 </html>
