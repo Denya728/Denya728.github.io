@@ -51,7 +51,7 @@ async function load(){
 }
 function shell(content){
   root.innerHTML='<div class="a91-shell"><header class="a91-top"><div class="a91-brand">✦ DENYA <span>Administración de plataforma · '+E(session?.user?.email||'')+'</span></div><div class="a91-actions"><a class="a91-btn a91-secondary" href="./">Abrir aplicación</a><button class="a91-btn a91-secondary" onclick="refreshAdmin()">Actualizar</button><button class="a91-btn a91-danger" onclick="logoutAdmin()">Cerrar sesión</button></div></header><nav class="a91-tabs">'+[
-    ['dashboard','Resumen'],['organizations','Empresas'],['users','Usuarios'],['subscriptions','Suscripciones'],['promos','Promociones'],['redemptions','Redenciones'],['support','Soporte'],['audit','Auditoría'],['health','Salud'],['tests','Pruebas']
+    ['dashboard','Resumen'],['organizations','Empresas'],['users','Usuarios'],['admins','Administradores'],['subscriptions','Suscripciones'],['promos','Promociones'],['redemptions','Redenciones'],['support','Soporte'],['audit','Auditoría'],['health','Salud'],['tests','Pruebas']
   ].map(([id,l])=>'<button class="'+(tab===id?'active':'')+'" onclick="setAdminTab(\''+id+'\')">'+l+'</button>').join('')+'</nav><main>'+content+'</main></div>';
 }
 function renderDashboard(){
@@ -86,6 +86,10 @@ function renderUsers(){
   const q=userSearch.trim().toLowerCase();const rows=[...map.values()].filter(u=>!q||[u.email,u.role,u.organization_name].some(v=>String(v||'').toLowerCase().includes(q)));
   shell('<div class="a91-search"><input id="userSearch" placeholder="Buscar usuario, correo u organización" value="'+E(userSearch)+'"></div><div class="a91-table-wrap"><table class="a91-table"><thead><tr><th>Usuario</th><th>Organización</th><th>Rol</th><th>Estado</th></tr></thead><tbody>'+rows.map(u=>'<tr><td><b>'+E(u.email||u.user_id)+'</b></td><td>'+E(u.organization_name||'—')+'</td><td>'+E(u.role||'—')+'</td><td>'+badge(u.status||'active')+'</td></tr>').join('')+(rows.length?'':'<tr><td colspan="4"><div class="a91-empty">No hay usuarios.</div></td></tr>')+'</tbody></table></div>');
   const input=document.getElementById('userSearch');if(input)input.oninput=()=>{userSearch=input.value;renderUsers()};
+}
+function renderAdmins(){
+  const rows=overview?.platform_admins||[];
+  shell('<div class="a91-actions" style="margin-bottom:12px"><button class="a91-btn a91-primary" onclick="addPlatformAdmin()">+ Agregar administrador</button></div><div class="a91-card"><h3>Administradores de plataforma</h3><p class="a91-muted">Estas cuentas pueden entrar al Administrador de DENYA y gestionar toda la plataforma. El acceso se controla en Supabase, no por el rol de una empresa.</p></div><div class="a91-table-wrap a91-section"><table class="a91-table"><thead><tr><th>Correo</th><th>Alta</th><th>Estado</th><th>Acciones</th></tr></thead><tbody>'+rows.map(a=>'<tr><td><b>'+E(a.email||a.user_id)+'</b>'+(a.is_current?'<div class="a91-small a91-muted">Sesión actual</div>':'')+'</td><td>'+dt(a.created_at)+'</td><td>'+badge('Administrador')+'</td><td>'+(a.is_current?'<span class="a91-muted">Protegido</span>':'<button class="a91-btn a91-danger" onclick="removePlatformAdmin(\''+a.user_id+'\')">Quitar acceso</button>')+'</td></tr>').join('')+(rows.length?'':'<tr><td colspan="4"><div class="a91-empty">No hay administradores registrados.</div></td></tr>')+'</tbody></table></div>');
 }
 async function renderAudit(){
   shell('<div class="a91-card"><h3>Auditoría</h3><p class="a91-muted">Cargando actividad administrativa…</p></div>');
@@ -131,6 +135,7 @@ function render(){
   if(tab==='dashboard')return renderDashboard();
   if(tab==='organizations')return renderOrganizations();
   if(tab==='users')return renderUsers();
+  if(tab==='admins')return renderAdmins();
   if(tab==='subscriptions')return renderSubscriptions();
   if(tab==='promos')return renderPromos();
   if(tab==='redemptions')return renderRedemptions();
@@ -186,6 +191,16 @@ window.promoModal=id=>{
 };
 window.syncPromoManual=async id=>{const r=await syncPromoStripe(id);await load();render();if(r.ok)alert('Promoción sincronizada con Stripe.')};
 window.togglePromo=async(id,active)=>{const {error}=await sb.from('promo_codes').update({active,stripe_sync_status:'pending',stripe_sync_error:null}).eq('id',id);if(error)return alert(error.message);await syncPromoStripe(id,{silent:true});await load();render()};
+
+window.addPlatformAdmin=()=>{
+  const body='<label class="a91-field">Correo del nuevo administrador<input id="adminEmail" type="email" placeholder="correo@ejemplo.com" autocomplete="email"></label><p class="a91-muted" style="margin-top:10px">Si el correo ya tiene una cuenta DENYA, se le da acceso de administrador. Si no existe, DENYA enviará una invitación para crearla.</p>';
+  const m=showModal('Agregar administrador',body,'<button class="a91-btn a91-secondary" data-close>Cancelar</button><button class="a91-btn a91-primary" id="adminSave">Agregar</button>');
+  m.querySelector('#adminSave').onclick=async()=>{const email=m.querySelector('#adminEmail').value.trim();if(!email)return alert('Escribe un correo.');try{const r=await adminAction('add_platform_admin',{email});m.remove();await load();render();alert(r.invited?'Administrador agregado. Se envió una invitación al correo.':'Administrador agregado correctamente.')}catch(e){alert(e.message||String(e))}};
+};
+window.removePlatformAdmin=async userId=>{
+  if(!confirm('¿Quitar el acceso de administrador a esta cuenta?'))return;
+  try{await adminAction('remove_platform_admin',{user_id:userId});await load();render()}catch(e){alert(e.message||String(e))}
+};
 
 window.testSubscription=async id=>{
   const o=(overview?.organizations||[]).find(x=>x.id===id);if(!o)return;
