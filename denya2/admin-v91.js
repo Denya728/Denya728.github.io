@@ -50,7 +50,7 @@ async function load(){
   overview=ov||{};promos=pc.data||[];
 }
 function shell(content){
-  root.innerHTML='<div class="a91-shell"><header class="a91-top"><div class="a91-brand">✦ DENYA <span>Administración de plataforma · '+E(session?.user?.email||'')+'</span></div><div class="a91-actions"><a class="a91-btn a91-secondary" href="./">Abrir aplicación</a><button class="a91-btn a91-secondary" onclick="refreshAdmin()">Actualizar</button><button class="a91-btn a91-danger" onclick="logoutAdmin()">Cerrar sesión</button></div></header><nav class="a91-tabs">'+[
+  root.innerHTML='<div class="a91-shell"><header class="a91-top"><div class="a91-brand">✦ DENYA <span>Administración de plataforma · '+E(session?.user?.email||'')+'</span></div><div class="a91-actions"><a class="a91-btn a91-secondary" href="./">← DENYA</a><a class="a91-btn a91-secondary" href="./">Abrir aplicación</a><button class="a91-btn a91-secondary" onclick="refreshAdmin()">Actualizar</button><button class="a91-btn a91-danger" onclick="logoutAdmin()">Cerrar sesión</button></div></header><nav class="a91-tabs">'+[
     ['dashboard','Resumen'],['organizations','Empresas'],['users','Usuarios'],['admins','Administradores'],['subscriptions','Suscripciones'],['promos','Promociones'],['redemptions','Redenciones'],['support','Soporte'],['audit','Auditoría'],['health','Salud'],['tests','Pruebas']
   ].map(([id,l])=>'<button class="'+(tab===id?'active':'')+'" onclick="setAdminTab(\''+id+'\')">'+l+'</button>').join('')+'</nav><main>'+content+'</main></div>';
 }
