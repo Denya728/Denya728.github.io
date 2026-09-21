@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="description" content="DENYA — ecosistema de marcas y herramientas para negocios.">
+<title>DENYA</title>
+<style>
+:root{--bg:#faf8f5;--ink:#211d1a;--muted:#766e67;--line:#e7e0d9;--card:#fff;--accent:#b08a57}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font-family:Montserrat,Arial,sans-serif}
+.wrap{min-height:100vh;display:flex;flex-direction:column}.nav{height:74px;padding:0 6vw;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--line);background:rgba(250,248,245,.94)}
+.logo{font-family:Georgia,serif;font-size:25px;letter-spacing:.08em}.logo span{color:var(--accent)}
+main{width:min(1120px,88vw);margin:auto;padding:70px 0 80px}.eyebrow{text-transform:uppercase;letter-spacing:.18em;font-size:11px;color:var(--accent);font-weight:700}
+h1{font-family:Georgia,serif;font-size:clamp(48px,8vw,86px);font-weight:400;line-height:.95;margin:16px 0 18px}
+.lead{max-width:650px;color:var(--muted);font-size:17px;line-height:1.7;margin-bottom:48px}
+.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:18px}.card{background:var(--card);border:1px solid var(--line);border-radius:22px;padding:28px;min-height:230px;display:flex;flex-direction:column;transition:.2s;text-decoration:none;color:inherit}.card:hover{transform:translateY(-3px);box-shadow:0 12px 30px rgba(40,30,20,.07)}
+.star{font-size:22px;color:var(--accent);margin-bottom:24px}.card h2{font-family:Georgia,serif;font-size:28px;font-weight:400;margin:0 0 8px}.card p{color:var(--muted);line-height:1.55;margin:0}.go{margin-top:auto;padding-top:25px;font-size:13px;font-weight:700;letter-spacing:.04em}
+.footer{margin-top:58px;padding-top:22px;border-top:1px solid var(--line);display:flex;justify-content:space-between;gap:20px;color:#9a9189;font-size:12px}.admin{color:#9a9189;text-decoration:none}.admin:hover{text-decoration:underline}
+@media(max-width:760px){main{padding:48px 0}.grid{grid-template-columns:1fr}.card{min-height:190px}.lead{font-size:16px}.nav{padding:0 6vw}}
+</style>
+</head>
+<body>
+<div class="wrap">
+<header class="nav"><div class="logo"><span>✦</span> DENYA</div></header>
+<main>
+<div class="eyebrow">Ecosistema DENYA</div>
+<h1>Un solo universo.<br>Distintas formas de crecer.</h1>
+<p class="lead">DENYA es la marca madre. Desde aquí puedes entrar a cada producto de forma independiente, conservando su identidad y operación.</p>
+<section class="grid" aria-label="Productos DENYA">
+<a class="card" href="../denya2/">
+<div class="star">✦</div><h2>DENYA SWEETLAB</h2><p>La plataforma para cotizar, vender, producir y controlar tu negocio.</p><div class="go">ENTRAR A SWEETLAB →</div>
+</a>
+<a class="card" href="../">
+<div class="star">✦</div><h2>DENICAKE</h2><p>Pasteles, repostería y experiencias hechas para celebrar recuerdos.</p><div class="go">IR A DENICAKE →</div>
+</a>
+<a class="card" href="../">
+<div class="star">✦</div><h2>DENICRUNCH</h2><p>Cacao y snacks de cacao para disfrutar, compartir y descubrir.</p><div class="go">IR A DENICRUNCH →</div>
+</a>
+</section>
+<div class="footer"><span>© DENYA</span><a class="admin" href="../denya2/admin.html">Administración</a></div>
+</main>
+</div>
+</body>
+</html>
