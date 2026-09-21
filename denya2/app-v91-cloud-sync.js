@@ -121,7 +121,10 @@
       dirty=false;
       status(data.conflict_merged?'☁ Cambios combinados con otro dispositivo':'☁ Sincronizado','ok');
       clearTimeout(mirrorTimer);
-      mirrorTimer=setTimeout(()=>invoke({action:'mirror'}).catch(e=>console.warn('DENYA mirror',e)),3500);
+      // Mirror normalized operational tables immediately after the authoritative state save.
+      // The 3.5s delay used previously could leave the operational DB behind after navigation/close.
+      mirrorTimer=setTimeout(()=>invoke({action:'mirror'}).catch(e=>console.warn('DENYA mirror',e)),250);
+      await invoke({action:'mirror'}).catch(e=>console.warn('DENYA mirror immediate',e));
     }catch(e){
       console.error('DENYA cloud save',e);
       status('☁ Pendiente de sincronizar','warn');
