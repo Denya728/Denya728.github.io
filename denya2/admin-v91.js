@@ -1,6 +1,14 @@
 const URL='https://kcinhsldmnvhudivutzv.supabase.co';
 const KEY='sb_publishable_XZ4dtZehhFZkklDkdLuW0g_KE_Gd8Cs';
-const sb=window.supabase.createClient(URL,KEY,{auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:true}});
+let sb;
+try{
+  if(!window.supabase||typeof window.supabase.createClient!=='function')throw new Error('El cliente de Supabase no se cargó correctamente.');
+  sb=window.supabase.createClient(URL,KEY,{auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:true}});
+}catch(e){
+  const root=document.getElementById('root');
+  if(root)root.innerHTML='<div class="a91-login"><div class="a91-brand">✦ DENYA <span>Administración</span></div><h1>No pudimos cargar Administración</h1><p class="a91-muted">Error al iniciar Supabase: '+String(e?.message||e).replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]))+'</p><button class="a91-btn a91-primary" onclick="location.reload()">Reintentar</button></div>';
+  throw e;
+}
 const root=document.getElementById('root');
 let session=null,overview=null,promos=[],tab='dashboard',orgSearch='';
 const E=v=>String(v??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
@@ -13,8 +21,6 @@ function badge(s){
   const t=String(s||'—'),c=/active|Activa|resolved|redeemed/i.test(t)?'ok':/past_due|trial|open|reserved|in_progress/i.test(t)?'warn':/canceled|suspended|closed/i.test(t)?'bad':'';
   return '<span class="a91-badge '+c+'">'+E(t)+'</span>';
 }
-function login(){
-  root.innerHTML='<div class="a91-login"><div class="a91-brand">✦ DENYA <span>Administración de plataforma</span></div><h1>Iniciar sesión</h1><p class="a91-muted">Acceso exclusivo para administradores DENYA.</p><div id="err" class="a91-error"></div><label class="a91-field">Correo<input id="email" type="email" autocomplete="email"></label><label class="a91-field">Contraseña<input id="pass" type="password" autocomplete="current-password"></label><button id="go" class="a91-btn a91-primary" style="width:100%;margin-top:14px">Entrar</button><a class="a91-btn a91-secondary" href="./" style="width:100%;margin-top:8px">Volver a DENYA</a></div>';
   document.getElementById('go').onclick=async()=>{
     const email=document.getElementById('email').value.trim(),password=document.getElementById('pass').value,btn=document.getElementById('go');
     if(!email||!password)return errBox('Completa correo y contraseña.');
