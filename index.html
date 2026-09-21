@@ -1,521 +1,67 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="es">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>DENYA</title>
-
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="description" content="DENYA — DENICAKE y DENICRUNCH. Los mejores recuerdos comienzan alrededor de una mesa.">
+<title>DENYA · DENICAKE + DENICRUNCH</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600&family=Cinzel:wght@400;500;600&family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
-:root{
-  --fondo:#fbf7f0;
-  --blanco:#fff;
-  --cafe:#3b261d;
-  --dorado:#c9a052;
-  --rosa:#e5869d;
-  --sombra:0 18px 45px rgba(59,38,29,.14);
-}
-
-*{box-sizing:border-box}
-
-body{
-  margin:0;
-  background:var(--fondo);
-  color:var(--cafe);
-  font-family:-apple-system,BlinkMacSystemFont,"Helvetica Neue",Arial,sans-serif;
-}
-
-html{scroll-behavior:smooth}
-
-.splash{
-  position:fixed;
-  inset:0;
-  background:radial-gradient(circle,#fff 0%,#fbf7f0 70%);
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  z-index:999;
-  animation:salir .8s ease forwards;
-  animation-delay:2.2s;
-}
-
-.splash div{text-align:center}
-
-.splash .star{
-  font-size:80px;
-  color:var(--dorado);
-  animation:brillo 1.8s ease infinite;
-}
-
-.splash h1{
-  font-family:Georgia,serif;
-  letter-spacing:14px;
-  font-size:44px;
-  font-weight:400;
-}
-
-.splash p{
-  letter-spacing:4px;
-  font-size:11px;
-}
-
-@keyframes salir{to{opacity:0;visibility:hidden}}
-@keyframes brillo{50%{transform:scale(1.08);filter:drop-shadow(0 0 25px #c9a052)}}
-
-.page{
-  max-width:520px;
-  margin:auto;
-  overflow:hidden;
-}
-
-nav{
-  position:sticky;
-  top:0;
-  z-index:10;
-  background:rgba(251,247,240,.85);
-  backdrop-filter:blur(15px);
-  display:flex;
-  justify-content:space-between;
-  align-items:center;
-  padding:14px 18px;
-}
-
-nav .logo{
-  font-family:Georgia,serif;
-  letter-spacing:8px;
-  font-size:18px;
-}
-
-nav a{
-  text-decoration:none;
-  color:var(--cafe);
-  font-weight:700;
-  font-size:13px;
-}
-
-section{
-  padding:35px 20px;
-  text-align:center;
-}
-
-.den-logo{
-  width:85%;
-  max-width:360px;
-  margin:20px auto;
-  display:block;
-}
-
-h1,h2,h3{
-  font-family:Georgia,serif;
-}
-
-h1{
-  font-size:42px;
-  line-height:1.05;
-  margin:10px 0;
-}
-
-h2{
-  font-size:38px;
-  margin:0 0 10px;
-}
-
-em{
-  color:var(--rosa);
-}
-
-p{
-  line-height:1.55;
-}
-
-.btn{
-  display:block;
-  text-decoration:none;
-  border-radius:999px;
-  padding:15px 18px;
-  margin:12px 0;
-  font-weight:800;
-  border:1.5px solid #e8b8c5;
-  background:white;
-  color:var(--cafe);
-}
-
-.btn.dark{
-  background:var(--cafe);
-  color:white;
-  border:0;
-}
-
-.btn.pink{
-  background:linear-gradient(135deg,#f09aad,#d9657e);
-  color:white;
-  border:0;
-}
-
-.photo{
-  border-radius:30px;
-  overflow:hidden;
-  box-shadow:var(--sombra);
-  margin:22px 0;
-  background:white;
-}
-
-.photo img{
-  width:100%;
-  height:410px;
-  object-fit:cover;
-  display:block;
-}
-
-.event{
-  background:#fff6f8;
-  border:1px solid #e8b8c5;
-  border-radius:24px;
-  padding:18px;
-  margin-top:18px;
-  text-align:left;
-}
-
-.event b{
-  font-family:Georgia,serif;
-  font-size:22px;
-}
-
-.rocky{
-  display:grid;
-  grid-template-columns:120px 1fr;
-  gap:15px;
-  align-items:center;
-  background:white;
-  border-radius:28px;
-  padding:14px;
-  box-shadow:var(--sombra);
-  text-align:left;
-}
-
-.rocky img{
-  width:120px;
-  border-radius:20px;
-}
-
-.products{
-  display:grid;
-  gap:14px;
-}
-
-.product{
-  background:white;
-  border-radius:26px;
-  padding:18px;
-  box-shadow:var(--sombra);
-  text-align:left;
-}
-
-.product h3{
-  font-size:24px;
-  margin:8px 0;
-}
-
-.prices{
-  display:flex;
-  gap:8px;
-  flex-wrap:wrap;
-  margin-top:12px;
-}
-
-.price{
-  border:1px solid var(--dorado);
-  border-radius:999px;
-  padding:8px 11px;
-  font-weight:800;
-  background:#fffaf3;
-}
-
-.gallery{
-  display:grid;
-  gap:16px;
-}
-
-.gallery img{
-  width:100%;
-  height:330px;
-  object-fit:cover;
-  border-radius:28px;
-  box-shadow:var(--sombra);
-}
-
-.footer{
-  background:linear-gradient(135deg,#3b261d,#6a4938);
-  color:white;
-  padding:35px 20px;
-  text-align:center;
-  border-radius:32px 32px 0 0;
-}
-
-.footer h2{
-  letter-spacing:12px;
-  font-weight:400;
-}
-
-.bottom{
-  position:sticky;
-  bottom:10px;
-  display:flex;
-  justify-content:center;
-  gap:8px;
-  padding:8px;
-  margin:20px auto;
-  background:rgba(255,255,255,.85);
-  backdrop-filter:blur(15px);
-  border-radius:999px;
-  width:max-content;
-  box-shadow:var(--sombra);
-}
-
-.bottom a{
-  text-decoration:none;
-  color:var(--cafe);
-  font-weight:800;
-  font-size:12px;
-  padding:10px 12px;
-}
-
-.managed-content{
-  display:grid;
-  grid-template-columns:repeat(12,minmax(0,1fr));
-  gap:16px;
-}
-.managed-block{grid-column:span 12}
-.managed-block.half{grid-column:span 6}
-.managed-block.third{grid-column:span 4}
-.managed-block{
-  background:white;
-  border-radius:26px;
-  padding:20px;
-  box-shadow:var(--sombra);
-  text-align:left;
-}
-.managed-block h1,.managed-block h2{margin:0 0 10px}
-.managed-media{position:relative;width:100%;overflow:hidden;border-radius:22px;margin:12px 0;background:#eee8df;aspect-ratio:var(--aspect,auto)}
-.managed-media.aspect-auto{aspect-ratio:auto}
-.managed-media img{width:100%;height:100%;max-height:none;object-fit:var(--fit,cover);object-position:var(--pos-x,50%) var(--pos-y,50%);transform:scale(var(--zoom,1)) rotate(var(--rotation,0deg));display:block;margin:0}
-.managed-media.aspect-auto img{height:auto;max-height:440px}
-.managed-gallery{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:var(--gallery-gap,12px);margin:12px 0}
-.managed-gallery .managed-media{margin:0;aspect-ratio:1}
-.managed-gallery.mosaic .managed-media:first-child{grid-row:span 2;aspect-ratio:auto}
-.managed-gallery.editorial{grid-template-columns:2fr 1fr}
-.managed-gallery.editorial .managed-media:first-child{grid-row:span 2;aspect-ratio:auto}
-.managed-gallery.stack{display:flex;overflow:auto;scroll-snap-type:x mandatory}
-.managed-gallery.stack .managed-media{min-width:82%;scroll-snap-align:center}
-@media(max-width:520px){.managed-block.half,.managed-block.third{grid-column:span 12}}
-.managed-block .managed-price{
-  color:var(--dorado);
-  font-size:25px;
-  font-weight:800;
-  margin-top:10px;
-}
-.managed-block .managed-cta{
-  display:inline-block;
-  text-decoration:none;
-  border-radius:999px;
-  padding:13px 18px;
-  margin-top:12px;
-  font-weight:800;
-  background:var(--cafe);
-  color:white;
-}
-
+:root{--cream:#f7f2eb;--paper:#fffdfa;--ink:#29221e;--muted:#746a62;--gold:#b99459;--gold2:#d8c096;--pink:#d98ca0;--cocoa:#4a2e25;--line:#e7ddd1;--shadow:0 24px 70px rgba(62,43,28,.12)}
+*{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;background:var(--cream);color:var(--ink);font-family:Montserrat,Arial,sans-serif}a{color:inherit}
+.top{position:fixed;top:0;left:0;right:0;z-index:20;padding:18px 5vw;display:flex;align-items:center;justify-content:space-between;background:rgba(247,242,235,.78);backdrop-filter:blur(16px);border-bottom:1px solid rgba(231,221,209,.7)}
+.brand{font-family:Cinzel,serif;letter-spacing:.22em;font-size:19px}.brand i{font-style:normal;color:var(--gold);font-size:15px;margin-right:8px}.navlinks{display:flex;gap:28px;font-size:11px;font-weight:700;letter-spacing:.12em;text-transform:uppercase}.navlinks a{text-decoration:none}
+.hero{min-height:100vh;display:grid;place-items:center;text-align:center;padding:130px 6vw 80px;position:relative;overflow:hidden;background:radial-gradient(circle at 50% 40%,#fffdf9 0,#f7f2eb 58%,#efe5d8 100%)}
+.hero:before,.hero:after{content:"";position:absolute;border:1px solid rgba(185,148,89,.28);border-radius:50%;width:430px;height:430px}.hero:before{left:-220px;top:18%}.hero:after{right:-250px;bottom:8%}
+.star{color:var(--gold);font-size:30px;display:inline-block;margin-bottom:20px;filter:drop-shadow(0 0 9px rgba(185,148,89,.35))}
+.hero h1{font-family:Cinzel,serif;font-weight:500;font-size:clamp(42px,7vw,82px);letter-spacing:.12em;margin:0}.hero .tag{font-family:Cormorant Garamond,serif;font-size:clamp(24px,3vw,36px);font-style:italic;margin:18px 0 10px}.hero p{max-width:570px;margin:0 auto 34px;color:var(--muted);line-height:1.8;font-size:14px}.scroll{font-size:10px;letter-spacing:.2em;text-transform:uppercase;color:var(--gold)}
+.intro{max-width:1080px;margin:auto;padding:105px 6vw}.kicker{font-size:10px;letter-spacing:.2em;text-transform:uppercase;color:var(--gold);font-weight:700}.intro h2,.story h2{font-family:Cormorant Garamond,serif;font-weight:500;font-size:clamp(38px,5vw,62px);line-height:.95;margin:12px 0 18px}.intro p,.story p{max-width:620px;color:var(--muted);line-height:1.8}
+.brands{display:grid;grid-template-columns:1fr 1fr;gap:24px;max-width:1200px;margin:auto;padding:0 5vw 110px}.brandcard{min-height:650px;border-radius:34px;overflow:hidden;position:relative;display:flex;align-items:flex-end;text-decoration:none;box-shadow:var(--shadow);isolation:isolate}.brandcard:before{content:"";position:absolute;inset:0;background:linear-gradient(180deg,transparent 35%,rgba(27,19,14,.74) 100%);z-index:-1}.brandcard.cake{background:url("cake_floral.jpg") center/cover}.brandcard.crunch{background:url("bag_green.jpg") center/cover}.brandcard .copy{padding:42px;color:white}.brandcard .mini{font-size:10px;letter-spacing:.2em;text-transform:uppercase;opacity:.86}.brandcard h3{font-family:Cinzel,serif;font-weight:500;font-size:clamp(30px,4vw,48px);letter-spacing:.08em;margin:10px 0}.brandcard p{max-width:420px;line-height:1.65;margin:0 0 24px;font-size:14px}.cta{display:inline-flex;align-items:center;gap:12px;border:1px solid rgba(255,255,255,.65);border-radius:999px;padding:12px 18px;font-size:10px;font-weight:700;letter-spacing:.12em;text-transform:uppercase}
+.cakeband{background:var(--paper);padding:110px 5vw}.split{max-width:1180px;margin:auto;display:grid;grid-template-columns:1fr 1fr;gap:70px;align-items:center}.visual{border-radius:30px;overflow:hidden;box-shadow:var(--shadow)}.visual img{width:100%;height:560px;object-fit:cover;display:block}.copy h2{font-family:Cormorant Garamond,serif;font-size:64px;font-weight:500;line-height:.85;margin:10px 0 18px}.copy .accent{color:var(--pink)}.copy p{color:var(--muted);line-height:1.8;max-width:490px}.button{display:inline-block;margin-top:15px;padding:14px 22px;border-radius:999px;text-decoration:none;font-size:10px;font-weight:700;letter-spacing:.12em;text-transform:uppercase}.button.pink{background:var(--pink);color:white}.button.dark{background:var(--cocoa);color:white}
+.crunchband{padding:110px 5vw;background:linear-gradient(135deg,#eadbc8,#f7f0e7)}.crunchband .split{direction:rtl}.crunchband .split>*{direction:ltr}.crunchband .visual img{object-position:center}.flavors{display:flex;gap:9px;flex-wrap:wrap;margin:24px 0}.flavor{padding:9px 13px;border:1px solid var(--gold2);border-radius:999px;background:rgba(255,255,255,.62);font-size:10px;font-weight:700;letter-spacing:.05em}
+.story{max-width:1000px;margin:auto;text-align:center;padding:120px 6vw}.story p{margin:0 auto}.story .starline{color:var(--gold);font-size:22px;letter-spacing:12px;margin:30px 0}
+.gallery{display:grid;grid-template-columns:1.3fr 1fr 1fr;gap:14px;max-width:1200px;margin:0 auto 120px;padding:0 5vw}.gallery img{width:100%;height:390px;object-fit:cover;border-radius:24px;box-shadow:var(--shadow)}.gallery img:first-child{height:500px;grid-row:span 2}.gallery img:nth-child(2),.gallery img:nth-child(3){height:243px}
+footer{background:var(--cocoa);color:#fff;padding:65px 6vw 30px;text-align:center}.footerstar{color:var(--gold2);font-size:25px}.footerlogo{font-family:Cinzel,serif;letter-spacing:.22em;font-size:27px;margin:10px 0}.footnote{color:#d9cbc0;font-family:Cormorant Garamond,serif;font-size:21px;font-style:italic}.footlinks{display:flex;justify-content:center;gap:24px;margin:30px 0;font-size:10px;letter-spacing:.12em;text-transform:uppercase}.admin{opacity:.55;text-decoration:none;font-size:9px}
+@media(max-width:800px){.navlinks{gap:12px}.navlinks a:nth-child(3){display:none}.brands,.split,.crunchband .split{grid-template-columns:1fr;direction:ltr}.brandcard{min-height:520px}.visual img{height:430px}.copy h2{font-size:54px}.gallery{grid-template-columns:1fr 1fr}.gallery img:first-child{grid-column:span 2;height:420px;grid-row:auto}.gallery img:nth-child(2),.gallery img:nth-child(3){height:240px}}
+@media(max-width:520px){.top{padding:15px 20px}.brand{font-size:16px}.navlinks{font-size:9px}.hero{padding-top:110px}.hero h1{letter-spacing:.08em}.intro,.cakeband,.crunchband,.story{padding-top:80px;padding-bottom:80px}.brands{padding-bottom:80px}.brandcard{min-height:470px}.brandcard .copy{padding:28px}.gallery{padding:0 20px}.gallery img:first-child{height:330px}.gallery img:nth-child(2),.gallery img:nth-child(3){height:180px}.footlinks{flex-wrap:wrap}}
 </style>
 </head>
-
 <body>
+<header class="top"><a class="brand" href="#inicio"><i>★</i>DENYA</a><nav class="navlinks"><a href="#denicake">DeniCake</a><a href="#denicrunch">DeniCrunch</a><a href="#historia">Historia</a></nav></header>
 
-<div class="splash">
-  <div>
-    <div class="star">★</div>
-    <h1>DENYA</h1>
-    <p>CREANDO MOMENTOS<br>PARA COMPARTIR.</p>
-  </div>
+<main>
+<section class="hero" id="inicio">
+<div>
+<div class="star">★</div>
+<h1>DENYA</h1>
+<div class="tag">Los mejores recuerdos comienzan alrededor de una mesa.</div>
+<p>Un universo creado para celebrar, compartir y convertir pequeños momentos en recuerdos que permanecen.</p>
+<div class="scroll">↓ descubrir</div>
 </div>
-
-<div class="page">
-
-<nav>
-  <div class="logo">DENYA</div>
-  <a href="#denicrunch">DeniCrunch</a>
-  <a href="#denicake">DeniCake</a>
-</nav>
-
-<section id="inicio">
-  <img class="den-logo" src="denya_logo.jpg" alt="DENYA">
-  <h1>Dos marcas,<br>una historia.</h1>
-  <p>Pasteles personalizados y snacks de cacao creados para compartir momentos especiales.</p>
-  <a class="btn dark" href="#denicrunch">Entrar a DeniCrunch</a>
-  <a class="btn" href="#denicake">Entrar a DeniCake</a>
 </section>
 
-<section id="denicrunch">
-  <div class="managed-content" id="denicrunch-managed" hidden></div>
-  <h2>DeniCrunch</h2>
-  <h1>Descubre el verdadero sabor del <em>cacao.</em></h1>
-
-  <div class="photo">
-    <img src="bag_green.jpg" alt="DeniCrunch">
-  </div>
-
-  <a class="btn dark" href="https://wa.me/525513513193?text=Hola%20vi%20DeniCrunch%20y%20me%20gustar%C3%ADa%20hacer%20un%20pedido." target="_blank">Comprar por WhatsApp</a>
-  <a class="btn" href="https://www.instagram.com/denicrunch" target="_blank">Instagram @denicrunch</a>
-
-  <div class="event">
-    <b>Parque del Agua</b><br>
-    3 al 9 de julio<br>
-    Prueba DeniCrunch en vivo
-  </div>
+<section class="intro">
+<div class="kicker">Una misma esencia</div>
+<h2>Dos formas de crear momentos.</h2>
+<p>DENYA reúne marcas que nacen de la misma idea: hacer de algo tan sencillo como comer y compartir, una experiencia que se recuerde.</p>
 </section>
 
-<section>
-  <div class="rocky">
-    <img src="rocky.jpg" alt="Rocky">
-    <div>
-      <h3>¡Hola! Soy Rocky</h3>
-      <p>Bienvenido al mundo del cacao. ¿Cuál quieres probar hoy?</p>
-    </div>
-  </div>
+<section class="brands">
+<a class="brandcard cake" href="#denicake"><div class="copy"><div class="mini">Pasteles · Celebraciones</div><h3>DENICAKE</h3><p>Pasteles personalizados hechos para celebrar historias, personas y días que merecen quedarse en la memoria.</p><span class="cta">Descubrir DeniCake →</span></div></a>
+<a class="brandcard crunch" href="#denicrunch"><div class="copy"><div class="mini">Cacao · Snacks</div><h3>DENICRUNCH</h3><p>Cacao tostado y snacks con carácter, creados para disfrutar algo diferente y compartirlo.</p><span class="cta">Descubrir DeniCrunch →</span></div></a>
 </section>
 
-<section>
-  <h2>Sabores</h2>
+<section class="cakeband" id="denicake"><div class="split"><div class="visual"><img src="cake_heart.jpg" alt="Pastel DENICAKE"></div><div class="copy"><div class="kicker">DENICAKE</div><h2>Hecho para<br><span class="accent">celebrar.</span></h2><p>Cada pastel comienza con una historia. Diseñamos piezas personalizadas para cumpleaños, aniversarios, detalles y esos momentos que quieres volver a recordar.</p><a class="button pink" href="https://wa.me/525513513193?text=Hola%20vi%20DENICAKE%20y%20me%20gustar%C3%ADa%20cotizar%20un%20pastel." target="_blank" rel="noopener">Cotizar por WhatsApp</a><a class="button dark" href="https://www.instagram.com/denicake7" target="_blank" rel="noopener">Instagram</a></div></div></section>
 
-  <div class="products">
-    <div class="product">
-      <h3>🍫 Cacao Garapiñado</h3>
-      <p>Dulce, crujiente y con canela.</p>
-      <div class="prices">
-        <span class="price">25g $30</span>
-        <span class="price">50g $55</span>
-        <span class="price">100g $99</span>
-      </div>
-    </div>
+<section class="crunchband" id="denicrunch"><div class="split"><div class="visual"><img src="bag_pink.jpg" alt="DENICRUNCH cacao"></div><div class="copy"><div class="kicker">DENICRUNCH</div><h2>El cacao<br>como <span style="color:var(--gold)">antojo.</span></h2><p>Cacao de Tabasco transformado en snacks crujientes. Desde lo dulce hasta lo intenso, una forma distinta de disfrutar el cacao.</p><div class="flavors"><span class="flavor">Garapiñado</span><span class="flavor">Tostado</span><span class="flavor">Stevia</span></div><a class="button dark" href="https://wa.me/525513513193?text=Hola%20vi%20DENICRUNCH%20y%20me%20gustar%C3%ADa%20hacer%20un%20pedido." target="_blank" rel="noopener">Comprar por WhatsApp</a><a class="button dark" href="https://www.instagram.com/denicrunch" target="_blank" rel="noopener">Instagram</a></div></div></section>
 
-    <div class="product">
-      <h3>🌿 Cacao Tostado</h3>
-      <p>100% cacao. Intenso, natural y sin azúcar.</p>
-      <div class="prices">
-        <span class="price">25g $30</span>
-        <span class="price">50g $55</span>
-        <span class="price">100g $99</span>
-      </div>
-    </div>
+<section class="story" id="historia"><div class="kicker">DENYA</div><h2>Más que productos.</h2><div class="starline">★ ★ ★</div><p>Hay recetas que recuerdan a casa, celebraciones que se quedan para siempre y sabores que nos llevan de vuelta a un momento. DENYA nace de esa conexión: crear cosas que puedan formar parte de tus propias historias.</p></section>
 
-    <div class="product">
-      <h3>✨ Stevia</h3>
-      <p>Opción sin azúcar añadida.</p>
-      <div class="prices">
-        <span class="price">25g $30</span>
-        <span class="price">50g $55</span>
-        <span class="price">100g $99</span>
-      </div>
-    </div>
-  </div>
-</section>
+<section class="gallery" aria-label="Galería DENYA"><img src="cake_floral.jpg" alt="Pastel floral DENICAKE"><img src="cake_it.jpg" alt="Pastel temático DENICAKE"><img src="bag_green.jpg" alt="Cacao DENICRUNCH"></section>
+</main>
 
-<section>
-  <h2>Pasión por el cacao</h2>
-  <p>Seleccionamos cacao de origen Tabasco y lo transformamos en un snack auténtico, crujiente y diferente.</p>
-  <div class="photo">
-    <img src="bag_pink.jpg" alt="DeniCrunch rosa">
-  </div>
-</section>
-
-<section id="denicake">
-  <div class="managed-content" id="denicake-managed" hidden></div>
-  <h2>DeniCake</h2>
-  <h1>Momentos que se convierten en <em>recuerdos.</em></h1>
-  <p>Pasteles personalizados para celebraciones inolvidables.</p>
-
-  <div class="photo">
-    <img src="cake_floral.jpg" alt="Pastel elegante">
-  </div>
-
-  <a class="btn pink" href="https://wa.me/525513513193?text=Hola%20vi%20DeniCake%20y%20me%20gustar%C3%ADa%20cotizar%20un%20pastel." target="_blank">Cotizar por WhatsApp</a>
-  <a class="btn" href="https://www.instagram.com/denicake7" target="_blank">Instagram @denicake7</a>
-</section>
-
-<section>
-  <h2>Galería</h2>
-  <div class="gallery">
-    <img src="cake_floral.jpg" alt="Pastel floral">
-    <img src="cake_heart.jpg" alt="Pastel corazón">
-    <img src="cake_it.jpg" alt="Pastel temático">
-  </div>
-</section>
-
-<div class="footer">
-  <div style="color:#c9a052;font-size:32px;">★</div>
-  <h2>DENYA</h2>
-  <p>CREANDO MOMENTOS<br>PARA COMPARTIR.</p>
-  <a class="btn" href="https://wa.me/525513513193" target="_blank">Contacto por WhatsApp</a>
-</div>
-
-<div class="bottom">
-  <a href="#inicio">Inicio</a>
-  <a href="#denicrunch">DeniCrunch</a>
-  <a href="#denicake">DeniCake</a>
-</div>
-
-</div>
-
-<script>
-setTimeout(()=>{
-  if(location.hash === "#denicrunch" || location.hash === "#denicake"){
-    document.querySelector(location.hash).scrollIntoView({behavior:"smooth"});
-  }
-},2600);
-
-const DENYA_CONTENT_API="https://denya-admin.denicake728.workers.dev/api/public/content";
-const denyaEscape=value=>String(value??"").replace(/[&<>"']/g,char=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[char]));
-const managedNumber=(value,fallback)=>Number.isFinite(Number(value))?Number(value):fallback;
-function managedMediaMarkup(url,item){
-  if(!url)return "";
-  const aspect=item.imageAspect||"auto",aspectValue=aspect==="square"?"1 / 1":aspect==="portrait"?"4 / 5":aspect==="landscape"?"16 / 9":aspect==="banner"?"21 / 9":"auto";
-  return '<div class="managed-media aspect-'+denyaEscape(aspect)+'" style="--aspect:'+denyaEscape(aspectValue)+';--fit:'+denyaEscape(item.imageFit||"cover")+';--pos-x:'+managedNumber(item.imagePositionX,50)+'%;--pos-y:'+managedNumber(item.imagePositionY,50)+'%;--zoom:'+managedNumber(item.imageZoom,1)+';--rotation:'+managedNumber(item.imageRotation,0)+'deg"><img src="'+denyaEscape(url)+'" alt=""></div>';
-}
-async function loadManagedBrand(brand){
-  const section=document.getElementById(brand);
-  const root=document.getElementById(brand+"-managed");
-  if(!section||!root)return;
-  try{
-    const response=await fetch(DENYA_CONTENT_API+"?brand="+encodeURIComponent(brand)+"&page=home",{cache:"no-store"});
-    const data=await response.json();
-    if(!response.ok||!data.blocks?.length)return;
-    [...section.children].forEach(child=>{if(child!==root)child.hidden=true});
-    root.hidden=false;
-    root.innerHTML=data.blocks.map(block=>{
-      const item=block.content||{};
-      const heading=block.block_type==="hero"?"h1":"h2";
-      const align=["left","center","right"].includes(item.align)?item.align:"left";
-      const background=/^#[0-9a-f]{6}$/i.test(item.background||"")?item.background:"#ffffff";
-      const width=["full","half","third"].includes(item.width)?item.width:"full";
-      const media=block.block_type==="gallery"
-        ?'<div class="managed-gallery '+denyaEscape(item.collageLayout||"grid")+'" style="--gallery-gap:'+managedNumber(item.galleryGap,12)+'px">'+(item.galleryImages||[]).map(url=>managedMediaMarkup(url,item)).join("")+'</div>'
-        :managedMediaMarkup(item.imageUrl,item);
-      return '<article class="managed-block '+width+' '+denyaEscape(block.block_type||"text")+'" style="text-align:'+align+';background:'+background+';border-radius:'+managedNumber(item.radius,26)+'px;padding:'+managedNumber(item.padding,20)+'px;color:'+denyaEscape(item.color||"#3b261d")+'">'+
-        '<'+heading+'>'+denyaEscape(item.title||"")+'</'+heading+'>'+
-        (item.subtitle?'<p><b>'+denyaEscape(item.subtitle)+'</b></p>':"")+
-        media+
-        (item.text?'<p>'+denyaEscape(item.text)+'</p>':"")+
-        (item.price?'<div class="managed-price">'+denyaEscape(item.price)+'</div>':"")+
-        (item.ctaLabel?'<a class="managed-cta" href="'+denyaEscape(item.ctaUrl||"#")+'">'+denyaEscape(item.ctaLabel)+'</a>':"")+
-      '</article>';
-    }).join("");
-  }catch(error){
-    console.warn("DENYA contenido:",error);
-  }
-}
-Promise.all([loadManagedBrand("denicrunch"),loadManagedBrand("denicake")]);
-
-</script>
-
-<script src="./rolcy-assets.js?v=20260806-3"></script>
-<script src="./denya-public-v2.js?v=20260806-3"></script>
+<footer><div class="footerstar">★</div><div class="footerlogo">DENYA</div><div class="footnote">Los mejores recuerdos comienzan alrededor de una mesa.</div><div class="footlinks"><a href="#denicake">DENICAKE</a><a href="#denicrunch">DENICRUNCH</a><a href="https://www.instagram.com/denicake7" target="_blank" rel="noopener">Instagram</a><a href="https://wa.me/525513513193" target="_blank" rel="noopener">Contacto</a></div><a class="admin" href="./denya2/admin.html">Administración</a></footer>
 </body>
 </html>
