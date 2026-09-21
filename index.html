@@ -41,16 +41,88 @@ footer{display:none}
 .panel.cake .panelcontent h2,.panel.crunch .panelcontent h2{font-family:Cormorant Garamond,serif;font-size:clamp(40px,3.8vw,58px);font-weight:500;letter-spacing:.01em;line-height:.88;color:#fff;text-shadow:0 2px 16px rgba(0,0,0,.28);margin:7px 0 9px}
 .panel.cake .panelcontent .slogan,.panel.crunch .panelcontent .slogan{color:rgba(255,255,255,.96)}
 
-/* SWEETLAB: split light/dark field for stronger contrast */
-.panel.sweet{background:linear-gradient(90deg,#1f1a16 0%,#1f1a16 50%,#f8f4ed 50%,#f8f4ed 100%)}
-.panel.sweet:after{background:linear-gradient(90deg,rgba(0,0,0,.08),transparent 48%,rgba(255,255,255,.04))}
-.sweetcontent{color:#fff;left:7%;right:7%;bottom:5%;padding:0;display:flex;flex-direction:column;align-items:flex-start}
-.sweetcontent .eyebrow{color:#b99459}
-.sweetcontent h2{font-size:clamp(36px,3.4vw,52px);color:#fff;text-shadow:0 2px 14px rgba(0,0,0,.22);margin:8px 0}
-.sweetcontent .slogan{color:rgba(255,255,255,.9)}
-
-.sweetcontent h2 .lightword{color:#fff!important;text-shadow:0 2px 14px rgba(0,0,0,.28)}
-.sweetcontent h2 .darkword{color:#1f1a16!important;text-shadow:none}
+/* SWEETLAB — unmistakable 50/50 identity */
+.panel.sweet{
+  background:linear-gradient(90deg,#1f1a16 0%,#1f1a16 50%,#f8f4ed 50%,#f8f4ed 100%);
+}
+.panel.sweet:after{display:none}
+.sweetvisual{
+  position:absolute;
+  left:7%;right:7%;top:7%;bottom:39%;
+  background:#f7f4ef;
+  border:1px solid #e5ddd4;
+  border-radius:18px;
+  box-shadow:0 18px 40px rgba(35,27,22,.18);
+  overflow:hidden;
+  transform:none;
+}
+.sweetcontent{
+  position:absolute;
+  left:0;right:0;bottom:5%;
+  padding:0;
+  z-index:8;
+  color:#fff;
+}
+.sweetcontent .eyebrow{
+  text-align:center;
+  color:#b99459;
+  font-size:8px;
+  letter-spacing:.2em;
+  margin-bottom:5px;
+}
+.sweetcontent h2{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  width:100%;
+  margin:0;
+  padding:0;
+  font-family:Cormorant Garamond,serif;
+  font-size:clamp(38px,3.7vw,58px);
+  font-weight:500;
+  line-height:.86;
+  letter-spacing:.01em;
+}
+.sweetcontent h2 .lightword{
+  color:#fff!important;
+  text-align:right;
+  padding-right:8px;
+  text-shadow:0 2px 16px rgba(0,0,0,.35);
+}
+.sweetcontent h2 .darkword{
+  color:#1f1a16!important;
+  text-align:left;
+  padding-left:8px;
+  text-shadow:none;
+}
+.sweetcontent .sweetlabel{
+  text-align:center;
+  margin-top:9px;
+  font-family:Cormorant Garamond,serif;
+  font-size:15px;
+  font-style:italic;
+  color:#6e6258;
+}
+.sweetcontent .slogan{
+  text-align:center;
+  width:100%;
+  margin-top:3px;
+  color:#8c8075;
+  font-size:7px;
+  letter-spacing:.12em;
+}
+.sweetcontent .cta{
+  display:block;
+  width:max-content;
+  margin:10px auto 0;
+  background:#1f1a16;
+  color:#fff;
+  border-radius:999px;
+  padding:9px 15px;
+  font-size:7px;
+  font-weight:700;
+  letter-spacing:.15em;
+  text-transform:uppercase;
+}
 </style>
 <body>
 <nav><a class="logo" href="#inicio"><span>✦</span>DENYA</a><div class="links"><a href="#denicake">DENICAKE</a><a href="#denicrunch">DENICRUNCH</a><a href="#sweetlab">SWEETLAB</a></div></nav>
