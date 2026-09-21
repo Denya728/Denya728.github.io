@@ -169,6 +169,10 @@ window.promoModal=id=>{
   const toLocal=v=>v?new Date(new Date(v).getTime()-new Date().getTimezoneOffset()*60000).toISOString().slice(0,16):'';
   m.querySelector('#pfrom').value=toLocal(p?.valid_from);m.querySelector('#puntil').value=toLocal(p?.valid_until);
   m.querySelector('#promoSave').onclick=async()=>{
+    const saveBtn=m.querySelector('#promoSave');
+    if(saveBtn.disabled)return;
+    saveBtn.disabled=true;saveBtn.textContent='Guardando…';
+    try{
     const code=m.querySelector('#pcode').value.trim().toUpperCase(),description=m.querySelector('#pdesc').value.trim();
     const plans=[...m.querySelectorAll('[name="pplan"]:checked')].map(x=>x.value);
     if(!code||!plans.length)return alert('Completa código y al menos un plan.');
@@ -187,6 +191,17 @@ window.promoModal=id=>{
     const sync=await syncPromoStripe(savedId,{silent:true});
     await load();render();
     if(!sync.ok&&sync.needs_secret)alert('La promoción quedó guardada en DENYA. Falta una configuración tuya para sincronizar códigos automáticamente con Stripe.');
+    }catch(e){
+      if(e?.code==='23505'||String(e?.message||'').includes('promo_codes_code_upper_uidx')){
+        alert('Ese código ya existe. Actualiza la lista de promociones antes de intentar crearlo nuevamente.');
+      }else{
+        alert(e?.message||String(e));
+      }
+    }finally{
+      if(document.body.contains(m)){
+        saveBtn.disabled=false;saveBtn.textContent='Guardar';
+      }
+    }
   };
 };
 window.syncPromoManual=async id=>{const r=await syncPromoStripe(id);await load();render();if(r.ok)alert('Promoción sincronizada con Stripe.')};
