@@ -97,7 +97,7 @@ async function renderAudit(){
 }
 async function renderHealth(){
   shell('<div class="a91-card"><h3>Salud de plataforma</h3><p class="a91-muted">Verificando servicios de DENYA…</p></div>');
-  try{const h=await adminAction('health');shell('<div class="a91-grid">'+Object.entries(h||{}).map(([k,v])=>'<div class="a91-kpi"><small>'+E(k.replaceAll('_',' '))+'</small><strong>'+badge(v===true?'Operativo':v)+'</strong></div>').join('')+'</div><div class="a91-card a91-section"><h3>Estado</h3><p class="a91-muted">La verificación comprueba conectividad y disponibilidad de los componentes administrativos. Stripe se valida mediante su configuración/sincronización disponible.</p></div>')}catch(e){fatal(e.message||String(e))}
+  try{const h=await adminAction('health');shell('<div class="a91-grid">'+Object.entries(h||{}).map(([k,v])=>'<div class="a91-kpi"><small>'+E(k.replaceAll('_',' '))+'</small><strong>'+badge(v===true?'Operativo':v)+'</strong></div>').join('')+'</div><div class="a91-card a91-section"><h3>Estado</h3><p class="a91-muted">La verificación comprueba conectividad y disponibilidad de los componentes administrativos. Stripe no se prueba en vivo desde este panel; su flujo real se valida mediante sincronización y pruebas de pago en QA.</p></div>')}catch(e){fatal(e.message||String(e))}
 }
 function renderSubscriptions(){
   const allRows=overview?.organizations||[];
