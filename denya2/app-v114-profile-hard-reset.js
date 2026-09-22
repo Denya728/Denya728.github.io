@@ -130,7 +130,7 @@
         var buttons=body.querySelectorAll('button');buttons.forEach(function(x){x.disabled=true;});
         try{
           var r=await client.functions.invoke('denya-billing',{body:{action:'change_plan',organization_id:org.id,plan_code:code,origin:location.origin+location.pathname}});
-          if(r.error||!r.data?.ok)throw new Error(r.error?.message||r.data?.error||'No se pudo cambiar el plan.');
+          if(r.error||!r.data?.ok){let msg=r.error?.message||r.data?.error||'No se pudo cambiar el plan.';try{if(r.error?.context){const x=await r.error.context.clone().json();msg=x?.error||x?.message||msg+(x?.stage?' (' + x.stage + ')':'')}}catch(_){}throw new Error(msg);}
           if(r.data.mode==='checkout'&&r.data.url){window.location.href=r.data.url;return;}
           if(window.state&&state.subscription){state.subscription.plan=name;state.plan=name;state.subscription.status=r.data.subscription?.status||state.subscription.status;state.subscription.renewsAt=r.data.subscription?.current_period_ends_at||state.subscription.renewsAt;state.subscription.cancelAtPeriodEnd=!!r.data.subscription?.cancel_at_period_end;}
           closeModal();await render('account');
