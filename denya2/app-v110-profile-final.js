@@ -118,6 +118,63 @@
     return '<div class="profile-tabs v58-account-tabs">'+profileTabs.map(x=>'<button class="'+(active===x[0]?'active':'')+'" onclick="renderProfile(\\''+x[0]+'\\')">'+x[1]+'</button>').join('')+'</div>';
   }
 
+  function profileExtraStyle(){
+    if(document.getElementById('v111profileextras'))return;
+    const s=document.createElement('style');s.id='v111profileextras';s.textContent=`
+      .pfx-wrap{max-width:1120px}
+      .pfx-intro{display:flex;justify-content:space-between;align-items:flex-end;gap:18px;margin:4px 0 18px}
+      .pfx-kicker{font-size:11px;text-transform:uppercase;letter-spacing:.12em;color:#927d70;font-weight:800}
+      .pfx-title{font-size:27px;font-weight:760;margin:4px 0 5px;color:#29231f}
+      .pfx-sub{font-size:14px;color:#786b63}
+      .pfx-card{background:#fff;border:1px solid #e7ddd5;border-radius:18px;padding:22px;margin-bottom:14px;box-shadow:0 3px 12px rgba(60,40,25,.05)}
+      .pfx-card h3{margin:0 0 6px;font-size:17px}.pfx-card h4{margin:0 0 10px}
+      .pfx-note{font-size:13px;line-height:1.5;color:#7d7169}
+      .pfx-toolbar{display:flex;gap:9px;align-items:center;justify-content:space-between;margin:16px 0}
+      .pfx-list{display:grid;gap:9px}.pfx-user{display:grid;grid-template-columns:44px 1fr auto;gap:12px;align-items:center;border:1px solid #e8ded6;border-radius:15px;padding:13px 14px}
+      .pfx-avatar{width:44px;height:44px;border-radius:14px;background:#f1e8e1;display:grid;place-items:center;font-weight:800;color:#705847}
+      .pfx-user-name{font-weight:700;color:#302823}.pfx-user-meta{font-size:12px;color:#867970;margin-top:3px}
+      .pfx-role{border:1px solid #e3d7cd;background:#faf7f4;border-radius:10px;padding:7px 10px;font-size:12px;font-weight:700}
+      .pfx-empty{padding:26px;text-align:center;border:1px dashed #dfd2c8;border-radius:15px;background:#fcfaf8}
+      .pfx-perms{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px;margin-top:12px}
+      .pfx-perm{border:1px solid #e9e0d9;border-radius:12px;padding:10px 12px;display:flex;justify-content:space-between;align-items:center}
+      .pfx-help-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:11px;margin:15px 0}
+      .pfx-help-item{border:1px solid #e8ded6;border-radius:15px;padding:15px;background:#fcfaf8}
+      .pfx-help-icon{font-size:20px;margin-bottom:7px}.pfx-help-item b{display:block;margin-bottom:4px}
+      .pfx-form{display:grid;grid-template-columns:1fr 220px;gap:12px;margin-top:15px}
+      @media(max-width:760px){.pfx-user{grid-template-columns:40px 1fr}.pfx-role{grid-column:2}.pfx-perms,.pfx-help-grid,.pfx-form{grid-template-columns:1fr}}
+    `;document.head.appendChild(s);
+  }
+  async function usersPane(){
+    profileExtraStyle();
+    const client=window.supabase?.createClient?.('https://kcinhsldmnvhudivutzv.supabase.co','sb_publishable_XZ4dtZehhFZkklDkdLuW0g_KE_Gd8Cs',{auth:{persistSession:true,autoRefreshToken:true}});
+    let rows=[],roles=[];
+    const orgId=window.DENYACloud?.context?.organization?.id||localStorage.getItem('denya_active_org');
+    if(client&&orgId){
+      const q=await client.from('memberships').select('id,user_id,invited_email,status,created_at,role_id,roles(name,code,permissions)').eq('organization_id',orgId).order('created_at',{ascending:true});
+      if(!q.error)rows=q.data||[];
+      const rr=await client.from('roles').select('id,name,code,permissions').eq('organization_id',orgId).order('name');
+      if(!rr.error)roles=rr.data||[];
+    }
+    const roleName=r=>r?.roles?.name||'Sin rol';
+    return `<div class="pfx-wrap">
+      <div class="pfx-intro"><div><div class="pfx-kicker">Equipo</div><div class="pfx-title">Usuarios y permisos</div><div class="pfx-sub">Controla quién puede entrar a esta empresa y qué puede hacer.</div></div><button class="primary" id="pfxInvite">+ Invitar usuario</button></div>
+      <div class="pfx-card"><h3>Personas con acceso</h3><div class="pfx-note">Cada persona puede tener un rol diferente. Los permisos se aplican por empresa.</div>
+      <div class="pfx-list" style="margin-top:15px">${rows.length?rows.map((r,i)=>`<div class="pfx-user"><div class="pfx-avatar">${(r.invited_email||'U').slice(0,1).toUpperCase()}</div><div><div class="pfx-user-name">${E(r.invited_email||('Usuario '+(i+1)))}</div><div class="pfx-user-meta">${E(r.status||'active')} · acceso a esta empresa</div></div><div class="pfx-role">${E(roleName(r))}</div></div>`).join(''):'<div class="pfx-empty"><b>Aún no hay usuarios adicionales</b><div class="pfx-note">Invita a tu equipo y asigna un rol para comenzar.</div></div>'}</div></div>
+      <div class="pfx-card"><h3>Roles disponibles</h3><div class="pfx-note">Estos roles definen las áreas que cada usuario puede utilizar.</div>
+      <div class="pfx-list" style="margin-top:15px">${roles.length?roles.map(r=>{const p=r.permissions||{};const keys=Object.keys(p).filter(k=>p[k]);return `<div class="pfx-user"><div class="pfx-avatar">✓</div><div><div class="pfx-user-name">${E(r.name)}</div><div class="pfx-user-meta">${E(r.code)}</div></div><div class="pfx-role">${keys.length} permisos</div></div><div class="pfx-perms" style="margin-top:-4px">${keys.map(k=>`<div class="pfx-perm"><span>${E(k)}</span><b>✓</b></div>`).join('')}</div>`}).join(''):'<div class="pfx-empty">No hay roles configurados para esta empresa.</div>'}</div></div>
+      <div class="pfx-card"><h3>Invitar a tu equipo</h3><div class="pfx-note">La invitación se prepara aquí y se asignará el rol seleccionado.</div><div class="pfx-form"><input id="pfxEmail" type="email" placeholder="correo@empresa.com"><select id="pfxRole">${roles.map(r=>`<option value="${E(r.id)}">${E(r.name)}</option>`).join('')}</select></div><div class="v106-actions"><button class="primary" id="pfxSendInvite">Enviar invitación</button></div></div>
+    </div>`;
+  }
+  async function supportDesignedPane(){
+    profileExtraStyle();
+    let tickets=[];
+    try{const r=await window.DENYACloud?.listSupport?.();tickets=r?.tickets||r||[]}catch(_){}
+    return `<div class="pfx-wrap"><div class="pfx-intro"><div><div class="pfx-kicker">Centro de ayuda</div><div class="pfx-title">Ayuda y soporte</div><div class="pfx-sub">Encuentra ayuda o envía una solicitud sin salir de SWEETLAB.</div></div></div>
+      <div class="pfx-help-grid"><div class="pfx-help-item"><div class="pfx-help-icon">?</div><b>Ayuda con SWEETLAB</b><span class="pfx-note">Preguntas sobre funciones, configuración y uso.</span></div><div class="pfx-help-item"><div class="pfx-help-icon">⚙</div><b>Problemas técnicos</b><span class="pfx-note">Reporta errores o comportamientos inesperados.</span></div><div class="pfx-help-item"><div class="pfx-help-icon">↗</div><b>Mejoras y sugerencias</b><span class="pfx-note">Comparte ideas para mejorar tu espacio.</span></div></div>
+      <div class="pfx-card"><h3>Crear una solicitud</h3><div class="pfx-note">Cuéntanos qué necesitas y podrás darle seguimiento desde aquí.</div><div class="v102-grid" style="margin-top:14px"><label>Tipo<select id="pfxCat"><option value="technical">Problema técnico</option><option value="general">Pregunta / ayuda</option><option value="feature">Sugerencia</option><option value="billing">Facturación</option></select></label><label>Prioridad<select id="pfxPriority"><option value="normal">Normal</option><option value="high">Alta</option><option value="urgent">Urgente</option><option value="low">Baja</option></select></label><label class="v102-full">Asunto<input id="pfxSubject" placeholder="¿En qué podemos ayudarte?"></label><label class="v102-full">Mensaje<textarea id="pfxMessage" rows="5" placeholder="Describe lo que ocurrió o lo que necesitas."></textarea></label></div><div class="v106-actions"><button class="primary" id="pfxTicket">Enviar solicitud</button></div></div>
+      <div class="pfx-card"><h3>Mis solicitudes</h3><div class="pfx-note">Historial de solicitudes de esta empresa.</div><div class="pfx-list" style="margin-top:13px">${tickets.length?tickets.map(x=>`<div class="pfx-user"><div class="pfx-avatar">#</div><div><div class="pfx-user-name">${E(x.subject)}</div><div class="pfx-user-meta">${E(x.message||'')}</div></div><div class="pfx-role">${E(x.status||'Abierto')}</div></div>`).join(''):'<div class="pfx-empty"><b>Todo en orden</b><div class="pfx-note">Todavía no tienes solicitudes de soporte.</div></div>'}</div></div>
+    </div>`;
+  }
   async function render(tab='company'){
     if(tab!=='payments' && typeof window.__v105Cancel==='function')window.__v105Cancel();
     if(typeof setActive==='function')setActive('profile');
@@ -138,6 +195,16 @@
     }
 
     // IMPORTANT: use the established SWEETLAB Profile renderer for all existing sections.
+    if(tab==='users'){
+      content.innerHTML=pageHead('Perfil','Usuarios y permisos')+profileNavigation('users')+await usersPane();
+      return;
+    }
+    if(tab==='support'){
+      content.innerHTML=pageHead('Perfil','Ayuda y soporte')+profileNavigation('support')+await supportDesignedPane();
+      const btn=document.getElementById('pfxTicket');
+      if(btn)btn.onclick=async()=>{const subject=document.getElementById('pfxSubject').value.trim(),message=document.getElementById('pfxMessage').value.trim();if(!subject||!message)return toast2('Completa asunto y mensaje');btn.disabled=true;try{await window.DENYACloud.createSupport({subject,message,category:document.getElementById('pfxCat').value,priority:document.getElementById('pfxPriority').value});toast2('Solicitud enviada');render('support')}catch(e){toast2(e?.message||'No se pudo enviar')}finally{btn.disabled=false}};
+      return;
+    }
     if(typeof baseProfile==='function'){
       await baseProfile(tab==='account'?'subscription':tab);
       const existing=content.querySelector('.profile-tabs');
