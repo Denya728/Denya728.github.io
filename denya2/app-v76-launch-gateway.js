@@ -71,7 +71,8 @@
     }catch(syncErr){console.error('Subscription sync failed',syncErr)}
     document.body.classList.remove('v76-gateway-open');
     const g=gateway();if(g)g.style.display='none';
-    addSessionBar();
+    // La sesión queda disponible desde Perfil; no mostramos una barra permanente.
+    document.querySelector('.v76-session-bar')?.remove();
     try{if(typeof show==='function')show('home')}catch(_){}
   }
   function addSessionBar(){
