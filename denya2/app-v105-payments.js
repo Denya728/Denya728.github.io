@@ -24,7 +24,7 @@ document.head.appendChild(s)}
   async function renderPayments(){const renderToken=++paymentRenderToken;
     style();const root=document.getElementById("content");if(!root)return;
     root.innerHTML=pageHead("Perfil","Pagos, cuenta conectada, saldo, reembolsos y reclamos.")+
-      '<div class="profile-tabs v58-account-tabs"><button onclick="renderProfile(\'company\')">Empresa</button><button onclick="renderProfile(\'subscription\')">Suscripción</button><button onclick="renderProfile(\'customization\')">Personalización</button><button class="active">Pagos</button><button onclick="renderProfile(\'templates\')">Plantillas</button><button onclick="renderProfile(\'users\')">Usuarios</button><button onclick="renderProfile(\'support\')">Ayuda y soporte</button></div>'+
+      '<div class="profile-tabs v58-account-tabs"><button onclick="window.__v105Navigate(\'company\')">Empresa</button><button onclick="window.__v105Navigate(\'account\')">Suscripción</button><button onclick="window.__v105Navigate(\'customization\')">Personalización</button><button class="active">Pagos</button><button onclick="window.__v105Navigate(\'templates\')">Plantillas</button><button onclick="window.__v105Navigate(\'users\')">Usuarios</button><button onclick="window.__v105Navigate(\'support\')">Ayuda y soporte</button></div>'+
       '<div id="v105PaymentsBody"><div class="v105-empty">Cargando configuración de pagos…</div></div>';
     const body=document.getElementById("v105PaymentsBody");
     try{
