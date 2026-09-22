@@ -107,32 +107,73 @@
     css();
     if(tab!=='payments' && typeof window.__v105Cancel==='function')window.__v105Cancel();
     if(typeof setActive==='function')setActive('profile');
-    if(tab==='payments'){if(window.DENYAPayments?.render){try{await window.DENYAPayments.render()}catch(e){toast2(e.message||'No se pudo cargar pagos')}return}return render('company')}
-    let body;
-    if(tab==='company')body=company();
-    else if(tab==='account')body=account();
-    else if(tab==='customization')body=customization();
-    else if(tab==='templates'||tab==='users')body=await legacy(tab)|| (tab==='templates'?fallbackTemplates():'<section class="v110-card"><h3>Usuarios</h3><p>Administra las personas que tienen acceso a esta empresa.</p><div class="v110-empty">La gestión de usuarios está disponible desde este espacio de trabajo.</div></section>');
-    else if(tab==='support')body=await support();
-    document.getElementById('content').innerHTML=shell(tab,body);bindTabs(tab);
-    if(tab==='company')bindCompany();
-    if(tab==='account')bindAccount();
-    if(tab==='support')bindSupport();
+
+    // Keep the original SWEETLAB Profile interface. New functionality is layered into it,
+    // rather than replacing the established layout.
+    if(tab==='payments'){
+      if(window.DENYAPayments?.render){try{await window.DENYAPayments.render();return}catch(e){toast2(e.message||'No se pudo cargar pagos');return}}
+    }
+
+    if(tab==='account'){
+      if(typeof views.subscription==='function'){
+        views.subscription();
+        injectTabs('account');
+        return;
+      }
+    }
+
+    if(tab==='customization'){
+      const body=customization();
+      document.getElementById('content').innerHTML=pageHead('Perfil','Empresa, suscripción, personalización, pagos, plantillas, usuarios y soporte.')+
+        tabs('customization')+body;
+      bindCustomization();
+      return;
+    }
+
+    const legacy=window.__v102OldProfile;
+    if(typeof legacy==='function'){
+      try{
+        legacy(tab);
+        injectTabs(tab==='support'?'support':tab);
+        if(tab==='company')decorateCompany();
+        return;
+      }catch(e){}
+    }
+
+    if(tab==='support'){
+      document.getElementById('content').innerHTML=pageHead('Perfil','Ayuda y soporte')+tabs('support')+await support();
+      bindSupport();
+      return;
+    }
+    document.getElementById('content').innerHTML=pageHead('Perfil',info[tab]?.[1]||'Perfil')+tabs(tab)+
+      '<div class="v110-card"><h3>'+E(info[tab]?.[0]||'Perfil')+'</h3><p>'+E(info[tab]?.[1]||'')+'</p></div>';
   }
-  function bindTabs(){document.querySelectorAll('[data-v110]').forEach(b=>b.onclick=()=>render(b.dataset.v110))}
-  function bindCompany(){
-    document.getElementById('v110New').onclick=async()=>{if(typeof window.DENYAAccount?.createCompany==='function')return window.DENYAAccount.createCompany();const n=prompt('Nombre de la nueva empresa:','Nueva empresa')?.trim();if(!n)return;try{const c=window.supabase.createClient(SUPA_URL,SUPA_KEY,{auth:{persistSession:true,autoRefreshToken:true}});const r=await c.functions.invoke('denya-workspace',{body:{action:'bootstrap',org_name:n,first_brand_name:n}});if(r.error||r.data?.error)throw new Error(r.error?.message||r.data?.error);localStorage.setItem('denya_active_org',r.data.organization_id);toast2('Empresa creada');location.reload()}catch(e){toast2(e.message||'No se pudo crear la empresa')}};
-    document.getElementById('v110Save').onclick=()=>{const p=P();p.businessName=document.getElementById('v110Business').value.trim()||'Mi negocio';p.email=document.getElementById('v110Email').value.trim();p.whatsapp=document.getElementById('v110Wa').value.trim();p.instagram=document.getElementById('v110Ig').value.trim();p.facebook=document.getElementById('v110Fb').value.trim();p.address=document.getElementById('v110Address').value.trim();p.description=document.getElementById('v110Desc').value.trim();state.businessName=p.businessName;save();toast2('Empresa guardada')};
-    document.getElementById('v110Logo').onchange=e=>{const f=e.target.files?.[0];if(!f)return;const r=new FileReader();r.onload=()=>{P().logo=r.result;save();render('company');toast2('Logo actualizado')};r.readAsDataURL(f)};
+
+  function tabs(active){
+    return '<div class="profile-tabs v58-account-tabs">'+tabsList.map(x=>'<button class="'+(active===x[0]?'active':'')+'" onclick="renderProfile(\\''+x[0]+'\\')">'+x[1]+'</button>').join('')+'</div>';
   }
-  function bindCustomization(){
-    const palettes=[['Cacao','#5A3A2E','#F6F0EB','#C49A78'],['Arena','#6B584B','#F5F0EA','#B98F68'],['Rosa suave','#8D5F67','#FAF1F2','#C89AA2'],['Oliva','#53604A','#F1F3ED','#A3B08D'],['Azul noche','#34465A','#F0F4F8','#8EA6BE'],['Terracota','#8A4F3D','#FBF0EB','#C78368'],['Lavanda','#655978','#F4F1F8','#A997C5'],['Negro & crema','#292522','#F4EFE7','#B99A72']];
-    const apply=()=>{const p=P();p.primaryColor=document.getElementById('v110c1').value;p.secondaryColor=document.getElementById('v110c2').value;p.accentColor=document.getElementById('v110c3').value;if(window.DENYAAccount?.apply)window.DENYAAccount.apply()};
-    document.querySelectorAll('[data-pal]').forEach(b=>b.onclick=()=>{const x=palettes[Number(b.dataset.pal)];document.getElementById('v110c1').value=x[1];document.getElementById('v110c2').value=x[2];document.getElementById('v110c3').value=x[3];apply()});
-    document.getElementById('v110SaveColors').onclick=()=>{apply();save();toast2('Personalización guardada')};
+
+  const tabsList=[['company','Empresa'],['account','Plan y suscripción'],['customization','Personalización'],['payments','Pagos'],['templates','Plantillas'],['users','Usuarios'],['support','Ayuda y soporte']];
+
+  function injectTabs(active){
+    titleEl.textContent='Perfil';
+    if(typeof setActive==='function')setActive('profile');
+    const old=content.querySelector('.profile-tabs');
+    if(old)old.outerHTML=tabs(active);
+    else{
+      const head=content.querySelector('.page-head');
+      if(head)head.insertAdjacentHTML('afterend',tabs(active));
+      else content.insertAdjacentHTML('afterbegin',tabs(active));
+    }
   }
-  function bindAccount(){document.querySelectorAll('[data-plan]').forEach(b=>b.onclick=()=>{const n=b.dataset.plan;if(n==='negocio'&&window.DENYAGateway?.openCustomerPortal)window.DENYAGateway.openCustomerPortal();else if(window.DENYAGateway?.requestPlanChange)window.DENYAGateway.requestPlanChange(n);else toast2('El flujo de suscripción no está disponible todavía.')})}
-  function bindSupport(){const b=document.getElementById('v110Ticket');if(!b)return;b.onclick=async()=>{const subject=document.getElementById('v110Subject').value.trim(),message=document.getElementById('v110Message').value.trim();if(!subject||!message)return toast2('Completa asunto y mensaje');b.disabled=true;try{await window.DENYACloud.createSupport({subject,message,category:document.getElementById('v110Cat').value,priority:document.getElementById('v110Priority').value});toast2('Solicitud enviada');render('support')}catch(e){toast2(e.message||'No se pudo enviar')}finally{b.disabled=false}}}
+
+  function decorateCompany(){
+    const shell=content.querySelector('.profile-shell');
+    if(shell){
+      shell.classList.add('v110-original-profile');
+      // Do not replace the original company UI. Only improve spacing/visual hierarchy.
+    }
+  }
   window.renderProfile=render;
   views.profile=()=>render('company');
   const pb=document.querySelector('.nav button[data-view="profile"]');if(pb)pb.onclick=()=>render('company');
