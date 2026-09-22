@@ -103,77 +103,55 @@
     let tickets=[];try{const r=await window.DENYACloud?.listSupport?.();tickets=r?.tickets||[]}catch(_){}
     return '<div class="v110-supportgrid"><section><div class="v110-card"><h3>Centro de ayuda</h3><p>Encuentra una solución o envíanos una solicitud desde el mismo espacio.</p><div class="v110-helpitem"><b>Problema técnico</b><span>Errores, pantallas trabadas o funciones que no responden.</span></div><div class="v110-helpitem"><b>Cuenta y facturación</b><span>Plan, suscripción, pagos o cambios de cuenta.</span></div><div class="v110-helpitem"><b>Idea o mejora</b><span>Comparte una propuesta para mejorar SWEETLAB.</span></div></div></section><section><div class="v110-card"><h3>Enviar una solicitud</h3><p>Describe lo que necesitas y podremos darle seguimiento.</p><div class="v110-fields"><label>Tipo<select id="v110Cat"><option value="technical">Problema técnico</option><option value="feature">Proponer mejora</option><option value="general">Pregunta / ayuda</option><option value="billing">Cuenta y facturación</option></select></label><label>Prioridad<select id="v110Priority"><option value="normal">Normal</option><option value="high">Alta</option><option value="urgent">Urgente</option><option value="low">Baja</option></select></label><label class="v110-full">Asunto<input id="v110Subject" placeholder="¿En qué podemos ayudarte?"></label><label class="v110-full">Mensaje<textarea id="v110Message" rows="6" placeholder="Describe qué estabas haciendo y qué ocurrió."></textarea></label></div><div class="v110-actions"><button class="primary" id="v110Ticket">Enviar solicitud</button></div></div><div class="v110-card v110-tickets"><h3>Mis solicitudes</h3>'+((tickets.length?tickets.map(t=>'<div class="v110-ticket"><div class="v110-tickethead"><b>'+E(t.subject)+'</b><span class="v110-badge">'+E(t.status||'Abierto')+'</span></div><div style="font-size:12px;color:#7c7068;margin-top:6px">'+E(t.message)+'</div>'+(t.admin_notes?'<div style="font-size:12px;margin-top:7px"><b>Respuesta:</b> '+E(t.admin_notes)+'</div>':'')+'</div>').join(''):'<div class="v110-empty">Todavía no tienes solicitudes.</div>')+'</div></section></div>';
   }
+  const baseProfile=window.__v102OldProfile || window.renderProfile;
+  const profileTabs=[
+    ['company','Empresa'],
+    ['account','Plan y suscripción'],
+    ['customization','Personalización'],
+    ['payments','Pagos'],
+    ['templates','Plantillas'],
+    ['users','Usuarios'],
+    ['support','Ayuda y soporte']
+  ];
+
+  function profileNavigation(active){
+    return '<div class="profile-tabs v58-account-tabs">'+profileTabs.map(x=>'<button class="'+(active===x[0]?'active':'')+'" onclick="renderProfile(\\''+x[0]+'\\')">'+x[1]+'</button>').join('')+'</div>';
+  }
+
   async function render(tab='company'){
-    css();
     if(tab!=='payments' && typeof window.__v105Cancel==='function')window.__v105Cancel();
     if(typeof setActive==='function')setActive('profile');
+    titleEl.textContent='Perfil';
 
-    // Keep the original SWEETLAB Profile interface. New functionality is layered into it,
-    // rather than replacing the established layout.
     if(tab==='payments'){
-      if(window.DENYAPayments?.render){try{await window.DENYAPayments.render();return}catch(e){toast2(e.message||'No se pudo cargar pagos');return}}
-    }
-
-    if(tab==='account'){
-      if(typeof views.subscription==='function'){
-        views.subscription();
-        injectTabs('account');
-        return;
+      if(window.DENYAPayments?.render){
+        try{await window.DENYAPayments.render();return}
+        catch(e){toast2(e.message||'No se pudo cargar pagos');return}
       }
     }
 
-    if(tab==='customization'){
-      const body=customization();
-      document.getElementById('content').innerHTML=pageHead('Perfil','Empresa, suscripción, personalización, pagos, plantillas, usuarios y soporte.')+
-        tabs('customization')+body;
-      bindCustomization();
+    if(tab==='account'){
+      if(typeof views.subscription==='function')views.subscription();
+      else if(typeof baseProfile==='function')baseProfile('subscription');
+      setTimeout(()=>{if(content)content.insertAdjacentHTML('afterbegin',profileNavigation('account'))},0);
       return;
     }
 
-    const legacy=window.__v102OldProfile;
-    if(typeof legacy==='function'){
-      try{
-        legacy(tab);
-        injectTabs(tab==='support'?'support':tab);
-        if(tab==='company')decorateCompany();
-        return;
-      }catch(e){}
-    }
-
-    if(tab==='support'){
-      document.getElementById('content').innerHTML=pageHead('Perfil','Ayuda y soporte')+tabs('support')+await support();
-      bindSupport();
+    // IMPORTANT: use the established SWEETLAB Profile renderer for all existing sections.
+    if(typeof baseProfile==='function'){
+      await baseProfile(tab==='account'?'subscription':tab);
+      const existing=content.querySelector('.profile-tabs');
+      if(existing)existing.outerHTML=profileNavigation(tab);
+      else content.insertAdjacentHTML('afterbegin',profileNavigation(tab));
       return;
     }
-    document.getElementById('content').innerHTML=pageHead('Perfil',info[tab]?.[1]||'Perfil')+tabs(tab)+
-      '<div class="v110-card"><h3>'+E(info[tab]?.[0]||'Perfil')+'</h3><p>'+E(info[tab]?.[1]||'')+'</p></div>';
+
+    content.innerHTML=pageHead('Perfil','Perfil')+profileNavigation(tab)+'<div class="empty">No se pudo cargar este apartado.</div>';
   }
 
-  function tabs(active){
-    return '<div class="profile-tabs v58-account-tabs">'+tabsList.map(x=>'<button class="'+(active===x[0]?'active':'')+'" onclick="renderProfile(\\''+x[0]+'\\')">'+x[1]+'</button>').join('')+'</div>';
-  }
+  window.renderProfile=render;
+  views.profile=()=>render('company');
 
-  const tabsList=[['company','Empresa'],['account','Plan y suscripción'],['customization','Personalización'],['payments','Pagos'],['templates','Plantillas'],['users','Usuarios'],['support','Ayuda y soporte']];
-
-  function injectTabs(active){
-    titleEl.textContent='Perfil';
-    if(typeof setActive==='function')setActive('profile');
-    const old=content.querySelector('.profile-tabs');
-    if(old)old.outerHTML=tabs(active);
-    else{
-      const head=content.querySelector('.page-head');
-      if(head)head.insertAdjacentHTML('afterend',tabs(active));
-      else content.insertAdjacentHTML('afterbegin',tabs(active));
-    }
-  }
-
-  function decorateCompany(){
-    const shell=content.querySelector('.profile-shell');
-    if(shell){
-      shell.classList.add('v110-original-profile');
-      // Do not replace the original company UI. Only improve spacing/visual hierarchy.
-    }
-  }
   window.renderProfile=render;
   views.profile=()=>render('company');
   const pb=document.querySelector('.nav button[data-view="profile"]');if(pb)pb.onclick=()=>render('company');
