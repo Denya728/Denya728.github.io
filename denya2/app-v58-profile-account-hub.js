@@ -46,7 +46,15 @@
     oldRenderProfile(tab);
     normalizeProfilePage(tab);
     const shell=content.querySelector('.profile-shell');
-    if(shell&&tab==='company')shell.insertAdjacentHTML('beforebegin','<div class="v58-account-note"><b>Cuenta y suscripción</b><span class="muted">Tu plan y tu suscripción ahora se administran desde este Perfil, para mantener toda la cuenta en un solo lugar.</span></div>');
+    if(shell&&tab==='company'){
+      shell.insertAdjacentHTML('beforebegin','<div class="v58-account-note"><b>Cuenta y suscripción</b><span class="muted">Tu plan y tu suscripción ahora se administran desde este Perfil, para mantener toda la cuenta en un solo lugar.</span></div>');
+      shell.insertAdjacentHTML('beforeend','<div class="v58-account-actions"><button class="v58-account-action" type="button" onclick="DENYAGateway.logout()">Cerrar sesión</button><span id="v58-admin-action"></span></div>');
+      if(window.DENYAGateway?.openCustomerPortal){}
+      const adminSlot=shell.querySelector('#v58-admin-action');
+      if(adminSlot&&window.supabase?.createClient){
+        try{ const client=window.supabase.createClient('https://kcinhsldmnvhudivutzv.supabase.co','sb_publishable_XZ4dtZehhFZkklDkdLuW0g_KE_Gd8Cs'); const {data}=await client.rpc('is_platform_admin'); if(data===true)adminSlot.innerHTML='<a class="v58-account-action" href="admin.html">Administración DENYA</a>'; }catch(_){ }
+      }
+    }
   };
 
   views.profile=()=>window.renderProfile('company');
