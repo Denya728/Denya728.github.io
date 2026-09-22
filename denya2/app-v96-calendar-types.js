@@ -45,8 +45,11 @@
 
   function refreshSelect(sel){
     const current=sel.value;
-    sel.innerHTML=state.calendarTypes.map(t=>'<option value="'+esc2(t.id)+'">'+esc2(t.label)+'</option>').join('');
-    if([...sel.options].some(o=>o.value===current))sel.value=current;
+    const html=state.calendarTypes.map(t=>'<option value="'+esc2(t.id)+'">'+esc2(t.label)+'</option>').join('');
+    // Evita re-renderizar el select si no cambió: el MutationObserver detecta ese cambio
+    // y podía entrar en un ciclo infinito, haciendo que el calendario se congelara.
+    if(sel.innerHTML!==html) sel.innerHTML=html;
+    if([...sel.options].some(o=>o.value===current)) sel.value=current;
   }
 
   function openTypeManager(sourceSelect){
