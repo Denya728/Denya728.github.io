@@ -63,13 +63,31 @@
       '<div class="modal-actions"><button class="secondary" data-close>Cerrar</button></div></div>';
     document.body.appendChild(bg);
     const list=bg.querySelector('#v96TypeList');
+    async function verifyCurrentPassword(){
+      if(!window.supabase?.createClient)return false;
+      const URL='https://kcinhsldmnvhudivutzv.supabase.co';
+      const KEY='sb_publishable_XZ4dtZehhFZkklDkdLuW0g_KE_Gd8Cs';
+      const authClient=window.supabase.createClient(URL,KEY,{auth:{persistSession:true,autoRefreshToken:true}});
+      const {data:{session}}=await authClient.auth.getSession();
+      const email=session?.user?.email;
+      if(!email){toast2('No se encontró la sesión del usuario.');return false;}
+      const password=prompt('Para eliminar este tipo, escribe la contraseña de tu cuenta:');
+      if(password===null)return false;
+      if(!password){toast2('Escribe tu contraseña para continuar.');return false;}
+      const {error}=await authClient.auth.signInWithPassword({email,password});
+      if(error){toast2('Contraseña incorrecta. No se eliminó el tipo.');return false;}
+      return true;
+    }
     const draw=()=>{
       list.innerHTML=state.calendarTypes.map(t=>
         '<div class="v96-type-row"><div><b>'+esc2(t.label)+'</b>'+(t.locked?'<span class="hint">Tipo base</span>':'')+'</div>'+
         (t.locked?'<span class="v96-protected">Base</span>':'<button class="danger v96-delete-type" data-id="'+esc2(t.id)+'">Eliminar</button>')+
         '</div>').join('');
-      list.querySelectorAll('.v96-delete-type').forEach(b=>b.onclick=()=>{
+      list.querySelectorAll('.v96-delete-type').forEach(b=>b.onclick=async()=>{
         const id=b.dataset.id;
+        const target=state.calendarTypes.find(t=>t.id===id);
+        if(!target||target.locked)return;
+        if(!await verifyCurrentPassword())return;
         const used=(state.calendarEvents||[]).some(e=>String(e.type||e.eventType||'')===id);
         if(used && !confirm('Este tipo ya está usado en eventos. Si lo eliminas, esos eventos conservarán el texto del tipo, pero dejarán de aparecer como opción. ¿Continuar?'))return;
         state.calendarTypes=state.calendarTypes.filter(t=>t.id!==id);
