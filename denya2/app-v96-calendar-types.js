@@ -27,7 +27,7 @@
     const btn=document.createElement('button');
     btn.type='button'; btn.className='secondary v96-manage-types';
     btn.textContent='Gestionar tipos';
-    btn.onclick=()=>openTypeManager(sel);
+    btn.addEventListener('click',function(ev){ ev.preventDefault(); ev.stopPropagation(); openTypeManager(sel); });
     wrap.appendChild(btn);
   }
 
@@ -73,7 +73,8 @@
         persist(); refreshAll(); draw(); toast2('Tipo eliminado');
       });
     };
-    bg.querySelector('[data-close]').onclick=()=>bg.remove();
+    bg.querySelectorAll('[data-close]').forEach(el=>el.addEventListener('click',function(ev){ev.preventDefault();ev.stopPropagation();bg.remove();}));
+    bg.addEventListener('click',function(ev){if(ev.target===bg)bg.remove();});
     bg.querySelector('#v96AddType').onclick=()=>{
       const input=bg.querySelector('#v96NewType'), label=input.value.trim();
       if(!label)return input.focus();
