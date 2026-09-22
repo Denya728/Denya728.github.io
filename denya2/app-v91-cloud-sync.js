@@ -73,7 +73,8 @@
     if(!session?.user?.id)return false;
     lastSessionId=session.user.id;
     localStorage.setItem('denya_active_user',session.user.id);
-    const data=await invoke({action:'load'});
+    const selectedOrgId=localStorage.getItem('denya_active_org')||'';
+    const data=await invoke(selectedOrgId?{action:'load',organization_id:selectedOrgId}:{action:'load'});
     context=data.context||context;
     if(data.state&&typeof data.state==='object'){
       if(force||!remoteReady||Number(data.revision)>revision){
@@ -147,7 +148,8 @@
   async function poll(){
     if(!remoteReady||dirty||saving)return;
     try{
-      const data=await invoke({action:'load'});
+      const selectedOrgId=localStorage.getItem('denya_active_org')||'';
+      const data=await invoke(selectedOrgId?{action:'load',organization_id:selectedOrgId}:{action:'load'});
       if(Number(data.revision)>revision){
         state=data.state||state;
         applyContext(data.context);
@@ -186,7 +188,8 @@
     createSupport:async payload=>invoke({action:'support_create',...payload}),
     listSupport:async()=>invoke({action:'support_list'}),
     getPlan:()=>context?.plan||null,
-    getRole:()=>context?.role||null
+    getRole:()=>context?.role||null,
+    setActiveOrganization:async id=>{localStorage.setItem('denya_active_org',id);remoteReady=false;revision=0;dirty=false;baseSnapshot=null;return loadRemote({rerender:true,force:true})}
   };
   if(document.readyState==='loading')window.addEventListener('DOMContentLoaded',boot);else boot();
 })();
