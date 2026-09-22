@@ -10,7 +10,7 @@
   function applyNavLocks(){
     const d=def();
     $$('.nav button[data-view]').forEach(b=>{
-      const v=b.dataset.view, ok=d.modules.includes(v);
+      const v=b.dataset.view, ok=(v==='profile'||v==='subscription'||v==='plan')||d.modules.includes(v);
       b.classList.toggle('plan-locked',!ok);
       b.title=ok?'':`Disponible desde ${planLabelForModule(v)}`;
     });
