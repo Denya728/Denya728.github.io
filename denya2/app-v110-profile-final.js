@@ -175,6 +175,32 @@
       <div class="pfx-card"><h3>Mis solicitudes</h3><div class="pfx-note">Historial de solicitudes de esta empresa.</div><div class="pfx-list" style="margin-top:13px">${tickets.length?tickets.map(x=>`<div class="pfx-user"><div class="pfx-avatar">#</div><div><div class="pfx-user-name">${E(x.subject)}</div><div class="pfx-user-meta">${E(x.message||'')}</div></div><div class="pfx-role">${E(x.status||'Abierto')}</div></div>`).join(''):'<div class="pfx-empty"><b>Todo en orden</b><div class="pfx-note">Todavía no tienes solicitudes de soporte.</div></div>'}</div></div>
     </div>`;
   }
+  function companyDesigned(){
+    const p=state.profile=state.profile||{};
+    const org=window.DENYACloud?.context?.organization||{};
+    const name=p.businessName||org.name||'Mi negocio';
+    return `<div class="pfx-wrap">
+      <div class="pfx-intro"><div><div class="pfx-kicker">Tu negocio</div><div class="pfx-title">Empresa</div><div class="pfx-sub">Administra la información que identifica a tu negocio dentro de SWEETLAB.</div></div><div class="pfx-avatar" style="width:54px;height:54px;font-size:20px">${E(name.slice(0,1).toUpperCase())}</div></div>
+      <div class="pfx-card">
+        <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:16px;margin-bottom:18px"><div><div class="pfx-kicker">Empresa activa</div><h3 style="font-size:20px;margin-top:4px">${E(name)}</h3><div class="pfx-note">Esta información se utilizará en cotizaciones, documentos y espacios públicos.</div></div><span class="pfx-role">Activa</span></div>
+        <div class="v102-grid">
+          <label>Nombre de la empresa<input id="v111Business" value="${E(p.businessName||name)}"></label>
+          <label>Correo<input id="v111Email" type="email" value="${E(p.email||'')}"></label>
+          <label>Instagram<input id="v111Ig" value="${E(p.instagram||'')}" placeholder="@tuempresa"></label>
+          <label>Facebook<input id="v111Fb" value="${E(p.facebook||'')}"></label>
+          <label>WhatsApp<input id="v111Wa" value="${E(p.whatsapp||'')}"></label>
+          <label>Dirección<input id="v111Address" value="${E(p.address||'')}"></label>
+          <label class="v102-full">Descripción<textarea id="v111Desc" rows="4">${E(p.description||'')}</textarea></label>
+        </div>
+        <div class="v106-actions"><button class="primary" id="v111Save">Guardar cambios</button></div>
+      </div>
+      <div class="pfx-card"><div class="pfx-kicker">Identidad</div><h3>Logo de tu empresa</h3><div class="pfx-note">Tu logo aparecerá donde SWEETLAB utilice la identidad de tu negocio.</div>
+        <div style="display:flex;align-items:center;gap:16px;margin-top:15px"><div class="pfx-avatar" id="v111LogoPreview" style="overflow:hidden">${p.logo?'<img src="'+E(p.logo)+'" style="width:100%;height:100%;object-fit:cover">':E(name.slice(0,1).toUpperCase())}</div><input type="file" accept="image/*" id="v111Logo"></div>
+      </div>
+      <div class="pfx-card"><div class="pfx-kicker">Empresa</div><h3>Estado de tu negocio</h3><div class="pfx-help-grid" style="margin-bottom:0"><div class="pfx-help-item"><b>Perfil</b><span class="pfx-note">Información comercial configurada.</span></div><div class="pfx-help-item"><b>Cotizaciones</b><span class="pfx-note">Los datos pueden utilizarse en tus documentos.</span></div><div class="pfx-help-item"><b>Identidad</b><span class="pfx-note">Logo y datos de marca disponibles.</span></div></div>
+      </div>
+    </div>`;
+  }
   async function render(tab='company'){
     if(tab!=='payments' && typeof window.__v105Cancel==='function')window.__v105Cancel();
     if(typeof setActive==='function')setActive('profile');
@@ -195,6 +221,15 @@
     }
 
     // IMPORTANT: use the established SWEETLAB Profile renderer for all existing sections.
+    if(tab==='company'){
+      profileExtraStyle();
+      content.innerHTML=pageHead('Perfil','Empresa')+profileNavigation('company')+companyDesigned();
+      const save=document.getElementById('v111Save');
+      if(save)save.onclick=()=>{const p=state.profile=state.profile||{};p.businessName=document.getElementById('v111Business').value.trim()||'Mi negocio';p.email=document.getElementById('v111Email').value.trim();p.instagram=document.getElementById('v111Ig').value.trim();p.facebook=document.getElementById('v111Fb').value.trim();p.whatsapp=document.getElementById('v111Wa').value.trim();p.address=document.getElementById('v111Address').value.trim();p.description=document.getElementById('v111Desc').value.trim();state.businessName=p.businessName;save();toast2('Empresa guardada');};
+      const logo=document.getElementById('v111Logo');
+      if(logo)logo.onchange=e=>{const f=e.target.files?.[0];if(!f)return;const rr=new FileReader();rr.onload=()=>{state.profile=state.profile||{};state.profile.logo=rr.result;save();const d=document.getElementById('v111LogoPreview');if(d)d.innerHTML='<img src="'+E(rr.result)+'" style="width:100%;height:100%;object-fit:cover">';toast2('Logo actualizado')};rr.readAsDataURL(f)};
+      return;
+    }
     if(tab==='users'){
       content.innerHTML=pageHead('Perfil','Usuarios y permisos')+profileNavigation('users')+await usersPane();
       return;
