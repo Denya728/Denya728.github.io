@@ -14,7 +14,12 @@
   }
   function recipesForRequirement(kind){
     const cats=kindMeta[kind]?.cats||[];
-    return state.recipes.filter(r=>cats.includes(r.category));
+    const active=state.recipes.filter(r=>r&&r.active!==false);
+    const specific=active.filter(r=>cats.includes(r.category));
+    // Keep category matching when it exists. If a business configured a
+    // generic requirement (e.g. "base") with a recipe categorized as
+    // "Postres completos", still make that enabled recipe selectable.
+    return specific.length?specific:active;
   }
   function presentationCost(m,selections,packages){
     let total=0;
