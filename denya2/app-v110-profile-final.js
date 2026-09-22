@@ -34,8 +34,22 @@
       .v110-mainhead{padding:19px 23px;border-bottom:1px solid #eee6df;background:linear-gradient(180deg,#fff,#fcfaf8)}
       .v110-mainhead h2{margin:0;font-size:18px}.v110-mainhead p{margin:5px 0 0;color:#7d7067;font-size:13px}
       .v110-body{padding:20px 23px}
-      .v110-hero{display:flex;align-items:center;gap:16px;padding:18px;border:1px solid #e5d9cf;border-radius:17px;background:linear-gradient(135deg,#fbf7f2,#f2e9e1);margin-bottom:15px}
-      .v110-logo{width:66px;height:66px;border-radius:17px;background:#5a3a2e;color:#fff;display:flex;align-items:center;justify-content:center;overflow:hidden;font-size:25px;flex:none}
+      .v110-hero{display:grid;grid-template-columns:auto 1fr auto;align-items:center;gap:18px;padding:22px;border:1px solid #e4d9d0;border-radius:20px;background:linear-gradient(135deg,#fffdfb 0%,#f7efe8 100%);margin-bottom:16px;box-shadow:0 10px 28px rgba(70,45,30,.06)}
+      .v110-logo{width:72px;height:72px;border-radius:20px;background:linear-gradient(145deg,#5a3a2e,#87604b);color:#fff;display:flex;align-items:center;justify-content:center;overflow:hidden;font-size:27px;flex:none;box-shadow:0 8px 18px rgba(90,58,46,.16)}
+      .v110-companygrid{display:grid;grid-template-columns:minmax(0,1.55fr) minmax(280px,.75fr);gap:16px}
+      .v110-card{border:1px solid #e5dbd3;border-radius:18px;padding:20px;background:#fff;margin-bottom:14px;box-shadow:0 5px 18px rgba(70,45,30,.035)}
+      .v110-cardhead{display:flex;align-items:flex-start;justify-content:space-between;gap:14px;margin-bottom:15px}
+      .v110-cardhead .v110-eyebrow{margin-bottom:3px}
+      .v110-fieldgroup{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+      .v110-fieldgroup label{display:block}
+      .v110-fieldgroup .v110-full{grid-column:1/-1}
+      .v110-sidecard{background:linear-gradient(180deg,#fff,#fbf8f5)}
+      .v110-mini-stat{display:flex;justify-content:space-between;align-items:center;padding:11px 0;border-bottom:1px solid #eee6df;font-size:12px}
+      .v110-mini-stat:last-child{border-bottom:0}
+      .v110-mini-stat span{color:#857970}
+      .v110-mini-stat b{color:#352c27}
+      .v110-brand-preview{display:flex;align-items:center;gap:12px;padding:13px;border:1px solid #e8ded6;border-radius:14px;background:#faf7f3;margin-bottom:12px}
+      .v110-brand-preview .v110-logo{width:52px;height:52px;border-radius:15px;font-size:20px}
       .v110-logo img{width:100%;height:100%;object-fit:contain}.v110-hero h3{margin:3px 0;font-size:21px}.v110-hero p{margin:4px 0;color:#756a62;font-size:12px}.v110-hero .primary{margin-left:auto}
       .v110-metrics{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:15px}
       .v110-metric{padding:13px 15px;border:1px solid #e7ddd5;border-radius:14px;background:#fff}.v110-metric small{display:block;color:#89796e;font-size:10px;text-transform:uppercase;letter-spacing:.08em}.v110-metric b{display:block;margin-top:4px;font-size:15px}
@@ -47,8 +61,8 @@
       .v110-planhero{display:grid;grid-template-columns:1.4fr .6fr;gap:12px;margin-bottom:14px}.v110-current{padding:18px;border-radius:16px;background:linear-gradient(135deg,#5a3a2e,#795543);color:#fff}.v110-current .v110-eyebrow{color:#eadbd0}.v110-current h3{font-size:23px;margin:5px 0}.v110-current p{color:#eadfd7;margin:0;font-size:12px}.v110-status{padding:18px;border:1px solid #e5dbd3;border-radius:16px}.v110-status b{display:block;font-size:20px;margin-top:5px}.v110-plan-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}.v110-plan{border:1px solid #e4dad2;border-radius:16px;padding:16px}.v110-plan.active{border:2px solid #5a3a2e;padding:15px}.v110-plan .price{font-size:24px;font-weight:850;margin:7px 0}.v110-plan ul{padding-left:17px;color:#766a62;font-size:12px;line-height:1.65}
       .v110-supportgrid{display:grid;grid-template-columns:.8fr 1.2fr;gap:15px}.v110-helpitem{padding:14px;border:1px solid #e5dbd3;border-radius:14px;margin-top:9px;background:#fff}.v110-helpitem b{display:block;margin-bottom:3px}.v110-helpitem span{font-size:12px;color:#7c7068}.v110-tickets{margin-top:14px}.v110-ticket{padding:13px;border:1px solid #e5dbd3;border-radius:13px;margin-top:8px}.v110-tickethead{display:flex;justify-content:space-between;gap:10px}.v110-badge{padding:5px 8px;border-radius:999px;background:#f1ebe5;font-size:10px;white-space:nowrap}
       .v110-legacy{margin:0}.v110-empty{padding:20px;text-align:center;border:1px dashed #d9cec5;border-radius:14px;background:#faf8f5;color:#7d7067}
-      @media(max-width:850px){.v110-grid2,.v110-supportgrid,.v110-planhero{grid-template-columns:1fr}.v110-plan-grid{grid-template-columns:1fr 1fr}.v110-metrics{grid-template-columns:1fr 1fr}}
-      @media(max-width:620px){.v110-body{padding:14px}.v110-mainhead{padding:16px}.v110-fields,.v110-plan-grid,.v110-metrics{grid-template-columns:1fr}.v110-full{grid-column:auto}.v110-hero{align-items:flex-start;flex-wrap:wrap}.v110-hero .primary{margin-left:0}}
+      @media(max-width:850px){.v110-grid2,.v110-companygrid,.v110-supportgrid,.v110-planhero{grid-template-columns:1fr}.v110-plan-grid{grid-template-columns:1fr 1fr}.v110-metrics{grid-template-columns:1fr 1fr}}
+      @media(max-width:620px){.v110-body{padding:14px}.v110-mainhead{padding:16px}.v110-fields,.v110-fieldgroup,.v110-plan-grid,.v110-metrics{grid-template-columns:1fr}.v110-full{grid-column:auto}.v110-hero{grid-template-columns:1fr;align-items:flex-start}.v110-hero .primary{margin-left:0}}
     `;document.head.appendChild(s);
   }
   function shell(tab,body){
@@ -59,10 +73,10 @@
   }
   function company(){
     const p=P(),o=window.DENYACloud?.context?.organization,n=o?.name||p.businessName||'Mi negocio';
-    return '<div class="v110-hero"><div class="v110-logo">'+(p.logo?'<img src="'+E(p.logo)+'">':'✦')+'</div><div><div class="v110-eyebrow">Empresa activa</div><h3>'+E(n)+'</h3><p>Tu identidad comercial dentro de SWEETLAB.</p></div><button class="primary" id="v110New">+ Agregar empresa</button></div>'+
-      '<div class="v110-metrics"><div class="v110-metric"><small>Estado</small><b>Activa</b></div><div class="v110-metric"><small>Documentos</small><b>Configurados desde Perfil</b></div><div class="v110-metric"><small>Pagos</small><b>Configuración independiente</b></div></div>'+
-      '<div class="v110-grid2"><section class="v110-card"><h3>Información comercial</h3><p>Estos datos pueden aparecer en cotizaciones, PDFs y comunicaciones con tus clientes.</p><div class="v110-fields"><label>Nombre comercial<input id="v110Business" value="'+E(p.businessName||n)+'"></label><label>Correo<input id="v110Email" type="email" value="'+E(p.email||'')+'"></label><label>WhatsApp<input id="v110Wa" value="'+E(p.whatsapp||'')+'"></label><label>Instagram<input id="v110Ig" value="'+E(p.instagram||'')+'"></label><label>Facebook<input id="v110Fb" value="'+E(p.facebook||'')+'"></label><label>Dirección<input id="v110Address" value="'+E(p.address||'')+'"></label><label class="v110-full">Descripción<textarea id="v110Desc">'+E(p.description||'')+'</textarea></label></div><div class="v110-actions"><button class="primary" id="v110Save">Guardar cambios</button></div></section>'+
-      '<aside><section class="v110-card"><h3>Identidad visual</h3><p>Tu logotipo se utiliza donde corresponda dentro de tus documentos.</p><div class="v110-upload"><div class="v110-logo small">'+(p.logo?'<img src="'+E(p.logo)+'">':'✦')+'</div><div><b>Logotipo</b><div style="font-size:11px;color:#81766e">PNG, JPG o WEBP</div></div></div><input style="margin-top:10px;width:100%" type="file" id="v110Logo" accept="image/*"></section><section class="v110-card"><h3>Empresa y documentos</h3><p>La información comercial queda asociada a la empresa activa.</p><div class="v110-callout"><b>Consejo</b><br>Completa los datos antes de generar una cotización para que tus documentos salgan con la identidad correcta.</div></section></aside></div>';
+    return '<div class="v110-hero"><div class="v110-logo">'+(p.logo?'<img src="'+E(p.logo)+'">':'✦')+'</div><div><div class="v110-eyebrow">Empresa activa</div><h3>'+E(n)+'</h3><p>Gestiona aquí la identidad y los datos que SWEETLAB usa en tus documentos.</p></div><button class="primary" id="v110New">+ Agregar empresa</button></div>'+
+      '<div class="v110-companygrid"><section class="v110-card"><div class="v110-cardhead"><div><div class="v110-eyebrow">Información comercial</div><h3 style="margin:3px 0 0">Datos de tu empresa</h3><p>Esta información puede aparecer en cotizaciones, PDFs y comunicaciones con tus clientes.</p></div><span class="v110-badge">Empresa activa</span></div><div class="v110-fieldgroup"><label>Nombre comercial<input id="v110Business" value="'+E(p.businessName||n)+'"></label><label>Correo<input id="v110Email" type="email" value="'+E(p.email||'')+'"></label><label>WhatsApp<input id="v110Wa" value="'+E(p.whatsapp||'')+'"></label><label>Instagram<input id="v110Ig" value="'+E(p.instagram||'')+'"></label><label>Facebook<input id="v110Fb" value="'+E(p.facebook||'')+'"></label><label>Dirección<input id="v110Address" value="'+E(p.address||'')+'"></label><label class="v110-full">Descripción<textarea id="v110Desc">'+E(p.description||'')+'</textarea></label></div><div class="v110-actions"><button class="primary" id="v110Save">Guardar cambios</button></div></section>'+
+      '<aside><section class="v110-card v110-sidecard"><div class="v110-eyebrow">Identidad de marca</div><h3 style="margin:3px 0 5px">Logotipo</h3><p>Se utilizará en tus documentos y espacios donde corresponda.</p><div class="v110-brand-preview"><div class="v110-logo">'+(p.logo?'<img src="'+E(p.logo)+'">':'✦')+'</div><div><b>'+E(n)+'</b><div style="font-size:11px;color:#81766e">Vista previa de tu marca</div></div></div><input style="width:100%" type="file" id="v110Logo" accept="image/*"></section>'+
+      '<section class="v110-card v110-sidecard"><div class="v110-eyebrow">Estado del espacio</div><h3 style="margin:3px 0 8px">Todo en un solo lugar</h3><div class="v110-mini-stat"><span>Empresa</span><b>Activa</b></div><div class="v110-mini-stat"><span>Documentos</span><b>Configurados</b></div><div class="v110-mini-stat"><span>Pagos</span><b>Independientes</b></div></section></aside></div>';
   }
   function account(){
     const s=state.subscription||{},plan=s.plan||state.plan||'Sin plan configurado',billing=s.billing||'Mensual',status=s.status||'Pendiente',renew=s.renewsAt?s.renewsAt:'';
@@ -91,6 +105,7 @@
   }
   async function render(tab='company'){
     css();
+    if(tab!=='payments' && typeof window.__v105Cancel==='function')window.__v105Cancel();
     if(typeof setActive==='function')setActive('profile');
     if(tab==='payments'){if(window.DENYAPayments?.render){try{await window.DENYAPayments.render()}catch(e){toast2(e.message||'No se pudo cargar pagos')}return}return render('company')}
     let body;
