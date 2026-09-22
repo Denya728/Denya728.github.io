@@ -21,7 +21,7 @@
     );
     if(!el) return;
 
-    var g=gateway();
+    var g=window.DENYAGateway||null;
     var isManage=el.id==='114manage'||el.id==='112sub'||el.dataset.subscriptionAction==='manage';
     var name=el.getAttribute('data-114-plan')||el.getAttribute('data-plan112')||'';
 
@@ -39,7 +39,7 @@
       return;
     }
 
-    if(g&&typeof g.requestPlanChange==='function') return g.requestPlanChange(name);
+    if(g&&typeof g.openCustomerPortal==='function') return g.openCustomerPortal();
     window.location.href=portal;
   }
 
