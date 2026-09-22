@@ -91,7 +91,7 @@
     if(saveBtn){
       saveBtn.addEventListener('click',()=>{
         setTimeout(()=>{
-          const latest=(state.products||[]).find(x=>x.id===id);
+          const latest=(state.products||[]).find(x=>x.id===id)||(!id?(state.products||[]).slice().reverse().find(x=>x.category===sel.value&&x.name===modalEl.querySelector('#pname')?.value.trim()):null);
           if(latest){latest.categoryId=sel.value;latest.category=state.productCategories.find(c=>c.id===sel.value)?.label||latest.category;save();}
         },0);
       },{once:true});
