@@ -72,7 +72,7 @@
   function account(){
     var s=window.state&&state.subscription||{},plan=s.plan||'Negocio';
     var prices={Emprende:'$249',Negocio:'$449',Pro:'$699'};
-    var status=s.status||'Activo';
+    var status=s.cancelAtPeriodEnd?'Cancelación programada':(s.status||'Activo');
     var renew=s.renewsAt||s.currentPeriodEndsAt||null;
     var renewText=renew?new Date(renew).toLocaleDateString('es-MX',{day:'2-digit',month:'long',year:'numeric'}):'Según tu ciclo de facturación';
     var method=s.paymentMethod&&s.paymentMethod!=='Sin método'?s.paymentMethod:'Pendiente de configurar';
@@ -115,7 +115,7 @@
           title.textContent='Cancelar suscripción';txt.textContent='La cancelación no se hará todavía. Primero confirma la acción.';
           body.innerHTML='<div class="empty">Puedes cancelar al final de tu periodo actual para conservar el acceso hasta esa fecha.</div><div class="actions"><button class="secondary" id="114cancelNo">Volver</button><button class="primary" id="114cancelYes">Confirmar cancelación</button></div>';
           document.getElementById('114cancelNo').onclick=closeModal;
-          document.getElementById('114cancelYes').onclick=function(){alert('La cancelación automática quedará conectada al sistema de facturación de Stripe. Tu plan no fue modificado.');closeModal();};
+          document.getElementById('114cancelYes').onclick=async function(){var org=(window.DENYACloud&&window.DENYACloud.context&&window.DENYACloud.context.organization)||{};var client=window.supabase&&window.supabase.createClient?window.supabase.createClient('https://kcinhsldmnvhudivutzv.supabase.co','sb_publishable_XZ4dtZehhFZkklDkdLuW0g_KE_Gd8Cs'):null;if(!client||!org.id){alert('No pudimos identificar la empresa activa.');return;}var b=this;b.disabled=true;try{var r=await client.functions.invoke('denya-billing',{body:{action:'cancel',organization_id:org.id}});if(r.error||!r.data?.ok)throw new Error(r.error?.message||r.data?.error||'No se pudo cancelar la suscripción.');if(window.state&&state.subscription)state.subscription.cancelAtPeriodEnd=true;closeModal();await render('account');}catch(e){alert(e.message||String(e));b.disabled=false;}};
         }else{
           title.textContent='Método de pago';txt.textContent='Elige cómo quieres actualizar tu método de pago.';
           body.innerHTML='<div class="empty">Los datos de tarjeta se mantienen protegidos por Stripe. Esta pantalla seguirá dentro de SWEETLAB; solo la captura segura del método de pago se procesa con Stripe.</div><div class="actions"><button class="primary" id="114openPayment">Actualizar método de pago</button></div>';
@@ -129,9 +129,10 @@
         if(!client||!org.id){alert('No pudimos identificar la empresa activa.');return;}
         var buttons=body.querySelectorAll('button');buttons.forEach(function(x){x.disabled=true;});
         try{
-          var r=await client.functions.invoke('denya-workspace',{body:{action:'test_change_plan',organization_id:org.id,plan_code:code}});
+          var r=await client.functions.invoke('denya-billing',{body:{action:'change_plan',organization_id:org.id,plan_code:code,origin:location.origin+location.pathname}});
           if(r.error||!r.data?.ok)throw new Error(r.error?.message||r.data?.error||'No se pudo cambiar el plan.');
-          if(window.state&&state.subscription){state.subscription.plan=name;state.plan=name;state.subscription.status=r.data.subscription?.status||state.subscription.status;}
+          if(r.data.mode==='checkout'&&r.data.url){window.location.href=r.data.url;return;}
+          if(window.state&&state.subscription){state.subscription.plan=name;state.plan=name;state.subscription.status=r.data.subscription?.status||state.subscription.status;state.subscription.renewsAt=r.data.subscription?.current_period_ends_at||state.subscription.renewsAt;state.subscription.cancelAtPeriodEnd=!!r.data.subscription?.cancel_at_period_end;}
           closeModal();await render('account');
         }catch(e){alert(e.message||String(e));buttons.forEach(function(x){x.disabled=false;});}
       }
