@@ -1,0 +1,9 @@
+/* DENYA SWEETLAB v97 · UX fixes */
+.top .avatar{display:none!important}
+.v97-cat-select{display:flex;gap:8px;align-items:center}
+.v97-cat-select select{flex:1;min-width:0}
+.v97-add-cat{display:flex;gap:8px;margin:18px 0}
+.v97-add-cat input{flex:1;border:1px solid #dcd2c8;border-radius:12px;padding:11px}
+.v97-cat-row{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px 0;border-bottom:1px solid #eee6df}
+.v97-cat-base{font-size:11px;font-weight:800;color:#8c7b6e;background:#f3ece5;padding:5px 8px;border-radius:999px}
+@media(max-width:600px){.v97-cat-select{flex-direction:column;align-items:stretch}.v97-cat-select button{width:100%}.v97-add-cat{flex-direction:column}}
