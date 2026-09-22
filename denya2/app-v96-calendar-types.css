@@ -1,0 +1,11 @@
+/* DENYA SWEETLAB v96 · calendar event type manager */
+.v96-type-control{display:flex;gap:8px;align-items:center;width:100%}
+.v96-type-control>select{flex:1;min-width:0}
+.v96-manage-types{white-space:nowrap;padding:10px 12px!important}
+.v96-add-type{display:flex;gap:8px;margin:18px 0}
+.v96-add-type input{flex:1;border:1px solid #dcd2c8;border-radius:12px;padding:11px}
+.v96-type-row{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px 0;border-bottom:1px solid #eee6df}
+.v96-type-row>div{display:flex;align-items:center;gap:8px}
+.v96-type-row .hint{font-size:11px}
+.v96-protected{font-size:11px;font-weight:800;color:#8c7b6e;background:#f3ece5;padding:5px 8px;border-radius:999px}
+@media(max-width:600px){.v96-type-control{flex-direction:column;align-items:stretch}.v96-manage-types{width:100%}.v96-add-type{flex-direction:column}}
