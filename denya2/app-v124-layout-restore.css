@@ -1,0 +1,7 @@
+/* v124 — Restore original SWEETLAB layout */
+.app{display:grid!important;grid-template-columns:250px minmax(0,1fr)!important;min-height:100vh!important;}
+.side{position:sticky!important;top:0!important;width:244px!important;height:100vh!important;max-height:100vh!important;overflow-y:auto!important;overflow-x:hidden!important;align-self:start!important;margin:0!important;}
+.main{margin-left:0!important;min-width:0!important;width:auto!important;min-height:100vh!important;}
+.content{min-width:0!important;}
+@media(max-width:1050px){.app{grid-template-columns:210px minmax(0,1fr)!important;}}
+@media(max-width:760px){.app{grid-template-columns:1fr!important}.side{position:relative!important;width:auto!important;height:auto!important;max-height:none!important;overflow:visible!important}.main{margin-left:0!important;width:auto!important;}}
