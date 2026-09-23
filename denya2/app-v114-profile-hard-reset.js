@@ -140,7 +140,7 @@
         alert('Te enviamos un correo para confirmar el cambio.');
         document.getElementById('secEmailNew').value='';
       };
-      var lo=document.getElementById('secLogout'); if(lo)lo.onclick=async function(){if(!sb||!sb.auth)return alert('La autenticación no está disponible.');lo.disabled=true;var r=await sb.auth.signOut();if(r.error){lo.disabled=false;return alert(r.error.message);}session=null;if(typeof window.DENYAGateway!=='undefined'&&window.DENYAGateway.logout){await window.DENYAGateway.logout();}else{location.reload();}};
+      var lo=document.getElementById('secLogout'); if(lo)lo.onclick=async function(){lo.disabled=true;try{if(typeof window.DENYAGateway!=='undefined'&&window.DENYAGateway.logout){await window.DENYAGateway.logout();}else{location.reload();}}catch(e){lo.disabled=false;alert(e.message||'No pudimos cerrar la sesión.');}};
       var ss=document.getElementById('secSessions');
       if(ss)ss.onclick=async function(){
         var r=await sb.auth.signOut({scope:'others'});
