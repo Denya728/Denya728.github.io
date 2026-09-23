@@ -5,7 +5,6 @@
 }
 body{font-family:Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif!important}
 .side{position:relative!important;overflow:hidden!important}
-.side:after{content:'SWEETLAB\A OPERATING SYSTEM';white-space:pre;position:absolute;left:23px;bottom:72px;color:#514942;font-size:7px;line-height:1.8;letter-spacing:2.2px;font-weight:700}
 .logo{letter-spacing:1.2px!important}
 .logo:first-letter{color:var(--sl-gold)!important}
 .top{position:relative!important}
