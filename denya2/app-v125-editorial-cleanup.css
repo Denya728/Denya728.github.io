@@ -1,0 +1,22 @@
+/* v125 — SWEETLAB inventory/purchases + profile visual cleanup */
+/* Remove legacy background lettering/decorative pseudo-elements */
+.content::before,.content::after,.page-head::before,.page-head::after,
+.v51-summary::before,.v51-summary::after,.v52-top::before,.v52-top::after,
+.v114::before,.v114::after,#denya114::before,#denya114::after{content:none!important;display:none!important}
+/* Inventory / purchases */
+.v51-summary,.v52-kpi,.v52-history,.v52-orders,.v52-supplier{font-family:Inter,ui-sans-serif,system-ui,sans-serif!important}
+.v52-top{margin:0 0 20px!important;padding-bottom:12px!important;border-bottom:1px solid var(--sl-line)!important}
+.v52-kpis{gap:12px!important}
+.v52-kpi{background:var(--sl-paper)!important;border:1px solid var(--sl-line)!important;border-radius:8px!important;box-shadow:none!important}
+.v52-kpi strong{font-family:Cormorant Garamond,Georgia,serif!important;font-size:28px!important}
+/* Profile: force legacy profile shells into current SWEETLAB editorial language */
+#denya114,.v112,.v110,.v109,.v108,.v107,.v106{font-family:Inter,ui-sans-serif,system-ui,sans-serif!important;color:var(--sl-ink)!important}
+#denya114 .card,.v112panel,.v110-main,.v109-main,.v108-main,.v107-card,.v106-card{background:var(--sl-paper)!important;border:1px solid var(--sl-line)!important;border-radius:9px!important;box-shadow:none!important}
+#denya114 .hero,.v112hero,.v110-hero,.v109-companyhero{background:var(--sl-ink)!important;color:#fff!important;border:0!important;border-radius:8px!important;box-shadow:none!important}
+#denya114 .hero p,#denya114 .hero .sub,.v112hero p,.v110-hero p,.v109-companyhero p{color:#d8d0c9!important}
+.v112tabs,.v110-tabs,.v109-tabs,.v107-tabs,.v106-tabs{background:#eee8df!important;border:1px solid var(--sl-line)!important;border-radius:7px!important}
+.v112tabs button.active,.v110-tabs button.active,.v109-tabs button.active,.v107-tabs button.active,.v106-tabs button.active{background:#201c19!important;color:#fff!important;box-shadow:none!important}
+.v112logo,.v110-logo,.v109-logo{background:#201c19!important;border-radius:8px!important;box-shadow:none!important}
+#denya114 .ey,.v112ey,.v110-eyebrow,.v109-eyebrow,.v107-eyebrow,.v106-eyebrow{color:#947b5f!important}
+@media(max-width:760px){.v52-kpis{grid-template-columns:1fr 1fr!important}}
+@media(max-width:520px){.v52-kpis{grid-template-columns:1fr!important}}
