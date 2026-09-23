@@ -68,7 +68,7 @@
     var p=profile();
 
     var block=document.createElement('div');
-    block.id='v134-logo-box';
+    block.id='v134-logo-card';
     block.innerHTML=
       '<div class="ey">Identidad visual</div>'+
       '<h3>Logotipo de la empresa</h3>'+
