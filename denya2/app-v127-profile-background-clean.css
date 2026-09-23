@@ -1,0 +1,29 @@
+/* DENYA SWEETLAB v127 — profile background hard cleanup */
+#content,
+#content.profile,
+#content[data-view="profile"],
+#content:has(#denya114){
+  background:#f7f3ed!important;
+  background-image:none!important;
+  box-shadow:none!important;
+}
+#content:has(#denya114) *::before,
+#content:has(#denya114) *::after{
+  content:none!important;
+  display:none!important;
+  background-image:none!important;
+}
+#content:has(#denya114) #denya114,
+#content:has(#denya114) #denya114 .panel,
+#content:has(#denya114) #denya114 .pbody,
+#content:has(#denya114) #denya114 .title{
+  background-image:none!important;
+}
+#content:has(#denya114) .v106-wrap,
+#content:has(#denya114) .v107,
+#content:has(#denya114) .v108,
+#content:has(#denya114) .v109,
+#content:has(#denya114) .v110,
+#content:has(#denya114) .v112{
+  background-image:none!important;
+}
