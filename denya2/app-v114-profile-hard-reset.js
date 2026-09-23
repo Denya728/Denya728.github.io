@@ -2,7 +2,7 @@
 (function(){
   var KEY='denya-profile-v114';
   var tabs=[
-    ['company','Empresa','✦'],['account','Plan y suscripción','◇'],['customization','Personalización','◈'],
+    ['company','Empresa','✦'],['account','Plan y suscripción','◇'],['security','Seguridad','⌘'],['customization','Personalización','◈'],
     ['payments','Pagos','₳'],['templates','Plantillas','▧'],['users','Usuarios','♙'],['support','Ayuda y soporte','?']
   ];
   function css(){
@@ -69,6 +69,28 @@
       '<label class="full">Descripción<textarea id="114desc" rows="4">'+esc(p.description||'')+'</textarea></label></div><div class="actions"><button class="primary" id="114save">Guardar cambios</button></div></section>'+
       '<aside class="card"><div class="ey">Identidad visual</div><h3>Logotipo de la empresa</h3><p>Sube el logo que quieres utilizar en cotizaciones y documentos.</p><div style="display:flex;align-items:center;gap:14px;padding:12px 0 16px"><div id="114logoPreview" class="logo" style="width:72px;height:72px;overflow:hidden;flex:none">✦</div><div style="flex:1"><input id="114logo" type="file" accept="image/png,image/jpeg,image/webp,image/svg+xml" style="width:100%"><small style="display:block;color:#8a7b72;margin-top:6px">PNG, JPG, WEBP o SVG</small></div></div><div class="person"><div class="avatar">✓</div><div class="personmain"><b>Información comercial</b><span>Nombre y datos básicos</span></div><span class="badge">Activo</span></div><div class="person"><div class="avatar">✓</div><div class="personmain"><b>Empresa activa</b><span>Los datos se separan por organización</span></div></div></aside></div>');
   }
+  function security(){
+    var email=''; try{email=(window.state&&state.user&&state.user.email)||'';}catch(e){}
+    var html=shell('security','Seguridad','Protege tu cuenta y administra tus métodos de acceso.',
+      '<div class="grid">'+
+      '<section class="card"><div class="ey">Acceso</div><h3>Cambiar contraseña</h3><p>Actualiza tu contraseña de SWEETLAB. Recomendamos una contraseña única y segura.</p><div class="fields">'+
+      '<label class="full">Contraseña actual<input id="secCurrent" type="password" autocomplete="current-password"></label>'+
+      '<label>Nueva contraseña<input id="secNew" type="password" autocomplete="new-password"></label>'+
+      '<label>Confirmar contraseña<input id="secConfirm" type="password" autocomplete="new-password"></label></div><div class="actions"><button class="primary" id="secPassword">Actualizar contraseña</button></div></section>'+
+      '<section class="card"><div class="ey">Autenticación</div><h3>Verificación en dos pasos</h3><p>Añade una capa extra de seguridad con Google Authenticator o cualquier app compatible con códigos TOTP.</p><div id="secMfaStatus" class="person"><div class="avatar">✓</div><div class="personmain"><b>Comprobando estado…</b><span>Autenticación de dos pasos</span></div></div><div class="actions"><button class="secondary" id="secMfa">Configurar autenticador</button></div><div id="secMfaSetup"></div></section>'+
+      '<section class="card"><div class="ey">Correo electrónico</div><h3>Actualizar correo</h3><p>Tu correo es parte de tu acceso a SWEETLAB. El nuevo correo deberá confirmarse.</p><div class="fields"><label class="full">Correo actual<input id="secEmailCurrent" value="'+esc(email)+'" readonly></label><label class="full">Nuevo correo<input id="secEmailNew" type="email" autocomplete="email" placeholder="nuevo@correo.com"></label></div><div class="actions"><button class="secondary" id="secEmail">Solicitar cambio</button></div></section>'+
+      '<section class="card"><div class="ey">Sesiones</div><h3>Sesiones de tu cuenta</h3><p>Si sospechas que dejaste tu cuenta abierta en otro dispositivo, puedes cerrar todas las sesiones.</p><div class="actions"><button class="secondary" id="secSessions">Cerrar otras sesiones</button></div></section>'+
+      '</div>');
+    setTimeout(async function(){
+      var sb=window.supabase;
+      if(!sb||!sb.auth||!sb.auth.mfa)return;
+      var f=await sb.auth.mfa.listFactors(); var factors=f.data&&f.data.totp||[];
+      var st=document.getElementById('secMfaStatus'),btn=document.getElementById('secMfa');
+      if(st){st.querySelector('b').textContent=factors.length?'Activo':'No configurado';st.querySelector('span').textContent=factors.length?'Authenticator TOTP activo':'Puedes proteger tu cuenta con un autenticador';}
+      if(btn)btn.textContent=factors.length?'Configurar otro autenticador':'Configurar autenticador';
+    },0);
+    return html;
+  }
   function account(){
     var s=window.state&&state.subscription||{},plan=s.plan||'Negocio';
     var prices={Emprende:'$249',Negocio:'$449',Pro:'$699'};
@@ -90,12 +112,55 @@
   function support(){return shell('support','Ayuda y soporte','Todo el soporte de SWEETLAB desde esta misma página.','<div class="help"><div class="helpitem"><b>¿Necesitas ayuda?</b><p>Consulta dudas sobre funciones y configuración.</p></div><div class="helpitem"><b>Problema técnico</b><p>Reporta errores, pantallas trabadas o conexiones.</p></div><div class="helpitem"><b>Sugerencia</b><p>Comparte ideas para mejorar SWEETLAB.</p></div></div><section class="card" style="margin-top:15px"><h3>Enviar solicitud</h3><p>Describe lo que necesitas y podremos darle seguimiento.</p><div class="fields"><label>Asunto<input id="114subject" placeholder="¿En qué podemos ayudarte?"></label><label>Tipo<select id="114cat"><option>Problema técnico</option><option>Pregunta / ayuda</option><option>Sugerencia</option><option>Facturación</option></select></label><label class="full">Mensaje<textarea id="114msg" rows="5"></textarea></label></div><div class="actions"><button class="primary" id="114ticket">Enviar solicitud</button></div></section>')}
   async function render(tab){
     css(); if(!root()) return;
-    var body=tab==='company'?await company():tab==='account'?account():tab==='customization'?customization():tab==='templates'?templates():tab==='users'?await users():tab==='support'?support():null;
+    var body=tab==='company'?await company():tab==='account'?account():tab==='security'?security():tab==='customization'?customization():tab==='templates'?templates():tab==='users'?await users():tab==='support'?support():null;
     if(tab==='payments' && window.DENYAPayments&&window.DENYAPayments.render){await window.DENYAPayments.render();return;}
     root().innerHTML=body; bind(tab);
   }
   function bind(tab){
     document.querySelectorAll('[data-114-tab]').forEach(function(b){b.onclick=function(e){e.preventDefault();e.stopPropagation();render(b.getAttribute('data-114-tab'));}});
+    if(tab==='security'){
+      var sb=window.supabase;
+      var pb=document.getElementById('secPassword');
+      if(pb)pb.onclick=async function(){
+        var cur=document.getElementById('secCurrent').value,nw=document.getElementById('secNew').value,cf=document.getElementById('secConfirm').value;
+        if(!nw||nw.length<8)return alert('La nueva contraseña debe tener al menos 8 caracteres.');
+        if(nw!==cf)return alert('Las contraseñas no coinciden.');
+        if(!sb||!sb.auth)return alert('La autenticación no está disponible.');
+        var r=await sb.auth.updateUser({password:nw,current_password:cur});
+        if(r.error)return alert(r.error.message);
+        alert('Contraseña actualizada correctamente.');
+        document.getElementById('secCurrent').value='';document.getElementById('secNew').value='';document.getElementById('secConfirm').value='';
+      };
+      var eb=document.getElementById('secEmail');
+      if(eb)eb.onclick=async function(){
+        var email=document.getElementById('secEmailNew').value.trim();
+        if(!email)return alert('Escribe el nuevo correo.');
+        var r=await sb.auth.updateUser({email:email});
+        if(r.error)return alert(r.error.message);
+        alert('Te enviamos un correo para confirmar el cambio.');
+        document.getElementById('secEmailNew').value='';
+      };
+      var ss=document.getElementById('secSessions');
+      if(ss)ss.onclick=async function(){
+        var r=await sb.auth.signOut({scope:'others'});
+        if(r.error)return alert(r.error.message);
+        alert('Las demás sesiones fueron cerradas.');
+      };
+      var mb=document.getElementById('secMfa');
+      if(mb)mb.onclick=async function(){
+        var setup=document.getElementById('secMfaSetup'); if(!sb||!sb.auth||!sb.auth.mfa)return;
+        var r=await sb.auth.mfa.enroll({factorType:'totp',friendlyName:'DENYA SWEETLAB'});
+        if(r.error)return alert(r.error.message);
+        var d=r.data; setup.innerHTML='<div class="card" style="margin-top:14px"><h4>Configura tu autenticador</h4><p class="muted">Escanea el código QR con Google Authenticator o una app compatible.</p><img src="'+esc(d.totp.qr_code)+'" style="width:180px;height:180px;background:#fff;padding:10px;border:1px solid #e3d9d1"><p class="muted" style="word-break:break-all">Clave manual: <b>'+esc(d.totp.secret)+'</b></p><input id="secMfaCode" inputmode="numeric" maxlength="6" placeholder="Código de 6 dígitos"><button class="primary" id="secMfaVerify">Activar verificación</button></div>';
+        document.getElementById('secMfaVerify').onclick=async function(){
+          var ch=await sb.auth.mfa.challenge({factorId:d.id}); if(ch.error)return alert(ch.error.message);
+          var vr=await sb.auth.mfa.verify({factorId:d.id,challengeId:ch.data.id,code:document.getElementById('secMfaCode').value.trim()});
+          if(vr.error)return alert(vr.error.message);
+          alert('Verificación en dos pasos activada.');
+          render('security');
+        };
+      };
+    }
     if(tab==='company'){
       var s=document.getElementById('114org'); if(s)s.onchange=async function(){localStorage.setItem('denya_active_org',this.value);if(window.DENYACloud&&window.DENYACloud.setActiveOrganization)await window.DENYACloud.setActiveOrganization(this.value);await render('company');};
       var a=document.getElementById('114add'); if(a)a.onclick=async function(){if(window.DENYAAccount&&window.DENYAAccount.createCompany){await window.DENYAAccount.createCompany();await render('company')}else alert('No está disponible el flujo para agregar empresa.');};
