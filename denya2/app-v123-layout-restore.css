@@ -1,0 +1,25 @@
+/* v123 — Restore original dashboard layout; sidebar stays visible */
+.app{grid-template-columns:250px minmax(0,1fr)!important;}
+.side{
+  position:sticky!important;
+  top:0!important;
+  height:100vh!important;
+  max-height:100vh!important;
+  overflow-y:auto!important;
+  overflow-x:hidden!important;
+  margin:0!important;
+  align-self:start!important;
+  z-index:100!important;
+}
+.main{
+  margin-left:0!important;
+  min-width:0!important;
+  width:auto!important;
+  min-height:100vh!important;
+}
+.content{min-width:0!important;}
+@media(max-width:900px){
+  .app{grid-template-columns:1fr!important;}
+  .side{position:fixed!important;}
+  .main{margin-left:0!important;width:auto!important;}
+}
