@@ -1,0 +1,35 @@
+/* v128 — Profile watermark/background definitive removal */
+html,body,.app,.main,.content{
+  background-image:none!important;
+}
+html::before,html::after,body::before,body::after,
+.app::before,.app::after,.main::before,.main::after,
+.content::before,.content::after{
+  content:none!important;
+  display:none!important;
+  background:none!important;
+}
+#content:has(#denya114){
+  position:relative!important;
+  isolation:isolate!important;
+  overflow:hidden!important;
+  background:#f7f3ed!important;
+  background-image:none!important;
+}
+#content:has(#denya114)::before,
+#content:has(#denya114)::after,
+#content:has(#denya114) .page-head::before,
+#content:has(#denya114) .page-head::after{
+  content:none!important;
+  display:none!important;
+  background:none!important;
+}
+#content:has(#denya114) .denya-watermark,
+#content:has(#denya114) .watermark,
+#content:has(#denya114) .background-text,
+#content:has(#denya114) .bg-text,
+#content:has(#denya114) [class*="watermark"],
+#content:has(#denya114) [class*="background-text"],
+#content:has(#denya114) [class*="bg-text"]{
+  display:none!important;
+}
