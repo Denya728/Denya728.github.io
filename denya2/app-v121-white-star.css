@@ -1,0 +1,8 @@
+/* v121 — SWEETLAB white star identity */
+.logo{color:#fff!important;display:flex!important;align-items:center;gap:10px;letter-spacing:.045em!important}
+.logo::first-letter{color:#fff!important}
+.logo-star{color:#fff!important}
+.side .logo{background:none!important;border:0!important;box-shadow:none!important}
+.side .logo::before,.side .logo::after{display:none!important;content:none!important}
+.sweetlab-star{color:#fff!important;font-size:1.05em;line-height:1;display:inline-block;transform:translateY(-1px)}
+@media(max-width:900px){.logo{gap:8px}}
