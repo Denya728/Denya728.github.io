@@ -112,21 +112,8 @@
       <label class="v76-field full"><span>Contraseña</span><input id="v76Password" type="password" minlength="8" required autocomplete="${loginMode?'current-password':'new-password'}"></label>
       ${loginMode?'':`<label class="v76-field full"><span>Confirmar contraseña</span><input id="v76Password2" type="password" minlength="8" required></label>`}
       <div class="v76-field full"><button class="v76-btn primary wide" id="v76AuthSubmit">${loginMode?'Iniciar sesión':'Continuar'}</button></div>
-      </form><div class="v76-actions"><span class="v76-muted">${loginMode?'¿Aún no tienes cuenta?':'¿Ya tienes cuenta?'}</span><button class="v76-link" onclick="DENYAGateway.${loginMode?'register':'login'}()">${loginMode?'Regístrate':'Inicia sesión'}</button></div>${loginMode?'<div style="margin-top:18px;text-align:center"><button type="button" class="v76-link" id="v76ResendConfirm">Reenviar correo de confirmación</button><div id="v76ResendMsg" class="v76-muted" style="margin-top:8px;font-size:12px"></div></div>':''</div></div></div>`;
+      </form><div class="v76-actions"><span class="v76-muted">${loginMode?'¿Aún no tienes cuenta?':'¿Ya tienes cuenta?'}</span><button class="v76-link" onclick="DENYAGateway.${loginMode?'register':'login'}()">${loginMode?'Regístrate':'Inicia sesión'}</button></div></div></div>`;
     document.querySelector('#v76AuthForm').onsubmit=loginMode?doLogin:doRegister;
-    if(loginMode){
-      const rb=document.querySelector('#v76ResendConfirm');
-      if(rb)rb.onclick=async function(){
-        const email=document.querySelector('#v76Email')?.value.trim();
-        const msg=document.querySelector('#v76ResendMsg');
-        if(!email){if(msg)msg.textContent='Escribe tu correo primero.';return}
-        rb.disabled=true;rb.textContent='Enviando…';
-        const {error}=await sb.auth.resend({type:'signup',email,options:{emailRedirectTo:'https://denya728.github.io/denya2/'}});
-        rb.disabled=false;rb.textContent='Reenviar correo de confirmación';
-        if(error){if(msg)msg.textContent=error.message||'No pudimos reenviar el correo.';return}
-        if(msg)msg.textContent='Listo. Revisa tu bandeja de entrada y Spam.';
-      };
-    }
   }
 
   async function doRegister(e){
@@ -147,16 +134,7 @@
   async function doLogin(e){
     e.preventDefault();setErr('');const btn=document.querySelector('#v76AuthSubmit'),email=document.querySelector('#v76Email').value.trim(),password=document.querySelector('#v76Password').value;
     busy(btn,true,'Entrando…');const {data,error}=await sb.auth.signInWithPassword({email,password});busy(btn,false);
-    if(error){
-      const msg=String(error.message||'');
-      if(/email not confirmed|email_not_confirmed|not confirmed/i.test(msg)){
-        setErr('Tu correo todavía no está confirmado. Revisa tu bandeja o usa “Reenviar correo de confirmación”.');
-      }else{
-        setErr(msg);
-      }
-      return;
-    }
-    session=data.session;await routeSession();
+    if(error){setErr(error.message);return}session=data.session;await routeSession();
   }
   async function logout(){
     await sb.auth.signOut();
