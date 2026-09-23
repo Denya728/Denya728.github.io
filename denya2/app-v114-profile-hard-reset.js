@@ -79,7 +79,7 @@
       '<label>Confirmar contraseña<input id="secConfirm" type="password" autocomplete="new-password"></label></div><div class="actions"><button class="primary" id="secPassword">Actualizar contraseña</button></div></section>'+
       '<section class="card"><div class="ey">Autenticación</div><h3>Verificación en dos pasos</h3><p>Añade una capa extra de seguridad con Google Authenticator o cualquier app compatible con códigos TOTP.</p><div id="secMfaStatus" class="person"><div class="avatar">✓</div><div class="personmain"><b>Comprobando estado…</b><span>Autenticación de dos pasos</span></div></div><div class="actions"><button class="secondary" id="secMfa">Configurar autenticador</button></div><div id="secMfaSetup"></div></section>'+
       '<section class="card"><div class="ey">Correo electrónico</div><h3>Actualizar correo</h3><p>Tu correo es parte de tu acceso a SWEETLAB. El nuevo correo deberá confirmarse.</p><div class="fields"><label class="full">Correo actual<input id="secEmailCurrent" value="'+esc(email)+'" readonly></label><label class="full">Nuevo correo<input id="secEmailNew" type="email" autocomplete="email" placeholder="nuevo@correo.com"></label></div><div class="actions"><button class="secondary" id="secEmail">Solicitar cambio</button></div></section>'+
-      '<section class="card"><div class="ey">Sesiones</div><h3>Sesiones de tu cuenta</h3><p>Si sospechas que dejaste tu cuenta abierta en otro dispositivo, puedes cerrar todas las sesiones.</p><div class="actions"><button class="secondary" id="secSessions">Cerrar otras sesiones</button></div></section>'+
+      '<section class="card"><div class="ey">Sesiones</div><h3>Sesiones de tu cuenta</h3><p>Si sospechas que dejaste tu cuenta abierta en otro dispositivo, puedes cerrar todas las sesiones.</p><div class="actions"><button class="secondary" id="secSessions">Cerrar otras sesiones</button></div></section>'+<section class="card" style="margin-top:15px"><div class="ey">Cuenta actual</div><h3>Cerrar sesión</h3><p>Cierra la sesión de DENYA SWEETLAB en este dispositivo.</p><div class="actions"><button class="primary" id="secLogout">Cerrar sesión</button></div></section>'+
       '</div>');
     setTimeout(async function(){
       var sb=window.supabase;
@@ -140,6 +140,7 @@
         alert('Te enviamos un correo para confirmar el cambio.');
         document.getElementById('secEmailNew').value='';
       };
+      var lo=document.getElementById('secLogout'); if(lo)lo.onclick=async function(){if(!sb||!sb.auth)return alert('La autenticación no está disponible.');lo.disabled=true;var r=await sb.auth.signOut();if(r.error){lo.disabled=false;return alert(r.error.message);}session=null;if(typeof window.DENYAGateway!=='undefined'&&window.DENYAGateway.logout){await window.DENYAGateway.logout();}else{location.reload();}};
       var ss=document.getElementById('secSessions');
       if(ss)ss.onclick=async function(){
         var r=await sb.auth.signOut({scope:'others'});
