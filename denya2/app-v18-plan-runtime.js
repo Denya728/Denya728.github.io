@@ -18,7 +18,7 @@
   function lockedView(v){
     const d=def(),needed=planLabelForModule(v);titleEl.textContent='Función no incluida';
     const label=v==='purchases'?'Compras':v==='inventory'?'Inventario y compras':v==='production'?'Producción':v==='users'?'Usuarios':'Esta función';
-    content.innerHTML=`<div class="card plan-gate-card"><div class="lock">🔒</div><h2>${esc(label)}</h2><p class="muted">Tu plan <b>${esc(currentPlan())}</b> no incluye este módulo.</p><p>Disponible desde el plan <b>${needed}</b>.</p><button class="primary" onclick="show('plan')">Ver planes</button></div>`;
+    content.innerHTML=`<div class="card plan-gate-card"><h2>${esc(label)}</h2><p class="muted">Tu plan <b>${esc(currentPlan())}</b> no incluye este módulo.</p><p>Disponible desde el plan <b>${needed}</b>.</p><button class="primary" onclick="show('plan')">Ver planes</button></div>`;
   }
   const baseShow=window.show;
   window.show=function(v){
