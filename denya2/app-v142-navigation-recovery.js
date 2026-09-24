@@ -3,6 +3,8 @@
   'use strict';
   function go(v){
     try{
+      if(v==='profile' && typeof window.renderProfile==='function'){ window.renderProfile('company'); return; }
+      if(typeof window.DENYABaseShow==='function'){ window.DENYABaseShow(v); return; }
       var map=window.DENYAVIEWS;
       if(!map||typeof map[v]!=='function') throw new Error('Vista no disponible: '+v);
       if(typeof setActive==='function') setActive(v);
@@ -15,11 +17,7 @@
     }
   }
   function boot(){
-    var home=window.DENYAVIEWS&&window.DENYAVIEWS.home;
-    if(typeof home==='function'){
-      if(typeof setActive==='function') setActive('home');
-      home();
-    }
+    if(typeof window.DENYABaseShow==='function') window.DENYABaseShow('home');
   }
   document.addEventListener('click',function(e){
     var b=e.target&&e.target.closest&&e.target.closest('.nav button[data-view]');
