@@ -173,4 +173,6 @@ const views={
  plan(){titleEl.textContent='Mi plan';content.innerHTML=pageHead('Mi plan','Planes demo para DENYA SaaS.')+`<div class="grid3">${[['Emprende',249],['Negocio',449],['Pro',699]].map(([n,p])=>`<div class="card"><h3>${n}</h3><div style="font-size:34px;font-weight:900">$${p}<small style="font-size:14px">/mes</small></div><p class="muted">${n==='Emprende'?'Cotizaciones, clientes y operación básica.':n==='Negocio'?'Recetas, producción, compras y rentabilidad.':'Varias marcas, usuarios e integraciones.'}</p><button class="${state.plan===n?'primary':'secondary'}" onclick="state.plan='${n}';save();show('plan')">${state.plan===n?'Plan actual':'Elegir'}</button></div>`).join('')}</div>`}
 };
 views.quotes=views.quotations;
-show('home');
+window.DENYAVIEWS=views;
+setActive('home');
+views.home();
