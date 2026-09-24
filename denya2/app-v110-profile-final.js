@@ -246,4 +246,6 @@
   views.profile=()=>render('company');
   const pb=document.querySelector('.nav button[data-view="profile"]');if(pb)pb.onclick=()=>render('company');
   document.querySelectorAll('.nav button[data-view="plan"],.nav button[data-view="subscription"]').forEach(x=>x.remove());
-  window.DENYAProfileV110={render}; })();
+  window.DENYAProfileV110={render};
+  render('company');
+})();
