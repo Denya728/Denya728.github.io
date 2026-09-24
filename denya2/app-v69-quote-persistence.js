@@ -23,7 +23,7 @@
     setVal('#qphone',existing?.phone||'');
     setVal('#qig',existing?.instagram||'');
     setVal('#qseller',existing?.seller||'Denilson Ochoa');
-    setVal('#qtime',existing?.deliveryTime||'');
+    setVal('#qtime',existing?.deliveryTime||existing?.time||'');
     setVal('#qnotes',existing?.notes||'');
     setVal('#qdiscount',existing?.discountPercent||0);
     setVal('#qcoupon',existing?.coupon||'');
