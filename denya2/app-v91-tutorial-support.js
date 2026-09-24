@@ -21,8 +21,8 @@
     const steps=[
       {id:'company',title:'Completa tu empresa',text:'Revisa nombre, logo y datos principales de tu negocio.',view:'profile',done:()=>!!state.profile?.businessName},
       {id:'product',title:'Crea tu primer producto',text:'Agrega algo que vendas: pastel, galletas, cacao, postre, etc.',view:'products',done:()=>state.products.length>0},
-      {id:'recipe',title:'Agrega una receta',text:'Define ingredientes, rendimiento y costo para calcular precios reales.',view:'recipes',done:()=>state.recipes.length>0},
-      ...(f.inventory===false?[]:[{id:'inventory',title:'Agrega un insumo al inventario',text:'Registra cómo lo compras, cómo lo usas y su stock mínimo.',view:'inventory',done:()=>state.inventory.length>0}]),
+      ...(f.inventory===false?[]:[{id:'inventory',title:'Agrega tus ingredientes e insumos',text:'Primero registra los artículos que realmente usas y sus costos. Así las recetas podrán calcularse automáticamente.',view:'inventory',done:()=>state.inventory.length>0}]),
+      {id:'recipe',title:'Crea tu primera receta',text:'Ahora usa los ingredientes del inventario. DENYA tomará sus costos automáticamente.',view:'recipes',done:()=>state.recipes.length>0},
       {id:'quote',title:'Crea tu primera cotización',text:'Selecciona cliente, producto, presentación, extras y precio.',view:'quotations',done:()=>state.quotes.length>0},
       {id:'accept',title:'Acepta la cotización',text:'Cuando el cliente confirme, pásala a aceptada y registra el anticipo.',view:'quotations',done:()=>state.quotes.some(q=>['Aceptada','Aceptada y anticipo pagado','Entregada y pagada'].includes(q.status))},
       ...(f.production===false?[]:[{id:'production',title:'Pásala a producción',text:'Convierte el pedido aceptado en trabajo de producción y revisa materiales.',view:'orders',done:()=>state.orders.some(o=>['En producción','Listo','Entregado y pagado'].includes(o.status))}]),
