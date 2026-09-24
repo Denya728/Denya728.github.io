@@ -1,23 +1,15 @@
-/* DENYA v142 — navigation recovery */
+/* DENYA v143 — navigation recovery: use core show only */
 (function(){
   'use strict';
   function go(v){
     try{
       if(v==='profile' && typeof window.renderProfile==='function'){ window.renderProfile('company'); return; }
       if(typeof window.DENYABaseShow==='function'){ window.DENYABaseShow(v); return; }
-      var map=window.DENYAVIEWS;
-      if(!map||typeof map[v]!=='function') throw new Error('Vista no disponible: '+v);
-      if(typeof setActive==='function') setActive(v);
-      map[v]();
-      window.scrollTo({top:0,behavior:'smooth'});
+      throw new Error('Navegación principal no disponible');
     }catch(e){
       console.error('DENYA navigation:',v,e);
-      var c=document.getElementById('content');
-      if(c)c.innerHTML='<div class="section"><h2>No se pudo cargar esta sección</h2><p class="muted">Error de navegación: '+String(e&&e.message||e).replace(/[<>&"]/g,'')+'</p><button class="primary" onclick="location.reload()">Recargar</button></div>';
+      if(typeof window.show==='function') window.show('home');
     }
-  }
-  function boot(){
-    if(typeof window.DENYABaseShow==='function') window.DENYABaseShow('home');
   }
   document.addEventListener('click',function(e){
     var b=e.target&&e.target.closest&&e.target.closest('.nav button[data-view]');
@@ -28,6 +20,8 @@
     e.stopImmediatePropagation();
     go(v);
   },true);
+  function boot(){
+    if(typeof window.DENYABaseShow==='function') window.DENYABaseShow('home');
+  }
   if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',boot); else setTimeout(boot,0);
-  window.DENYAV142={go:go};
 })();
