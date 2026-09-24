@@ -1,0 +1,14 @@
+/* DENYA SWEETLAB · UX polish */
+.recipe-actions{display:flex;gap:7px;flex-wrap:wrap}
+.recipes-page .table-wrap{border:1px solid #e8ddd4;background:#fff;border-radius:18px;overflow:hidden}
+.recipes-page .table thead th{background:#f7f2ed;color:#77675c;text-transform:uppercase;letter-spacing:1.1px;font-size:10px}
+.recipes-page .table tbody tr{transition:background .15s ease}
+.recipes-page .table tbody tr:hover{background:#fcf9f6}
+.recipe-cost-card{margin-top:14px;padding:18px 20px;border:1px solid #e6d8ca;background:linear-gradient(135deg,#fff,#faf5ef);border-radius:16px;display:flex;justify-content:space-between;align-items:center}
+.recipe-cost-card strong{font-family:Georgia,serif;font-size:30px}
+.comp-row{display:grid!important;grid-template-columns:150px minmax(220px,1.5fr) 110px 90px 120px 42px!important;gap:8px!important;align-items:center!important;padding:10px!important;border:1px solid #eee3db!important;border-radius:12px!important;background:#fff!important;margin:8px 0!important}
+.comp-row input[readonly]{background:#f7f2ed!important;color:#6f6259!important;font-weight:700;cursor:not-allowed}
+@media(max-width:900px){.comp-row{grid-template-columns:1fr 1fr!important}.recipe-cost-card{align-items:flex-start;gap:10px;flex-direction:column}}
+.v91-guide-panel{max-height:90vh!important;overflow-y:auto!important}
+.v91-guide-step{transition:transform .15s ease,box-shadow .15s ease}.v91-guide-step:hover{transform:translateY(-1px)}
+.v91-guide-step.done{opacity:.86}
