@@ -106,7 +106,7 @@
   };
   window.goTutorialStepV91=function(id,view){
     closeGuideV91();
-    if(view==='profile'&&typeof renderProfile==='function')renderProfile('company');else show(view);
+    if(view==='profile'&&typeof renderProfile==='function')renderProfile('company');else if(typeof show==='function')show(view);
     setTimeout(()=>{
       if(id==='product'&&typeof openProduct==='function')openProduct();
       else if(id==='recipe'&&typeof openRecipe==='function')openRecipe();
