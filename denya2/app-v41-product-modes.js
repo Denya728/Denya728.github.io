@@ -12,7 +12,7 @@
     {value:'piece',label:'Producto por pieza (cupcakes, galletas, brownies...)'}
   ];
   function reqsOf(m){return Array.isArray(m?.requirements)?m.requirements:(m?.components||[]).map(c=>({kind:c.kind,qty:Number(c.qty)||0}))}
-  function recipesFor(kind){const cats=kindMeta[kind]?.cats||[];return (state.recipes||[]).filter(r=>cats.includes(r.category))}
+  function recipesFor(kind){const cats=kindMeta[kind]?.cats||[];const active=(state.recipes||[]).filter(r=>r&&r.active!==false);const specific=active.filter(r=>cats.includes(r.category));return specific.length?specific:active}
   function ptype(p){
     if(p?.productType)return p.productType;
     const n=String(p?.name||'').toLowerCase();
@@ -70,26 +70,27 @@
   window.openMeasure=function(id=null,productId=''){
     const m=id?getMeasure(id):{productId:productId||state.products.find(p=>p.active)?.id||'',name:'',minPeople:'',maxPeople:'',yieldPieces:12,requirements:[]};
     let requirements=clone(reqsOf(m));if(!requirements.length)requirements=[{kind:'base',qty:1}];
-    const product=getProduct(m.productId),isPiece=ptype(product)==='piece';
+    const product=getProduct(m.productId),saleUnit=String(m.saleUnit||'').toLowerCase(),isPiece=quoteMode(product,m)==='piece';
     const w=modal(id?'Editar presentación':'Nueva presentación',`
-      <div class="helper"><b>Presentación:</b> define tamaño/formato y cuánto consume. En productos por pieza también define cuántas piezas rinde una preparación.</div>
+      <div class="helper"><b>Presentación:</b> aquí decides cómo se vende el producto, qué receta consume y cuánto rinde. No necesitas configurar nada técnico.</div>
       <div class="form2">
         ${selectField('Producto','mproduct',state.products.filter(p=>p.active).map(p=>({value:p.id,label:p.name})),m.productId)}
-        ${field('Nombre de la presentación','mname',m.name||'','text','placeholder="Ej. 20 cm, Cupcake estándar, Caja de 12"')}
-        <div id="peopleFields" style="display:${isPiece?'none':'contents'}">${field('Personas mínimas (opcional)','mmin',m.minPeople||'','number')}${field('Personas máximas (opcional)','mmax',m.maxPeople||'','number')}</div>
-        <div id="pieceField" style="display:${isPiece?'block':'none'}">${field('Piezas que rinde esta preparación','myield',m.yieldPieces||12,'number','step="1" min="1"')}</div>
+        ${field('Nombre de la presentación','mname',m.name||'','text','placeholder="Ej. 20 cm, Individual, Caja de 12"')}
+        ${selectField('¿Cómo se vende?','msaleunit',[{value:'people',label:'Por personas / tamaño'},{value:'pz',label:'Por pieza'},{value:'unit',label:'Por unidad'},{value:'pack',label:'Por paquete'}],m.saleUnit||((isPiece)?'pz':'people'))}
+        <div id="peopleFields" style="display:${(saleUnit||(!m.saleUnit&&isPiece?'pz':'people'))==='people'?'contents':'none'}">${field('Personas mínimas (opcional)','mmin',m.minPeople||'','number')}${field('Personas máximas (opcional)','mmax',m.maxPeople||'','number')}</div>
+        <div id="pieceField" style="display:${(saleUnit||(!m.saleUnit&&isPiece?'pz':'people'))==='people'?'none':'block'}">${field('¿Cuántas piezas produce la receta?','myield',m.yieldPieces||12,'number','step="1" min="1"')}</div>
       </div>
       <div class="section"><div class="page-head" style="margin:0"><div><h3>Consumo de esta presentación</h3><div class="hint">Indica cuántas recetas utiliza este tamaño o lote.</div></div><button class="secondary" id="addReq">+ Agregar consumo</button></div><div id="reqBox"></div></div>
     `,wrap=>{
       sync();const pr=getProduct(wrap.querySelector('#mproduct').value),piece=ptype(pr)==='piece';
-      const data={id:id||'m'+Date.now(),productId:wrap.querySelector('#mproduct').value,name:wrap.querySelector('#mname').value.trim(),minPeople:piece?'':(Number(wrap.querySelector('#mmin')?.value)||''),maxPeople:piece?'':(Number(wrap.querySelector('#mmax')?.value)||''),yieldPieces:piece?(Number(wrap.querySelector('#myield')?.value)||1):'',requirements:requirements.filter(r=>r.kind&&Number(r.qty)>0),components:[],materials:[]};
+      const saleUnit=wrap.querySelector('#msaleunit').value, data={id:id||'m'+Date.now(),productId:wrap.querySelector('#mproduct').value,name:wrap.querySelector('#mname').value.trim(),saleUnit,minPeople:saleUnit==='people'?(Number(wrap.querySelector('#mmin')?.value)||''):'',maxPeople:saleUnit==='people'?(Number(wrap.querySelector('#mmax')?.value)||''):'',yieldPieces:saleUnit!=='people'?(Number(wrap.querySelector('#myield')?.value)||1):'',requirements:requirements.filter(r=>r.kind&&Number(r.qty)>0),components:[],materials:[]};
       if(!data.name){toast('Escribe el nombre de la presentación');return false}if(!data.requirements.length){toast('Agrega al menos un consumo');return false}
       if(id)Object.assign(m,data);else state.measures.push(data);save();show('measures');toast('Presentación guardada');
     });
     function sync(){w.querySelectorAll('[data-req-row]').forEach(row=>{const i=Number(row.dataset.reqRow);requirements[i]={kind:row.querySelector('[data-rkind]').value,qty:Number(row.querySelector('[data-rqty]').value)||0}})}
     function draw(){w.querySelector('#reqBox').innerHTML=requirements.map((r,i)=>`<div class="extra-row" data-req-row="${i}" style="display:grid;grid-template-columns:1.2fr 1fr 42px;gap:8px;margin:9px 0"><select data-rkind>${Object.entries(kindMeta).map(([v,x])=>`<option value="${v}" ${v===r.kind?'selected':''}>${x.label}</option>`).join('')}</select><label class="field" style="margin:0">Cantidad de receta<input data-rqty type="number" step="0.05" min="0" value="${r.qty||0}"></label><button class="icon" data-rrm="${i}">×</button></div>`).join('');w.querySelectorAll('[data-rkind],[data-rqty]').forEach(el=>el.oninput=sync);w.querySelectorAll('[data-rrm]').forEach(b=>b.onclick=()=>{requirements.splice(Number(b.dataset.rrm),1);draw()})}
     w.querySelector('#addReq').onclick=()=>{sync();requirements.push({kind:'filling',qty:.5});draw()};
-    const psel=w.querySelector('#mproduct');psel.onchange=()=>{const piece=ptype(getProduct(psel.value))==='piece';w.querySelector('#peopleFields').style.display=piece?'none':'contents';w.querySelector('#pieceField').style.display=piece?'block':'none'};draw();
+    const psel=w.querySelector('#mproduct'),sale=w.querySelector('#msaleunit');const syncSale=()=>{const byPeople=sale.value==='people';w.querySelector('#peopleFields').style.display=byPeople?'contents':'none';w.querySelector('#pieceField').style.display=byPeople?'none':'block'};sale.onchange=syncSale;psel.onchange=()=>{if(!m.saleUnit){sale.value=ptype(getProduct(psel.value))==='piece'?'pz':'people'}syncSale()};syncSale();draw();
   };
 
   const guardOrderForQuote=qid=>(state.orders||[]).find(o=>o.quoteId===qid);
