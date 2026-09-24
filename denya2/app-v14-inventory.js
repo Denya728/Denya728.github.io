@@ -37,7 +37,7 @@
         ${selectField('Unidad de compra','ipurchaseunit',unitOptions.map(x=>({value:x,label:x})),item.purchaseUnit||'bolsa')}
         ${field('Contenido del producto','icontent',item.purchaseContent||1,'number','step="0.01" min="0.0001"')}
         ${selectField('Unidad de uso','iuseunit',unitOptions.map(x=>({value:x,label:x})),item.useUnit||item.unit||'pz')}
-        ${field('Costo de compra (MXN)','ipurchasecost',item.purchaseCost||0,'number','step="0.01" min="0"')}
+        ${field('Costo del producto (MXN)','ipurchasecost',item.purchaseCost||0,'number','step="0.01" min="0"')}
         ${field('Stock actual','istock',item.stock||0,'number','step="0.01"')}
         ${field('Stock mínimo','imin',item.stockMin||0,'number','step="0.01" min="0"')}
         ${field('Proveedor principal','isupplier',item.supplier||'')}
