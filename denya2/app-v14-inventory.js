@@ -18,6 +18,17 @@
       i.cost=(Number(i.purchaseCost)||0)/(Number(i.purchaseContent)||1);
       i.unit=i.useUnit;
     });
+    // Mantener sincronizados los costos de todas las recetas con el costo vigente del inventario.
+    state.recipes.forEach(r=>(r.components||[]).forEach(c=>{
+      if(c.type==='ingredient'){
+        const item=state.inventory.find(i=>i.id===c.refId);
+        if(item){
+          c.unitCost=Number(item.cost)||0;
+          c.unit=item.useUnit||item.unit||c.unit;
+          c.name=item.name||c.name;
+        }
+      }
+    }));
     save();
   }
   normalizeInventory();
