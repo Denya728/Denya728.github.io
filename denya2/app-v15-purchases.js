@@ -13,7 +13,8 @@
     const needs=new Map();
     (state.orders||[]).filter(o=>!['Entregado y pagado','Cancelado'].includes(o.status)).forEach(o=>orderMaterials(o).forEach(x=>{const c=needs.get(x.inventoryId)||{inventoryId:x.inventoryId,name:x.name,unit:x.unit,need:0,cost:x.cost};c.need+=x.qty;needs.set(x.inventoryId,c)}));
     const openCommit=new Map();
-    state.purchaseOrders.filter(p=>!['Recibida','Cancelada'].includes(p.status)).forEach(p=>(p.lines||[]).forEach(l=>openCommit.set(l.inventoryId,(openCommit.get(l.inventoryId)||0)+(Number(l.qty)||0))));\n    (state.inventory||[]).filter(i=>i&&i.active!==false&&Number(i.stockMin)>0&&Number(i.stock)<Number(i.stockMin)).forEach(i=>{if(!needs.has(i.id))needs.set(i.id,{inventoryId:i.id,name:i.name,unit:i.useUnit||i.unit,need:0,cost:Number(i.cost)||0})});
+    state.purchaseOrders.filter(p=>!['Recibida','Cancelada'].includes(p.status)).forEach(p=>(p.lines||[]).forEach(l=>openCommit.set(l.inventoryId,(openCommit.get(l.inventoryId)||0)+(Number(l.qty)||0))));
+    (state.inventory||[]).filter(i=>i&&i.active!==false&&Number(i.stockMin)>0&&Number(i.stock)<Number(i.stockMin)).forEach(i=>{if(!needs.has(i.id))needs.set(i.id,{inventoryId:i.id,name:i.name,unit:i.useUnit||i.unit,need:0,cost:Number(i.cost)||0})});
     return [...needs.values()].map(x=>{const inv=state.inventory.find(i=>i.id===x.inventoryId),stock=Number(inv?.stock)||0,ordered=openCommit.get(x.inventoryId)||0,target=Math.max(x.need,Number(inv?.stockMin)||0),raw=Math.max(0,target-stock),shortage=Math.max(0,raw-ordered);return {...x,stock,ordered,target,shortage,buyCost:shortage*(Number(x.cost)||0),supplier:inv?.supplier||''}}).filter(x=>x.shortage>0)
   }
 
